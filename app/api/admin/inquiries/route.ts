@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     // Build query - 예약 관련 필드 추가
     let query = supabaseAdmin
       .from('inquiries')
-      .select('id, phone_number, install_location, install_count, marketer_code, status, submitted_at, created_at, inquiry_type, reservation_date, reservation_time_slot, outdoor_count, indoor_count, address, address_detail, zonecode, documents, documents_submitted, referrer_url, landing_template, landing_subtype')
+      .select('id, phone_number, install_location, install_count, marketer_code, status, submitted_at, created_at, inquiry_type, reservation_date, reservation_time_slot, outdoor_count, indoor_count, address, address_detail, zonecode, documents, documents_submitted')
       .order('submitted_at', { ascending: false })
 
     if (status) {
@@ -65,10 +65,6 @@ export async function GET(request: NextRequest) {
       zonecode: inquiry.zonecode,
       documents: inquiry.documents,
       documentsSubmitted: inquiry.documents_submitted,
-      // 유입 경로 관련 필드
-      referrerUrl: inquiry.referrer_url,
-      landingTemplate: inquiry.landing_template,
-      landingSubtype: inquiry.landing_subtype,
     }))
 
     return NextResponse.json({ inquiries: inquiriesWithMarketer })

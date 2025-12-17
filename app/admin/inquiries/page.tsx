@@ -17,8 +17,6 @@ import {
   Clock,
   Eye,
   Download,
-  Link2,
-  Layout,
 } from 'lucide-react'
 
 interface Inquiry {
@@ -39,10 +37,6 @@ interface Inquiry {
   addressDetail: string | null
   documents: Record<string, string> | null
   documentsSubmitted: boolean
-  // 유입 경로 관련 필드
-  referrerUrl: string | null
-  landingTemplate: string | null
-  landingSubtype: string | null
 }
 
 const STATUS_OPTIONS = [
@@ -296,7 +290,6 @@ export default function InquiriesPage() {
                 <th className="text-left py-4 px-6 text-small text-text-secondary font-medium">예약일</th>
                 <th className="text-left py-4 px-6 text-small text-text-secondary font-medium">설치대수</th>
                 <th className="text-left py-4 px-6 text-small text-text-secondary font-medium">서류</th>
-                <th className="text-left py-4 px-6 text-small text-text-secondary font-medium">유입 경로</th>
                 <th className="text-left py-4 px-6 text-small text-text-secondary font-medium">담당자</th>
                 <th className="text-left py-4 px-6 text-small text-text-secondary font-medium">상태</th>
                 <th className="text-left py-4 px-6 text-small text-text-secondary font-medium">신청일</th>
@@ -358,24 +351,6 @@ export default function InquiriesPage() {
                         <FileText className="w-3.5 h-3.5" />
                         {Object.keys(inquiry.documents).length}건 확인
                       </button>
-                    ) : (
-                      <span className="text-text-tertiary text-small">-</span>
-                    )}
-                  </td>
-                  <td className="py-4 px-6">
-                    {inquiry.landingTemplate || inquiry.referrerUrl ? (
-                      <div className="max-w-[150px]">
-                        {inquiry.landingTemplate && (
-                          <span className="text-small text-action-primary">
-                            {inquiry.landingTemplate}{inquiry.landingSubtype && `/${inquiry.landingSubtype}`}
-                          </span>
-                        )}
-                        {inquiry.referrerUrl && (
-                          <p className="text-small text-text-tertiary truncate" title={inquiry.referrerUrl}>
-                            {inquiry.referrerUrl}
-                          </p>
-                        )}
-                      </div>
                     ) : (
                       <span className="text-text-tertiary text-small">-</span>
                     )}
@@ -494,29 +469,6 @@ export default function InquiriesPage() {
                       </div>
                     )}
                   </div>
-
-                  {/* 유입 경로 정보 */}
-                  {(inquiry.referrerUrl || inquiry.landingTemplate) && (
-                    <div className="pt-2 border-t border-border mt-2">
-                      <span className="text-small text-text-tertiary block mb-2">유입 경로</span>
-                      <div className="space-y-2 text-small">
-                        {inquiry.referrerUrl && (
-                          <div className="flex items-start gap-2">
-                            <Link2 className="w-3.5 h-3.5 text-text-tertiary mt-0.5" />
-                            <span className="text-text-primary break-all">{inquiry.referrerUrl}</span>
-                          </div>
-                        )}
-                        {(inquiry.landingTemplate || inquiry.landingSubtype) && (
-                          <div className="flex items-center gap-2">
-                            <Layout className="w-3.5 h-3.5 text-text-tertiary" />
-                            <span className="text-text-secondary">
-                              {inquiry.landingTemplate || '-'}{inquiry.landingSubtype && ` / ${inquiry.landingSubtype}`}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
 
                   {/* 서류 목록 - 토글 미리보기 */}
                   {inquiry.documentsSubmitted && inquiry.documents && (
