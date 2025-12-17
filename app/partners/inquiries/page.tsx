@@ -20,6 +20,8 @@ import {
   ChevronRight,
   Calendar,
   FileText,
+  Link2,
+  Layout,
 } from 'lucide-react'
 
 interface Inquiry {
@@ -42,6 +44,10 @@ interface Inquiry {
   zonecode?: string
   documents?: Record<string, string> | null  // DB에서는 객체로 저장됨 { idCard: url, ... }
   documents_submitted?: boolean
+  // 유입 경로 관련 필드
+  referrer_url?: string
+  landing_template?: string
+  landing_subtype?: string
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; textColor: string }> = {
@@ -341,6 +347,7 @@ function InquiriesContent() {
                   <th className="text-left py-4 px-6 text-caption text-text-secondary font-medium">수량</th>
                   <th className="text-left py-4 px-6 text-caption text-text-secondary font-medium">예약일</th>
                   <th className="text-left py-4 px-6 text-caption text-text-secondary font-medium">서류</th>
+                  <th className="text-left py-4 px-6 text-caption text-text-secondary font-medium">유입 경로</th>
                   <th className="text-left py-4 px-6 text-caption text-text-secondary font-medium">담당자</th>
                   <th className="text-left py-4 px-6 text-caption text-text-secondary font-medium">상태</th>
                   <th className="text-left py-4 px-6 text-caption text-text-secondary font-medium">접수일</th>
@@ -401,6 +408,25 @@ function InquiriesContent() {
                           <FileText className="w-3.5 h-3.5" />
                           {getDocumentSummary(inquiry.documents)}
                         </span>
+                      ) : (
+                        <span className="text-text-tertiary text-caption">-</span>
+                      )}
+                    </td>
+                    {/* 유입 경로 */}
+                    <td className="py-4 px-6">
+                      {inquiry.landing_template || inquiry.referrer_url ? (
+                        <div className="max-w-[150px]">
+                          {inquiry.landing_template && (
+                            <span className="text-caption text-action-primary">
+                              {inquiry.landing_template}{inquiry.landing_subtype && `/${inquiry.landing_subtype}`}
+                            </span>
+                          )}
+                          {inquiry.referrer_url && (
+                            <p className="text-caption text-text-tertiary truncate" title={inquiry.referrer_url}>
+                              {inquiry.referrer_url}
+                            </p>
+                          )}
+                        </div>
                       ) : (
                         <span className="text-text-tertiary text-caption">-</span>
                       )}
@@ -728,6 +754,24 @@ function InquiriesContent() {
                             <FileText className="w-4 h-4 text-text-tertiary" />
                             <span className="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-caption">
                               {getDocumentSummary(inquiry.documents)}
+                            </span>
+                          </div>
+                        )}
+                        {/* 유입 경로 */}
+                        {inquiry.referrer_url && (
+                          <div className="flex items-start gap-3">
+                            <Link2 className="w-4 h-4 text-text-tertiary mt-0.5" />
+                            <span className="text-body text-text-primary break-all">
+                              {inquiry.referrer_url}
+                            </span>
+                          </div>
+                        )}
+                        {/* 랜딩 정보 */}
+                        {(inquiry.landing_template || inquiry.landing_subtype) && (
+                          <div className="flex items-center gap-3">
+                            <Layout className="w-4 h-4 text-text-tertiary" />
+                            <span className="text-body text-text-secondary">
+                              {inquiry.landing_template || '-'}{inquiry.landing_subtype && ` / ${inquiry.landing_subtype}`}
                             </span>
                           </div>
                         )}
