@@ -18,7 +18,7 @@ export interface ExtendedInquiryRequest {
   privacyConsent: boolean;
   marketerCode?: string | null;
   // 새 필드
-  inquiryType?: 'consultation' | 'installation';
+  inquiryType?: 'consultation' | 'installation' | 'as';
   reservationDate?: string;
   reservationTimeSlot?: 'morning' | 'afternoon';
 }

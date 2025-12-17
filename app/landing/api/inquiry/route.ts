@@ -58,9 +58,9 @@ export async function POST(request: NextRequest) {
         insertData.documents_submitted = data.documentsSubmitted || false;
         insertData.status = data.documentsSubmitted ? 'documents_submitted' : 'new';
       } else {
-        // 상담 신청은 기본값 설정
-        insertData.install_location = '상담 요청';
-        insertData.install_count = 0;
+        // 상담 신청 - 폼에서 입력한 설치 희망 지역 사용
+        insertData.install_location = data.installLocation || data.address || null;
+        insertData.install_count = data.installCount || 0;
         insertData.status = 'new';
       }
 

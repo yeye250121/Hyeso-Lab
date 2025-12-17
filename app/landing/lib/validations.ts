@@ -48,7 +48,7 @@ export const inquiryRequestSchema = inquiryFormSchema.extend({
 // 새로운 통합 요청 스키마 (상담 신청 + 설치 예약)
 export const reservationRequestSchema = z.object({
   // 공통 필드
-  inquiryType: z.enum(['consultation', 'installation']),
+  inquiryType: z.enum(['consultation', 'installation', 'as']),
   phoneNumber: z
     .string()
     .min(1, '전화번호를 입력해주세요')
@@ -66,6 +66,10 @@ export const reservationRequestSchema = z.object({
   // 랜딩페이지 추적 필드
   landingTemplate: z.string().optional().default('kt-cctv'),
   landingSubtype: z.string().optional().default('1'),
+
+  // 상담 신청 필드 (consultation 타입)
+  installLocation: z.string().optional(),
+  installCount: z.number().int().min(0).max(100).optional(),
 
   // 설치 예약 전용 필드 (installation 타입일 때만 필수)
   reservationDate: z.string().optional(), // YYYY-MM-DD
