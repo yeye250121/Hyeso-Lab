@@ -9,7 +9,7 @@ const notoSansKR = Noto_Sans_KR({
 });
 
 export const metadata: Metadata = {
-  title: "Blooom",
+  title: "Piooom",
   description: "집에서 딸깍, 블룸",
 };
 

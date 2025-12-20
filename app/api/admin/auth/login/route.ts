@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'blooom-secret-key-2024'
+const JWT_SECRET = process.env.JWT_SECRET || 'piooom-secret-key-2024'
 
 export async function POST(request: NextRequest) {
   try {

@@ -23,7 +23,7 @@ export interface PartnersBenefitsProps {
 
 const defaultBenefits: BenefitCardItem[] = [
   {
-    imageSrc: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_idea_icon_v02.png',
+    imageSrc: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_idea_icon_v02.png',
     imageAlt: '아이디어 아이콘',
     bgColor: '#e8f3ff',
     title: (
@@ -39,7 +39,7 @@ const defaultBenefits: BenefitCardItem[] = [
     ),
   },
   {
-    imageSrc: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_money_icon_v01.png',
+    imageSrc: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_money_icon_v01.png',
     imageAlt: '수수료 아이콘',
     bgColor: '#f0faf6',
     title: (

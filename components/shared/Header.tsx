@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 
-const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo';
+const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,7 +16,7 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2">
-              <Image src={LOGO_URL} alt="Blooom" width={120} height={32} className="h-8 w-auto" />
+              <Image src={LOGO_URL} alt="Piooom" width={120} height={32} className="h-8 w-auto" />
             </Link>
             <span className="ml-4 text-sm text-gray-500">N-Level 마케팅 플랫폼</span>
           </div>

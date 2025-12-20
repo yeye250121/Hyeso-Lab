@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'blooom_jwt_secret_key_2025_production_change_this';
+const JWT_SECRET = process.env.JWT_SECRET || 'piooom_jwt_secret_key_2025_production_change_this';
 
 // S00001 사용자로 토큰 생성
 const token = jwt.sign(

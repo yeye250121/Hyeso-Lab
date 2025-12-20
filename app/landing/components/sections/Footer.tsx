@@ -47,7 +47,7 @@ const defaultLinkSections: FooterLinkSection[] = [
 ];
 
 export default function Footer({
-  logoSrc = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo',
+  logoSrc = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo',
   companyInfo = defaultCompanyInfo,
   linkSections = defaultLinkSections,
   showCopyright = true,
@@ -60,17 +60,12 @@ export default function Footer({
           <div className="space-y-4">
             <Image
               src={logoSrc}
-              alt="Blooom"
+              alt="Piooom"
               width={80}
               height={24}
               className="h-6 w-auto brightness-0 invert"
             />
-            <div className="text-[#8b95a1] text-sm space-y-1">
-              <p>{companyInfo.name}</p>
-              <p>사업자등록번호: {companyInfo.businessNumber}</p>
-              <p>{companyInfo.address}</p>
-              <p>고객센터: {companyInfo.phone}</p>
-            </div>
+            {/* 사업자 정보 삭제됨 */}
           </div>
 
           {/* Links */}
@@ -95,7 +90,7 @@ export default function Footer({
         {showCopyright && (
           <div className="mt-12 pt-8 border-t border-[#4e5968]">
             <p className="text-[#6b7684] text-sm text-center">
-              © {new Date().getFullYear()} Blooom. All rights reserved.
+              © {new Date().getFullYear()} Piooom. All rights reserved.
             </p>
           </div>
         )}

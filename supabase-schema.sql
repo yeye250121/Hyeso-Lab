@@ -1,4 +1,4 @@
--- Blooom 프로젝트 Supabase 데이터베이스 스키마
+-- Piooom 프로젝트 Supabase 데이터베이스 스키마
 
 -- 1. 문의(inquiries) 테이블
 CREATE TABLE IF NOT EXISTS inquiries (

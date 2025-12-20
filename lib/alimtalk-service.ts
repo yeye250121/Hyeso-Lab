@@ -168,7 +168,7 @@ export async function sendCustomerInquiryReceivedAlimtalk(
 /**
  * 고객 예약 안내 알림톡 발송
  * - 문의한 고객에게 발송
- * - "바로 예약하기" 버튼 포함 (https://blooom.kr/book)
+ * - "바로 예약하기" 버튼 포함 (https://piooom.kr/book)
  */
 export async function sendCustomerReservationGuideAlimtalk(
   phoneNumber: string

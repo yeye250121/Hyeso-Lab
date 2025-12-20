@@ -14,7 +14,7 @@ import { useAuthStore } from '@/lib/partners/store'
 import { useRouter } from 'next/navigation'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 
-const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo'
+const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo'
 
 const menuItems = [
   { href: '/partners/home', label: '홈', icon: Home },
@@ -42,7 +42,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
       {/* 로고 */}
       <div className="p-6 border-b border-border">
         <Link href="/partners/home">
-          <Image src={LOGO_URL} alt="Blooom" width={100} height={28} className="h-7 w-auto dark:brightness-0 dark:invert" />
+          <Image src={LOGO_URL} alt="Piooom" width={100} height={28} className="h-7 w-auto dark:brightness-0 dark:invert" />
         </Link>
         <p className="text-small text-text-secondary mt-2">
           {user?.nickname || '파트너'}

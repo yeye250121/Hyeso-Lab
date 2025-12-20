@@ -36,7 +36,7 @@ export interface PartnersHeroProps {
 }
 
 const defaultProps: PartnersHeroProps = {
-  logoUrl: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo',
+  logoUrl: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo',
   logoWithTextUrl: 'https://i.namu.wiki/i/g-8tEhqgrMv-DLrASvSM-7pgsPos9qX1Lpx3VVOGRYTTZpgtUnWbMEsw7DLDuU7ecjtrkl6nqnCrFqxepgRU1A.svg',
   logoClassName: '',
   title: (
@@ -93,7 +93,7 @@ export default function PartnersHero(props: PartnersHeroProps = {}) {
             {disableLogoLink ? (
               <Image
                 src={logoWithTextUrl!}
-                alt="Blooom"
+                alt="Piooom"
                 width={100}
                 height={28}
                 className="h-5 w-auto brightness-0 invert"
@@ -102,7 +102,7 @@ export default function PartnersHero(props: PartnersHeroProps = {}) {
               <Link href="/">
                 <Image
                   src={logoWithTextUrl!}
-                  alt="Blooom"
+                  alt="Piooom"
                   width={100}
                   height={28}
                   className="h-5 w-auto brightness-0 invert"

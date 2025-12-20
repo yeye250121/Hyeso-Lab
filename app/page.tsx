@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { Footer } from '@/app/landing/components'
 
-const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo'
+const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo'
 
 export default function PartnersLandingPage() {
   const observerRef = useRef<IntersectionObserver | null>(null)
@@ -40,8 +40,8 @@ export default function PartnersLandingPage() {
           <div className="h-16 max-w-[1100px] mx-auto px-6 flex items-center justify-between">
             <Link href="/">
               <Image
-                src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo_with_text_v01.png"
-                alt="Blooom"
+                src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo_with_text_v01.png"
+                alt="Piooom"
                 width={100}
                 height={28}
                 className="h-5 w-auto brightness-0 invert"
@@ -100,7 +100,7 @@ export default function PartnersLandingPage() {
           <div className="animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
             <Image
               src={LOGO_URL}
-              alt="Blooom"
+              alt="Piooom"
               width={240}
               height={72}
               className="h-[72px] w-auto mb-6 mx-auto"
@@ -142,7 +142,7 @@ export default function PartnersLandingPage() {
             <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
               <div className="w-[280px] lg:w-[290px] h-[230px] lg:h-[290px] rounded-[24px] bg-[#e8f3ff] flex items-center justify-center flex-shrink-0">
                 <Image
-                  src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_idea_icon_v02.png"
+                  src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_idea_icon_v02.png"
                   alt="아이디어 아이콘"
                   width={240}
                   height={240}
@@ -164,7 +164,7 @@ export default function PartnersLandingPage() {
             <div className="flex flex-col lg:flex-row-reverse items-center justify-center gap-8 lg:gap-12 animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
               <div className="w-[280px] lg:w-[290px] h-[230px] lg:h-[290px] rounded-[24px] bg-[#f0faf6] flex items-center justify-center flex-shrink-0">
                 <Image
-                  src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_money_icon_v01.png"
+                  src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_money_icon_v01.png"
                   alt="수수료 아이콘"
                   width={240}
                   height={240}
@@ -201,7 +201,7 @@ export default function PartnersLandingPage() {
         {/* 이미지 - 하단이 Support 섹션 하단(=CTA 상단)과 일치 */}
         <div className="absolute left-1/2 -translate-x-1/2 bottom-0 z-10 flex items-end">
           <Image
-            src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_a_man_looking_phone_icon_v02.png"
+            src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_a_man_looking_phone_icon_v02.png"
             alt="폰을 보는 사람"
             width={320}
             height={320}

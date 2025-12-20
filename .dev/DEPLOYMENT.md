@@ -29,7 +29,7 @@ Vercel에 배포하기 전에 반드시 다음 환경 변수들을 설정해야 
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://yknptcjxrizgccxczzuy.supabase.co` | Production, Preview, Development |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | (Supabase의 anon/public 키) | Production, Preview, Development |
 | `SUPABASE_SERVICE_ROLE_KEY` | (Supabase의 service_role 키) ⚠️ | Production, Preview, Development |
-| `JWT_SECRET` | `blooom_jwt_secret_key_2025_production_change_this` | Production, Preview, Development |
+| `JWT_SECRET` | `piooom_jwt_secret_key_2025_production_change_this` | Production, Preview, Development |
 
 **⚠️ 주의사항:**
 - `SUPABASE_SERVICE_ROLE_KEY`는 **절대** `NEXT_PUBLIC_` 접두사를 붙이면 안 됩니다.
@@ -57,7 +57,7 @@ vercel env add SUPABASE_SERVICE_ROLE_KEY development
 NEXT_PUBLIC_SUPABASE_URL=https://yknptcjxrizgccxczzuy.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here  # ⚠️ Supabase Dashboard에서 가져오기
-JWT_SECRET=blooom_jwt_secret_key_2025_production_change_this
+JWT_SECRET=piooom_jwt_secret_key_2025_production_change_this
 ```
 
 ## 🚀 배포하기

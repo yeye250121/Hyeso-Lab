@@ -1,23 +1,23 @@
-# Blooom - N-Level 마케팅 네트워크 플랫폼
+# Piooom - N-Level 마케팅 네트워크 플랫폼
 
-Blooom 메인 프로젝트 - 통합 게이트웨이
+Piooom 메인 프로젝트 - 통합 게이트웨이
 
 ## 📁 프로젝트 구조
 
 ```
-blooom/
-├── blooom-main/              # 메인 프로젝트 (포트 3000) ⭐
-├── bloom-landing-nextjs/     # 랜딩 페이지 (포트 3001)
-└── bloom-admin/
+piooom/
+├── piooom-main/              # 메인 프로젝트 (포트 3000) ⭐
+├── piooom-landing-nextjs/     # 랜딩 페이지 (포트 3001)
+└── piooom-admin/
     ├── frontend/             # 관리자 프론트엔드 (포트 3002)
     └── backend/              # NestJS API (포트 3001)
 ```
 
 ## 🌐 라우트 구조
 
-- **`blooom.kr/`** → 메인 페이지 (Blooom 플랫폼 소개)
-- **`blooom.kr/landing`** → KT CCTV 상담 신청 랜딩 페이지 (프록시 → 포트 3001)
-- **`blooom.kr/admin`** → 관리자 대시보드 (프록시 → 포트 3002)
+- **`piooom.kr/`** → 메인 페이지 (Piooom 플랫폼 소개)
+- **`piooom.kr/landing`** → KT CCTV 상담 신청 랜딩 페이지 (프록시 → 포트 3001)
+- **`piooom.kr/admin`** → 관리자 대시보드 (프록시 → 포트 3002)
 
 ## 🚀 실행 방법
 
@@ -25,21 +25,21 @@ blooom/
 
 #### 터미널 1: 메인 프로젝트
 ```bash
-cd blooom-main
+cd piooom-main
 npm run dev
 # → http://localhost:3000
 ```
 
 #### 터미널 2: 랜딩 페이지
 ```bash
-cd ../bloom-landing-nextjs
+cd ../piooom-landing-nextjs
 npm run dev
 # → http://localhost:3001
 ```
 
 #### 터미널 3: 관리자 프론트엔드
 ```bash
-cd ../bloom-admin/frontend
+cd ../piooom-admin/frontend
 npm run dev
 # → http://localhost:3002
 ```
@@ -54,7 +54,7 @@ npm run dev
 
 ## ⚙️ 작동 원리
 
-`blooom-main`의 `next.config.ts`에서 Next.js rewrites를 사용하여 각 경로를 프록시합니다:
+`piooom-main`의 `next.config.ts`에서 Next.js rewrites를 사용하여 각 경로를 프록시합니다:
 
 ```typescript
 async rewrites() {
@@ -83,13 +83,13 @@ async rewrites() {
 
 ```bash
 # 메인
-cd blooom-main && npm install
+cd piooom-main && npm install
 
 # 랜딩
-cd ../bloom-landing-nextjs && npm install
+cd ../piooom-landing-nextjs && npm install
 
 # 관리자 프론트
-cd ../bloom-admin/frontend && npm install
+cd ../piooom-admin/frontend && npm install
 ```
 
 ## 📝 개발 시 주의사항
