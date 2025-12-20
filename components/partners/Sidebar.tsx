@@ -14,7 +14,7 @@ import { useAuthStore } from '@/lib/partners/store'
 import { useRouter } from 'next/navigation'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 
-const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo'
+const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo'
 
 const menuItems = [
   { href: '/partners/home', label: '홈', icon: Home },

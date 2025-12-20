@@ -36,19 +36,19 @@ export interface PartnersHeroProps {
 }
 
 const defaultProps: PartnersHeroProps = {
-  logoUrl: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo',
+  logoUrl: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo',
   logoWithTextUrl: 'https://i.namu.wiki/i/g-8tEhqgrMv-DLrASvSM-7pgsPos9qX1Lpx3VVOGRYTTZpgtUnWbMEsw7DLDuU7ecjtrkl6nqnCrFqxepgRU1A.svg',
   logoClassName: '',
   title: (
     <>
       집에서 시작하는<br />온라인 사업<br />
-      <span className="text-[#3182f6]">블룸</span> 파트너스
+      <span className="text-[#3182f6]">피움</span> 파트너스
     </>
   ),
   subtitle: (
     <>
       <br />상담을 연결하면 수익이 생겨요<br />
-      전부 다, 블룸이 도와드릴게요.
+      전부 다, 피움이 도와드릴게요.
     </>
   ),
   ctaText: '지금 시작하기',

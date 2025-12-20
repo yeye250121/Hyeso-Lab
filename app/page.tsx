@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { Footer } from '@/app/landing/components'
 
-const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo'
+const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo'
 
 export default function PartnersLandingPage() {
   const observerRef = useRef<IntersectionObserver | null>(null)
@@ -40,7 +40,7 @@ export default function PartnersLandingPage() {
           <div className="h-16 max-w-[1100px] mx-auto px-6 flex items-center justify-between">
             <Link href="/">
               <Image
-                src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo_with_text_v01.png"
+                src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo_with_text_v01.png"
                 alt="Piooom"
                 width={100}
                 height={28}
@@ -107,11 +107,11 @@ export default function PartnersLandingPage() {
             />
             <h1 className="text-4xl lg:text-6xl font-bold text-white leading-tight mb-6">
               집에서 시작하는<br />온라인 사업<br />
-              <span className="text-[#3182f6]">블룸</span> 파트너스
+              <span className="text-[#3182f6]">피움</span> 파트너스
             </h1>
             <p className="text-white/70 text-lg lg:text-xl max-w-2xl mx-auto mb-10">
               <br />상담을 연결하면 수익이 생겨요<br />
-              전부 다, 블룸이 도와드릴게요.
+              전부 다, 피움이 도와드릴게요.
             </p>
             <Link
               href="/partners/login"
@@ -132,7 +132,7 @@ export default function PartnersLandingPage() {
         <div className="max-w-[1100px] mx-auto px-6">
           <div className="text-center mb-16 lg:mb-20 animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
             <h2 className="text-3xl lg:text-4xl font-bold text-[#333d4b]">
-              블룸 파트너만<br />받을 수 있어요
+              피움 파트너만<br />받을 수 있어요
             </h2>
           </div>
 
@@ -142,7 +142,7 @@ export default function PartnersLandingPage() {
             <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
               <div className="w-[280px] lg:w-[290px] h-[230px] lg:h-[290px] rounded-[24px] bg-[#e8f3ff] flex items-center justify-center flex-shrink-0">
                 <Image
-                  src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_idea_icon_v02.png"
+                  src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_idea_icon_v02.png"
                   alt="아이디어 아이콘"
                   width={240}
                   height={240}
@@ -164,7 +164,7 @@ export default function PartnersLandingPage() {
             <div className="flex flex-col lg:flex-row-reverse items-center justify-center gap-8 lg:gap-12 animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
               <div className="w-[280px] lg:w-[290px] h-[230px] lg:h-[290px] rounded-[24px] bg-[#f0faf6] flex items-center justify-center flex-shrink-0">
                 <Image
-                  src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_money_icon_v01.png"
+                  src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_money_icon_v01.png"
                   alt="수수료 아이콘"
                   width={240}
                   height={240}
@@ -194,14 +194,14 @@ export default function PartnersLandingPage() {
               하고 싶은 것만<br />딱 골라서 해요
             </h3>
             <p className="text-lg lg:text-xl text-[#4e5968]">
-              고객 상담부터 관리까지,<br />블룸이 귀찮은 건 다 해드릴게요.
+              고객 상담부터 관리까지,<br />피움이 귀찮은 건 다 해드릴게요.
             </p>
           </div>
         </div>
         {/* 이미지 - 하단이 Support 섹션 하단(=CTA 상단)과 일치 */}
         <div className="absolute left-1/2 -translate-x-1/2 bottom-0 z-10 flex items-end">
           <Image
-            src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_a_man_looking_phone_icon_v02.png"
+            src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_a_man_looking_phone_icon_v02.png"
             alt="폰을 보는 사람"
             width={320}
             height={320}
@@ -215,7 +215,7 @@ export default function PartnersLandingPage() {
         <div className="max-w-[1100px] mx-auto px-6 text-center">
           <div className="animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
             <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-              블룸과 함께<br />더 크게 성장해요
+              피움과 함께<br />더 크게 성장해요
             </h2>
             <p className="text-white/60 text-lg mb-10">
               지금 바로 파트너가 되어보세요.

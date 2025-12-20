@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo';
+const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo';
 
 export default function Navigation() {
   return (

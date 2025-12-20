@@ -15,10 +15,10 @@ const defaultProps: PartnersSupportProps = {
   ),
   description: (
     <>
-      고객 상담부터 관리까지,<br />블룸이 귀찮은 건 다 해드릴게요.
+      고객 상담부터 관리까지,<br />피움이 귀찮은 건 다 해드릴게요.
     </>
   ),
-  imageSrc: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_a_man_looking_phone_icon_v02.png',
+  imageSrc: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_a_man_looking_phone_icon_v02.png',
   imageAlt: '폰을 보는 사람',
 };
 

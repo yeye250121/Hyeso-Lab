@@ -8,7 +8,7 @@ import { useAuthStore } from '@/lib/partners/store'
 import { Loader2 } from 'lucide-react'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 
-const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo'
+const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo'
 
 export default function LoginPage() {
   const router = useRouter()

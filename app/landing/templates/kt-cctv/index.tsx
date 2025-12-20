@@ -104,7 +104,7 @@ const ktCctvContent1 = {
     ),
     benefits: [
       {
-        imageSrc: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_secure_v01.png',
+        imageSrc: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_secure_v01.png',
         imageAlt: '보안 아이콘',
         bgColor: '#e8f3ff',
         title: (
@@ -135,7 +135,7 @@ const ktCctvContent1 = {
         imageClassName: 'w-60 h-60 lg:w-72 lg:h-72',
       },
       {
-        imageSrc: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_engineer_v01.png',
+        imageSrc: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_engineer_v01.png',
         imageAlt: '설치 아이콘',
         bgColor: '#fff8e8',
         title: (
@@ -387,7 +387,7 @@ export default function KtCctvLanding({ marketerCode, template, subtype }: KtCct
             disableLogoLink={true}
             logoWithTextUrl="https://i.namu.wiki/i/g-8tEhqgrMv-DLrASvSM-7pgsPos9qX1Lpx3VVOGRYTTZpgtUnWbMEsw7DLDuU7ecjtrkl6nqnCrFqxepgRU1A.svg"
             warningTitle={<><span className="text-3xl lg:text-4xl">중국산 저가 양산품을</span><br /><span className="text-2xl lg:text-3xl">주의하세요!</span></>}
-            warningImageUrl="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_alram_v01.png"
+            warningImageUrl="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_alram_v01.png"
             warningImageAlt="경고 사이렌"
           />
           <PartnersBenefits
@@ -468,7 +468,7 @@ export default function KtCctvLanding({ marketerCode, template, subtype }: KtCct
           description={ktCctvContent1.cta.description}
           ctaText={ktCctvContent1.cta.ctaText}
           ctaHref={contactUrl}
-          imageSrc="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_a_man_looking_phone_icon_v02.png"
+          imageSrc="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_a_man_looking_phone_icon_v02.png"
           imageAlt="폰을 보는 사람"
         />
         <Footer />

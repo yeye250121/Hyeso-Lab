@@ -12,7 +12,7 @@ export interface PartnersCTAProps {
 const defaultProps: PartnersCTAProps = {
   title: (
     <>
-      블룸과 함께<br />더 크게 성장해요
+      피움과 함께<br />더 크게 성장해요
     </>
   ),
   description: '지금 바로 파트너가 되어보세요.',

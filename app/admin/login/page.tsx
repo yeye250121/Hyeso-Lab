@@ -8,7 +8,7 @@ import { useAuthStore } from '@/lib/admin/store'
 import api from '@/lib/admin/api'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 
-const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo'
+const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo'
 
 export default function AdminLoginPage() {
   const router = useRouter()

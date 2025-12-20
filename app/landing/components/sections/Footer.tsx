@@ -47,7 +47,7 @@ const defaultLinkSections: FooterLinkSection[] = [
 ];
 
 export default function Footer({
-  logoSrc = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo',
+  logoSrc = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo',
   companyInfo = defaultCompanyInfo,
   linkSections = defaultLinkSections,
   showCopyright = true,
