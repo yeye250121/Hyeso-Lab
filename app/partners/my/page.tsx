@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/lib/partners/store'
 import api from '@/lib/partners/api'
 import PartnerLayout from '@/components/partners/PartnerLayout'
-import { Copy, Check, ChevronRight, ChevronDown, X, Loader2, FileText, User, Key, LogOut, Building2, Phone, CreditCard, Globe, ExternalLink } from 'lucide-react'
+import { Copy, Check, ChevronRight, ChevronDown, X, Loader2, FileText, User, Key, LogOut, Phone, CreditCard, Globe, ExternalLink } from 'lucide-react'
 
 export default function MyPage() {
   const router = useRouter()
@@ -25,9 +25,6 @@ export default function MyPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isPasswordLoading, setIsPasswordLoading] = useState(false)
   const [passwordError, setPasswordError] = useState('')
-
-  // 사업자 정보 아코디언
-  const [isBusinessInfoOpen, setIsBusinessInfoOpen] = useState(false)
 
   // 전화번호 변경 모달
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false)
@@ -416,45 +413,6 @@ export default function MyPage() {
             </button>
           </div>
 
-          {/* 사업자 정보 */}
-          <div className="bg-bg-card rounded-card overflow-hidden mt-6">
-            <button
-              onClick={() => setIsBusinessInfoOpen(!isBusinessInfoOpen)}
-              className="w-full px-6 py-5 flex items-center justify-between hover:bg-bg-primary transition-colors"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-bg-primary rounded-full flex items-center justify-center">
-                  <Building2 className="w-5 h-5 text-text-secondary" />
-                </div>
-                <span className="text-body text-text-primary">사업자 정보</span>
-              </div>
-              <ChevronDown className={`w-5 h-5 text-text-tertiary transition-transform ${isBusinessInfoOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {isBusinessInfoOpen && (
-              <div className="px-6 pb-5 pt-2 border-t border-border">
-                <div className="space-y-3 text-body text-text-secondary">
-                  <div>
-                    <p className="text-caption text-text-tertiary mb-1">상호명</p>
-                    <p>케어온</p>
-                  </div>
-                  <div>
-                    <p className="text-caption text-text-tertiary mb-1">사업자등록번호</p>
-                    <p>609-41-95762</p>
-                  </div>
-                  <div>
-                    <p className="text-caption text-text-tertiary mb-1">주소</p>
-                    <p>경상남도 창원시 진해구 여명로25번나길 27, 1동 301호</p>
-                  </div>
-                  <div>
-                    <p className="text-caption text-text-tertiary mb-1">고객센터</p>
-                    <p>010-7469-4385</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* 버전 정보 */}
           <div className="mt-8 text-center">
             <p className="text-small text-text-tertiary">버전 1.0.0</p>
@@ -627,43 +585,6 @@ export default function MyPage() {
           >
             <span className="text-body text-error">로그아웃</span>
           </button>
-        </div>
-
-        {/* 사업자 정보 */}
-        <div className="mt-3 bg-bg-card">
-          <button
-            onClick={() => setIsBusinessInfoOpen(!isBusinessInfoOpen)}
-            className="w-full px-6 py-4 flex items-center justify-between"
-          >
-            <div className="flex items-center gap-3">
-              <Building2 className="w-5 h-5 text-text-secondary" />
-              <span className="text-body text-text-primary">사업자 정보</span>
-            </div>
-            <ChevronDown className={`w-5 h-5 text-text-tertiary transition-transform ${isBusinessInfoOpen ? 'rotate-180' : ''}`} />
-          </button>
-
-          {isBusinessInfoOpen && (
-            <div className="px-6 pb-4 pt-2 border-t border-bg-primary">
-              <div className="space-y-3 text-body text-text-secondary">
-                <div>
-                  <p className="text-caption text-text-tertiary mb-1">상호명</p>
-                  <p>케어온</p>
-                </div>
-                <div>
-                  <p className="text-caption text-text-tertiary mb-1">사업자등록번호</p>
-                  <p>609-41-95762</p>
-                </div>
-                <div>
-                  <p className="text-caption text-text-tertiary mb-1">주소</p>
-                  <p>경상남도 창원시 진해구 여명로25번나길 27, 1동 301호</p>
-                </div>
-                <div>
-                  <p className="text-caption text-text-tertiary mb-1">고객센터</p>
-                  <p>010-7469-4385</p>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* 버전 정보 */}
