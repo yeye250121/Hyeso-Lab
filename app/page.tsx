@@ -40,7 +40,7 @@ export default function PartnersLandingPage() {
           <div className="h-16 max-w-[1100px] mx-auto px-6 flex items-center justify-between">
             <Link href="/">
               <Image
-                src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo_with_text_v01.png"
+                src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo_v01.png"
                 alt="Piooom"
                 width={100}
                 height={28}
