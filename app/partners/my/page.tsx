@@ -280,10 +280,10 @@ export default function MyPage() {
                           {page.description && (
                             <p className="text-caption text-text-tertiary mt-1">{page.description}</p>
                           )}
-                          <p className="text-caption text-action-primary mt-1">piooom.kr{page.url}</p>
+                          <p className="text-caption text-action-primary mt-1">piooom.ai.kr{page.url}</p>
                         </div>
                         <a
-                          href={`https://piooom.kr${page.url}`}
+                          href={`https://piooom.ai.kr${page.url}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="px-4 py-2 bg-action-primary/10 text-action-primary rounded-button text-body font-medium hover:bg-action-primary/20 transition-colors flex items-center gap-2"
