@@ -4,37 +4,37 @@
  * 변수 매핑: [*1*] → var1, [*2*] → var2, ...
  */
 
-// 템플릿 코드 (뿌리오 승인 완료)
+// 템플릿 코드 (뿌리오 심사 중 - 2025.12.30)
 export const ALIMTALK_TEMPLATES = {
   // 파트너 회원가입 완료 - 본인에게 발송
   // [*1*] = 파트너 코드
-  PARTNER_SIGNUP: 'ppur_2025121001502750432330058',
+  PARTNER_SIGNUP: 'ppur_2025123017483012849854361',
 
   // 하위 파트너 가입 - 상위 파트너에게 발송
   // [*1*] = 하위 파트너 닉네임
-  PARTNER_REFERRAL_SIGNUP: 'ppur_2025121001574211178233002',
+  PARTNER_REFERRAL_SIGNUP: 'ppur_2025123017520112849871250',
 
   // 정산 내역 도착 - 파트너에게 발송
-  PARTNER_SETTLEMENT: 'ppur_2025121002051450432987150',
+  PARTNER_SETTLEMENT: 'ppur_2025123017591820835749782',
 
   // 새로운 상담 문의 - 파트너에게 발송
-  PARTNER_NEW_INQUIRY: 'ppur_2025121002080111178865379',
+  PARTNER_NEW_INQUIRY: 'ppur_2025123017543820835166741',
 
   // 계약 성공 - 파트너에게 발송
-  PARTNER_CONTRACT_SUCCESS: 'ppur_2025121002252050432713201',
+  PARTNER_CONTRACT_SUCCESS: 'ppur_2025123017573512849260118',
 
-  // 상담 취소 - 파트너에게 발송
+  // 상담 취소 - 파트너에게 발송 (기존 유지)
   PARTNER_INQUIRY_CANCELLED: 'ppur_2025121002302950432485683',
 
   // ===== 고객용 알림톡 =====
 
   // 고객 문의 접수 완료 - 고객에게 발송
   // (변수 없음)
-  CUSTOMER_INQUIRY_RECEIVED: 'ppur_2025121218170211178696594',
+  CUSTOMER_INQUIRY_RECEIVED: 'ppur_2025123018060012849110430',
 
   // 고객 예약 안내 - 고객에게 발송 (바로 예약하기 버튼 포함)
   // (변수 없음, 버튼 URL: https://piooom.kr/book)
-  CUSTOMER_RESERVATION_GUIDE: 'ppur_2025121218400211178799658',
+  CUSTOMER_RESERVATION_GUIDE: 'ppur_2025123018083720835716306',
 } as const
 
 export type AlimtalkTemplateType = keyof typeof ALIMTALK_TEMPLATES
