@@ -24,9 +24,9 @@ interface FooterProps {
 }
 
 const defaultCompanyInfo = {
-  name: '케어온',
-  businessNumber: '609-41-95762',
-  address: '경상남도 창원시 진해구 여명로25번나길 27, 1동 301호',
+  name: '피움',
+  businessNumber: '573-07-03391',
+  address: '경상남도 창원시 진해구 충장로 68-1, 2층 1호(충무동)',
   phone: '010-7469-4385',
 };
 
@@ -65,7 +65,11 @@ export default function Footer({
               height={24}
               className="h-6 w-auto brightness-0 invert"
             />
-            {/* 사업자 정보 삭제됨 */}
+            <div className="space-y-1 text-sm text-[#8b95a1]">
+              <p>{companyInfo.name}</p>
+              <p>사업자등록번호 : {companyInfo.businessNumber}</p>
+              <p>주소 : {companyInfo.address}</p>
+            </div>
           </div>
 
           {/* Links */}
