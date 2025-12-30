@@ -23,8 +23,8 @@ export const ALIMTALK_TEMPLATES = {
   // 계약 성공 - 파트너에게 발송
   PARTNER_CONTRACT_SUCCESS: 'ppur_2025123017573512849260118',
 
-  // 상담 취소 - 파트너에게 발송 (기존 유지)
-  PARTNER_INQUIRY_CANCELLED: 'ppur_2025121002302950432485683',
+  // 상담 취소 - 파트너에게 발송
+  PARTNER_INQUIRY_CANCELLED: 'ppur_2025123018280120835265020',
 
   // ===== 고객용 알림톡 =====
 
