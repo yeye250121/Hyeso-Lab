@@ -32,6 +32,7 @@ import {
   Upload,
   Presentation,
 } from 'lucide-react'
+import api from '@/lib/admin/api'
 
 // Google Slides Embed Extension
 declare module '@tiptap/core' {
@@ -120,16 +121,11 @@ const GoogleSlides = TiptapNode.create({
     }
   },
 })
-import api from '@/lib/admin/api'
-import TurndownService from 'turndown'
-import { marked } from 'marked'
 
 interface TipTapEditorProps {
   content: string
   onChange: (content: string) => void
 }
-
-type EditorMode = 'wysiwyg' | 'markdown'
 
 const MenuButton = ({
   onClick,
@@ -210,7 +206,7 @@ const MenuBar = ({ editor, onImageUpload }: { editor: Editor | null; onImageUplo
   }
 
   return (
-    <div className="border-b border-border p-2">
+    <div className="p-2">
       <div className="flex flex-wrap gap-1">
         <MenuButton
           onClick={() => editor.chain().focus().toggleBold().run()}
@@ -368,7 +364,7 @@ const MenuBar = ({ editor, onImageUpload }: { editor: Editor | null; onImageUplo
 
       {/* Link Input */}
       {showLinkInput && (
-        <div className="flex items-center gap-2 mt-2 p-2 bg-bg-primary rounded-lg">
+        <div className="flex items-center gap-2 mt-2 p-2 bg-bg-primary rounded-lg mx-2">
           <input
             type="url"
             value={linkUrl}
@@ -398,7 +394,7 @@ const MenuBar = ({ editor, onImageUpload }: { editor: Editor | null; onImageUplo
 
       {/* Youtube Input */}
       {showYoutubeInput && (
-        <div className="flex items-center gap-2 mt-2 p-2 bg-bg-primary rounded-lg">
+        <div className="flex items-center gap-2 mt-2 p-2 bg-bg-primary rounded-lg mx-2">
           <input
             type="url"
             value={youtubeUrl}
@@ -419,7 +415,7 @@ const MenuBar = ({ editor, onImageUpload }: { editor: Editor | null; onImageUplo
 
       {/* Google Slides Input */}
       {showSlidesInput && (
-        <div className="flex items-center gap-2 mt-2 p-2 bg-bg-primary rounded-lg">
+        <div className="flex items-center gap-2 mt-2 p-2 bg-bg-primary rounded-lg mx-2">
           <input
             type="url"
             value={slidesUrl}
@@ -441,33 +437,7 @@ const MenuBar = ({ editor, onImageUpload }: { editor: Editor | null; onImageUplo
   )
 }
 
-// HTML to Markdown 변환
-const turndownService = new TurndownService({
-  headingStyle: 'atx',
-  codeBlockStyle: 'fenced',
-})
-
-// YouTube iframe 처리
-turndownService.addRule('youtube', {
-  filter: (node) => {
-    return (
-      node.nodeName === 'IFRAME' &&
-      (node as HTMLIFrameElement).src?.includes('youtube')
-    )
-  },
-  replacement: (_content, node) => {
-    const src = (node as HTMLIFrameElement).src
-    const match = src.match(/embed\/([^?]+)/)
-    if (match) {
-      return `\n\nhttps://www.youtube.com/watch?v=${match[1]}\n\n`
-    }
-    return ''
-  },
-})
-
 export default function TipTapEditor({ content, onChange }: TipTapEditorProps) {
-  const [mode, setMode] = useState<EditorMode>('wysiwyg')
-  const [markdownContent, setMarkdownContent] = useState('')
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [showImageLinkInput, setShowImageLinkInput] = useState(false)
@@ -510,7 +480,7 @@ export default function TipTapEditor({ content, onChange }: TipTapEditorProps) {
     },
     editorProps: {
       attributes: {
-        class: 'tiptap-editor',
+        class: 'tiptap-editor outline-none min-h-[400px] p-4 prose max-w-none',
       },
     },
   })
@@ -636,7 +606,7 @@ export default function TipTapEditor({ content, onChange }: TipTapEditorProps) {
   // 클립보드에서 이미지 붙여넣기 지원
   useEffect(() => {
     const handlePaste = async (e: ClipboardEvent) => {
-      if (!editor || mode !== 'wysiwyg') return
+      if (!editor) return
 
       const items = e.clipboardData?.items
       if (!items) return
@@ -658,45 +628,12 @@ export default function TipTapEditor({ content, onChange }: TipTapEditorProps) {
 
     document.addEventListener('paste', handlePaste)
     return () => document.removeEventListener('paste', handlePaste)
-  }, [editor, mode, uploadImage])
-
-  // 모드 전환 핸들러
-  const handleModeChange = useCallback(
-    (newMode: EditorMode) => {
-      if (newMode === mode) return
-
-      if (newMode === 'markdown' && editor) {
-        // WYSIWYG → Markdown
-        const html = editor.getHTML()
-        const markdown = turndownService.turndown(html)
-        setMarkdownContent(markdown)
-      } else if (newMode === 'wysiwyg' && editor) {
-        // Markdown → WYSIWYG
-        const html = marked(markdownContent) as string
-        editor.commands.setContent(html)
-        onChange(html)
-      }
-
-      setMode(newMode)
-    },
-    [mode, editor, markdownContent, onChange]
-  )
-
-  // 마크다운 변경 핸들러
-  const handleMarkdownChange = useCallback(
-    (value: string) => {
-      setMarkdownContent(value)
-      // 실시간으로 HTML도 업데이트 (저장용)
-      const html = marked(value) as string
-      onChange(html)
-    },
-    [onChange]
-  )
+  }, [editor, uploadImage])
 
   return (
     <div
       ref={editorContainerRef}
-      className="border border-border rounded-card overflow-hidden bg-white relative"
+      className="border border-border rounded-card overflow-hidden bg-white relative flex flex-col h-[600px]"
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
@@ -723,32 +660,6 @@ export default function TipTapEditor({ content, onChange }: TipTapEditorProps) {
         </div>
       )}
 
-      {/* Mode Tabs */}
-      <div className="flex border-b border-border">
-        <button
-          type="button"
-          onClick={() => handleModeChange('wysiwyg')}
-          className={`flex-1 px-4 py-3 text-body font-medium transition-colors ${
-            mode === 'wysiwyg'
-              ? 'bg-white text-action-primary border-b-2 border-action-primary'
-              : 'bg-bg-primary text-text-secondary hover:text-text-primary'
-          }`}
-        >
-          위지윅 에디터
-        </button>
-        <button
-          type="button"
-          onClick={() => handleModeChange('markdown')}
-          className={`flex-1 px-4 py-3 text-body font-medium transition-colors ${
-            mode === 'markdown'
-              ? 'bg-white text-action-primary border-b-2 border-action-primary'
-              : 'bg-bg-primary text-text-secondary hover:text-text-primary'
-          }`}
-        >
-          마크다운
-        </button>
-      </div>
-
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -758,99 +669,94 @@ export default function TipTapEditor({ content, onChange }: TipTapEditorProps) {
         className="hidden"
       />
 
-      {mode === 'wysiwyg' ? (
-        <>
-          <MenuBar editor={editor} onImageUpload={triggerImageUpload} />
+      {/* Sticky MenuBar */}
+      <div className="sticky top-0 z-10 bg-white border-b border-border shadow-sm">
+        <MenuBar editor={editor} onImageUpload={triggerImageUpload} />
+      </div>
 
-          {/* 이미지 버블 메뉴 - 이미지 클릭 시 나타남 */}
-          {editor && (
-            <BubbleMenu
-              editor={editor}
-              tippyOptions={{ duration: 100 }}
-              shouldShow={({ editor, state }) => {
-                // 현재 선택된 노드가 이미지인지 확인
-                const { selection } = state
-                const node = state.doc.nodeAt(selection.from)
-                return node?.type.name === 'image'
-              }}
-            >
-              <div className="flex items-center gap-1 bg-white shadow-lg border border-border rounded-lg p-1">
-                {showImageLinkInput ? (
-                  <div className="flex items-center gap-1 px-2">
-                    <input
-                      type="url"
-                      value={imageLinkUrl}
-                      onChange={(e) => setImageLinkUrl(e.target.value)}
-                      placeholder="https://example.com"
-                      className="w-48 px-2 py-1 text-sm border border-border rounded focus:ring-1 focus:ring-action-primary"
-                      onKeyDown={(e) => e.key === 'Enter' && handleSetImageLink()}
-                      autoFocus
-                    />
-                    <button
-                      type="button"
-                      onClick={handleSetImageLink}
-                      className="px-2 py-1 text-sm bg-action-primary text-white rounded hover:bg-action-primary/90"
-                    >
-                      적용
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowImageLinkInput(false)
-                        setImageLinkUrl('')
-                      }}
-                      className="px-2 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-                    >
-                      취소
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => setShowImageLinkInput(true)}
-                      className="flex items-center gap-1 px-3 py-1.5 text-sm text-text-secondary hover:bg-bg-primary rounded transition-colors"
-                      title="이미지에 링크 추가"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      <span>링크 추가</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => editor.chain().focus().deleteSelection().run()}
-                      className="flex items-center gap-1 px-3 py-1.5 text-sm text-status-error hover:bg-red-50 rounded transition-colors"
-                      title="이미지 삭제"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      <span>삭제</span>
-                    </button>
-                  </>
-                )}
+      {/* 이미지 버블 메뉴 - 이미지 클릭 시 나타남 */}
+      {editor && (
+        <BubbleMenu
+          editor={editor}
+          tippyOptions={{ duration: 100 }}
+          shouldShow={({ editor, state }) => {
+            // 현재 선택된 노드가 이미지인지 확인
+            const { selection } = state
+            const node = state.doc.nodeAt(selection.from)
+            return node?.type.name === 'image'
+          }}
+        >
+          <div className="flex items-center gap-1 bg-white shadow-lg border border-border rounded-lg p-1">
+            {showImageLinkInput ? (
+              <div className="flex items-center gap-1 px-2">
+                <input
+                  type="url"
+                  value={imageLinkUrl}
+                  onChange={(e) => setImageLinkUrl(e.target.value)}
+                  placeholder="https://example.com"
+                  className="w-48 px-2 py-1 text-sm border border-border rounded focus:ring-1 focus:ring-action-primary"
+                  onKeyDown={(e) => e.key === 'Enter' && handleSetImageLink()}
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={handleSetImageLink}
+                  className="px-2 py-1 text-sm bg-action-primary text-white rounded hover:bg-action-primary/90"
+                >
+                  적용
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowImageLinkInput(false)
+                    setImageLinkUrl('')
+                  }}
+                  className="px-2 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                >
+                  취소
+                </button>
               </div>
-            </BubbleMenu>
-          )}
-
-          <EditorContent editor={editor} />
-
-          {/* 에디터 하단 도움말 */}
-          <div className="px-4 py-2 border-t border-border bg-bg-primary text-xs text-text-tertiary">
-            <span className="mr-4">💡 이미지를 드래그해서 놓거나 클립보드에서 붙여넣기(Ctrl+V) 가능</span>
-            <span>• 이미지 클릭 시 링크 추가 가능</span>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setShowImageLinkInput(true)}
+                  className="flex items-center gap-1 px-3 py-1.5 text-sm text-text-secondary hover:bg-bg-primary rounded transition-colors"
+                  title="이미지에 링크 추가"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>링크 추가</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().deleteSelection().run()}
+                  className="flex items-center gap-1 px-3 py-1.5 text-sm text-status-error hover:bg-red-50 rounded transition-colors"
+                  title="이미지 삭제"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>삭제</span>
+                </button>
+              </>
+            )}
           </div>
-        </>
-      ) : (
-        <div className="p-4">
-          <textarea
-            value={markdownContent}
-            onChange={(e) => handleMarkdownChange(e.target.value)}
-            className="w-full min-h-[400px] p-4 font-mono text-sm bg-bg-primary rounded-lg border border-border focus:ring-2 focus:ring-action-primary focus:border-transparent resize-y"
-            placeholder="# 제목&#10;&#10;본문 내용을 마크다운으로 작성하세요...&#10;&#10;- 리스트 항목&#10;- 또 다른 항목&#10;&#10;**굵은 글씨**, *기울임*&#10;&#10;[링크](https://example.com)&#10;&#10;> 인용구"
-          />
-          <p className="mt-2 text-small text-text-tertiary">
-            마크다운 문법을 사용하여 작성할 수 있습니다. 위지윅 탭으로 전환하면 미리보기가 가능합니다.
-          </p>
-        </div>
+        </BubbleMenu>
       )}
+
+      <div className="flex-1 overflow-y-auto">
+        <EditorContent editor={editor} />
+      </div>
+
+      {/* 에디터 하단 도움말 */}
+      <div className="px-4 py-2 border-t border-border bg-bg-primary text-xs text-text-tertiary">
+        <span className="mr-4">💡 이미지를 드래그해서 놓거나 클립보드에서 붙여넣기(Ctrl+V) 가능</span>
+        <span>• 이미지 클릭 시 링크 추가 가능</span>
+      </div>
+
+      <style jsx global>{`
+        .tiptap-editor p {
+            min-height: 1.5em;
+        }
+      `}</style>
     </div>
   )
 }

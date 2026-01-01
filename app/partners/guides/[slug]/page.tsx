@@ -271,6 +271,7 @@ export default function GuideDetailPage() {
         .tiptap-content p {
           margin-bottom: 0.75rem;
           line-height: 1.6;
+          min-height: 1.5em;
         }
         .tiptap-content ul, .tiptap-content ol {
           margin-left: 1.5rem;
