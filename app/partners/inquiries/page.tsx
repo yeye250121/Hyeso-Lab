@@ -42,6 +42,8 @@ interface Inquiry {
   zonecode?: string
   documents?: Record<string, string> | null  // DB에서는 객체로 저장됨 { idCard: url, ... }
   documents_submitted?: boolean
+  landing_template?: string
+  landing_subtype?: string
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; textColor: string }> = {
