@@ -112,6 +112,8 @@ export default function ContactPage() {
       // Fields Config
       showInquiryType: true,
       showInstallCount: true,
+      regionLabel: '설치 희망 지역',
+      regionPlaceholder: '예: 서울시 강남구',
     },
     'kb-card': {
       logo: 'https://cdn.thefairnews.co.kr/news/photo/202404/26172_60797_4838.jpg',
@@ -122,6 +124,8 @@ export default function ContactPage() {
       // Fields Config
       showInquiryType: false,
       showInstallCount: false,
+      regionLabel: '거주 지역 (차고지)',
+      regionPlaceholder: '예: 서울시 강남구',
     },
   };
 
