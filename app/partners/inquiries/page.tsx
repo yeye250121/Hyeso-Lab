@@ -61,6 +61,51 @@ const TYPE_OPTIONS = [
   { value: 'consultation', label: '상담' },
 ]
 
+// KB 카드 상세 정보 컴포넌트
+const KbCardDetails = ({ documents }: { documents: Record<string, string> }) => {
+  if (!documents) return null;
+
+  const DetailItem = ({ label, value }: { label: string; value?: string }) => (
+    <div className="flex flex-col">
+      <span className="text-xs text-text-tertiary mb-1">{label}</span>
+      <p className="text-body text-text-primary font-medium">{value || '-'}</p>
+    </div>
+  );
+
+  return (
+    <div className="bg-bg-card border border-border rounded-lg p-4 mt-2">
+      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border">
+        <div className="w-8 h-5 relative">
+          <img 
+            src="https://cdn.thefairnews.co.kr/news/photo/202404/26172_60797_4838.jpg" 
+            alt="KB" 
+            className="w-full h-full object-contain"
+          />
+        </div>
+        <h4 className="text-sm font-bold text-text-primary">화물복지카드 신청 정보</h4>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+        <DetailItem label="차량톤수" value={documents.vehicleTonnage} />
+        <DetailItem label="대표자 성명" value={documents.name} />
+        
+        <DetailItem label="KB카드 보유 여부" value={documents.kbCardStatus} />
+        <DetailItem label="월 예상 주유비" value={documents.monthlyFuelCost} />
+        
+        <div className="col-span-2">
+          <DetailItem label="주소" value={documents.address} />
+        </div>
+        
+        <div className="col-span-2 pt-2">
+           <span className="inline-block px-2 py-1 bg-[#fff8e8] text-[#ffbc00] text-xs font-bold rounded">
+             KB국민 화물복지카드
+           </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function InquiriesContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -353,11 +398,18 @@ function InquiriesContent() {
                     {/* 유형 */}
                     <td className="py-4 px-6">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-caption ${
-                        inquiry.inquiry_type === 'installation'
+                        inquiry.landing_template === 'kb-card'
+                          ? 'bg-[#fff8e8] text-[#ffbc00]'
+                          : inquiry.inquiry_type === 'installation'
                           ? 'bg-action-primary/10 text-action-primary'
                           : 'bg-bg-primary text-text-secondary'
                       }`}>
-                        {inquiry.inquiry_type === 'installation' ? (
+                        {inquiry.landing_template === 'kb-card' ? (
+                          <>
+                            <FileText className="w-3 h-3" />
+                            KB카드
+                          </>
+                        ) : inquiry.inquiry_type === 'installation' ? (
                           <>
                             <Calendar className="w-3 h-3" />
                             예약
@@ -630,14 +682,16 @@ function InquiriesContent() {
                         <div className="flex items-center gap-2 mb-1">
                           {/* 유형 뱃지 */}
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${
-                            inquiry.inquiry_type === 'installation'
+                            inquiry.landing_template === 'kb-card'
+                              ? 'bg-[#fff8e8] text-[#ffbc00]'
+                              : inquiry.inquiry_type === 'installation'
                               ? 'bg-action-primary/10 text-action-primary'
                               : 'bg-bg-primary text-text-secondary'
                           }`}>
-                            {inquiry.inquiry_type === 'installation' ? '예약' : '상담'}
+                            {inquiry.landing_template === 'kb-card' ? 'KB카드' : inquiry.inquiry_type === 'installation' ? '예약' : '상담'}
                           </span>
                           {/* 서류 여부 */}
-                          {inquiry.documents && Object.keys(inquiry.documents).length > 0 && (
+                          {inquiry.documents && Object.keys(inquiry.documents).length > 0 && inquiry.landing_template !== 'kb-card' && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700">
                               <FileText className="w-3 h-3" />
                               서류
@@ -645,7 +699,7 @@ function InquiriesContent() {
                           )}
                         </div>
                         <p className="text-body text-text-primary truncate">
-                          {inquiry.install_location}
+                          {inquiry.landing_template === 'kb-card' ? inquiry.documents?.name || inquiry.install_location : inquiry.install_location}
                         </p>
                         <p className="text-caption text-text-secondary mt-1">
                           {formatDate(inquiry.submitted_at)}
@@ -685,15 +739,21 @@ function InquiriesContent() {
                             {inquiry.install_location}
                           </span>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <Package className="w-4 h-4 text-text-tertiary" />
-                          <span className="text-body text-text-primary">
-                            {inquiry.inquiry_type === 'installation' ? (
-                              <>야외 {inquiry.outdoor_count || 0}대 / 실내 {inquiry.indoor_count || 0}대</>
+                        <div className="flex items-start gap-3">
+                          <Package className="w-4 h-4 text-text-tertiary mt-1" />
+                          <div className="flex-1">
+                            {inquiry.landing_template === 'kb-card' ? (
+                              <KbCardDetails documents={inquiry.documents as Record<string, string>} />
                             ) : (
-                              <>설치 수량: {inquiry.install_count}대</>
+                              <span className="text-body text-text-primary">
+                                {inquiry.inquiry_type === 'installation' ? (
+                                  <>야외 {inquiry.outdoor_count || 0}대 / 실내 {inquiry.indoor_count || 0}대</>
+                                ) : (
+                                  <>설치 수량: {inquiry.install_count}대</>
+                                )}
+                              </span>
                             )}
-                          </span>
+                          </div>
                         </div>
                         {/* 예약 정보 */}
                         {inquiry.inquiry_type === 'installation' && inquiry.reservation_date && (

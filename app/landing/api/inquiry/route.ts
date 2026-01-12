@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
         // 상담 신청 - 폼에서 입력한 설치 희망 지역 사용
         insertData.install_location = data.installLocation || data.address || null;
         insertData.install_count = data.installCount || 0;
+        insertData.documents = data.documents || {}; // 문서(추가 정보) 저장 허용
         insertData.status = 'new';
       }
 
@@ -116,12 +117,15 @@ export async function POST(request: NextRequest) {
       }
 
       // 고객에게 알림톡 발송 (문의 접수 + 예약 안내)
-      try {
-        console.log('[Inquiry] 고객 알림톡 발송 시작:', data.phoneNumber.slice(0, 7) + '****')
-        const customerAlimtalkResult = await sendCustomerInquiryAlimtalks(data.phoneNumber)
-        console.log('[Inquiry] 고객 알림톡 발송 결과:', customerAlimtalkResult)
-      } catch (error) {
-        console.error('⚠️ 고객 알림톡 발송 실패:', error)
+      // KB 카드는 고객 알림톡 발송 제외
+      if (data.landingTemplate !== 'kb-card') {
+        try {
+          console.log('[Inquiry] 고객 알림톡 발송 시작:', data.phoneNumber.slice(0, 7) + '****')
+          const customerAlimtalkResult = await sendCustomerInquiryAlimtalks(data.phoneNumber)
+          console.log('[Inquiry] 고객 알림톡 발송 결과:', customerAlimtalkResult)
+        } catch (error) {
+          console.error('⚠️ 고객 알림톡 발송 실패:', error)
+        }
       }
 
       return NextResponse.json(

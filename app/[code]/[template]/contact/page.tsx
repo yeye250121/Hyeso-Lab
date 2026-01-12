@@ -25,6 +25,12 @@ interface FormData {
   installCount: string;
   privacyConsent: boolean;
   referrerUrl: string;
+  // KB Card Fields
+  vehicleTonnage: string;
+  name: string;
+  address: string;
+  kbCardStatus: string;
+  monthlyFuelCost: string;
 }
 
 // 아이콘 컴포넌트
@@ -87,7 +93,39 @@ export default function ContactPage() {
     installCount: '1',
     privacyConsent: false,
     referrerUrl: '',
+    // KB Card
+    vehicleTonnage: '',
+    name: '',
+    address: '',
+    kbCardStatus: '',
+    monthlyFuelCost: '',
   });
+
+  // 템플릿별 설정
+  const templateConfig = {
+    'kt-cctv': {
+      logo: 'https://i.namu.wiki/i/g-8tEhqgrMv-DLrASvSM-7pgsPos9qX1Lpx3VVOGRYTTZpgtUnWbMEsw7DLDuU7ecjtrkl6nqnCrFqxepgRU1A.svg',
+      logoAlt: 'KT 텔레캅',
+      title: <>전화번호를 남겨주시면<br />연락드릴게요</>,
+      subtitle: <><span className="text-blue-500 font-semibold">평균 1일</span> 이내로 연락드려요!</>,
+      themeColor: 'blue',
+      // Fields Config
+      showInquiryType: true,
+      showInstallCount: true,
+    },
+    'kb-card': {
+      logo: 'https://cdn.thefairnews.co.kr/news/photo/202404/26172_60797_4838.jpg',
+      logoAlt: 'KB국민카드',
+      title: <>화물복지카드<br />간편 상담 신청</>,
+      subtitle: <><span className="text-[#ffbc00] font-semibold">전문 상담원</span>이 빠르고 친절하게 안내해드려요.</>,
+      themeColor: 'yellow',
+      // Fields Config
+      showInquiryType: false,
+      showInstallCount: false,
+    },
+  };
+
+  const currentConfig = templateConfig[template as keyof typeof templateConfig] || templateConfig['kt-cctv'];
 
   // 최초 유입 URL 저장
   useEffect(() => {
@@ -134,11 +172,27 @@ export default function ContactPage() {
 
   // 폼 유효성 검사
   const installCountNum = parseInt(formData.installCount) || 0;
-  const isFormValid =
-    isValidPhone(formData.phoneNumber) &&
-    formData.installRegion.trim() !== '' &&
-    installCountNum > 0 &&
-    formData.privacyConsent;
+  
+  let isFormValid = false;
+
+  if (template === 'kb-card') {
+    // KB 카드 유효성 검사
+    isFormValid = 
+      formData.vehicleTonnage.trim() !== '' &&
+      formData.name.trim() !== '' &&
+      formData.address.trim() !== '' &&
+      isValidPhone(formData.phoneNumber) &&
+      formData.kbCardStatus !== '' &&
+      formData.monthlyFuelCost.trim() !== '' &&
+      formData.privacyConsent;
+  } else {
+    // 기본(CCTV) 유효성 검사
+    isFormValid =
+      isValidPhone(formData.phoneNumber) &&
+      formData.installRegion.trim() !== '' &&
+      (currentConfig.showInstallCount ? installCountNum > 0 : true) &&
+      formData.privacyConsent;
+  }
 
   // 폼 제출
   const handleSubmit = async (e: React.FormEvent) => {
@@ -152,17 +206,30 @@ export default function ContactPage() {
     try {
       const API_BASE_URL = window.APP_CONFIG?.API_BASE_URL || '';
 
-      const requestData = {
-        inquiryType: formData.inquiryType === 'new' ? 'consultation' : 'as',
+      const requestData: any = {
+        inquiryType: currentConfig.showInquiryType ? (formData.inquiryType === 'new' ? 'consultation' : 'as') : 'consultation',
         phoneNumber: formData.phoneNumber.replace(/[^0-9]/g, ''),
         privacyConsent: formData.privacyConsent,
         referrerUrl: formData.referrerUrl,
         marketerCode: marketerCode || null,
         landingTemplate: template,
         landingSubtype: fromSubtype,
-        installLocation: formData.installRegion,
-        installCount: installCountNum,
+        // 기본 필드
+        installLocation: template === 'kb-card' ? formData.address : formData.installRegion,
+        installCount: currentConfig.showInstallCount ? installCountNum : 0,
+        // 추가 문서 데이터 (KB 카드 등)
+        documents: {}
       };
+
+      if (template === 'kb-card') {
+        requestData.documents = {
+          vehicleTonnage: formData.vehicleTonnage,
+          name: formData.name,
+          address: formData.address,
+          kbCardStatus: formData.kbCardStatus,
+          monthlyFuelCost: formData.monthlyFuelCost,
+        };
+      }
 
       const res = await fetch(`${API_BASE_URL}/landing/api/inquiry`, {
         method: 'POST',
@@ -226,24 +293,39 @@ export default function ContactPage() {
                   <p className="text-lg font-medium text-gray-900">{formData.phoneNumber}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                  <MapPinIcon className="w-6 h-6 text-blue-500" />
+              
+              {template === 'kb-card' ? (
+                <>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                      <div className="w-6 h-6 text-blue-500 font-bold text-center">N</div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">성명</p>
+                      <p className="text-lg font-medium text-gray-900">{formData.name}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                      <MapPinIcon className="w-6 h-6 text-blue-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">주소</p>
+                      <p className="text-lg font-medium text-gray-900">{formData.address}</p>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <MapPinIcon className="w-6 h-6 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">{currentConfig.regionLabel || '지역'}</p>
+                    <p className="text-lg font-medium text-gray-900">{formData.installRegion}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">설치 희망 지역</p>
-                  <p className="text-lg font-medium text-gray-900">{formData.installRegion}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                  <CameraIcon className="w-6 h-6 text-blue-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">설치 예상 대수</p>
-                  <p className="text-lg font-medium text-gray-900">{formData.installCount}대</p>
-                </div>
-              </div>
+              )}
             </div>
 
             <Link
@@ -259,7 +341,7 @@ export default function ContactPage() {
     );
   }
 
-  // KT 텔레캅 로고 URL
+  // KT 텔레캅 로고 URL (fallback)
   const ktLogoUrl = 'https://i.namu.wiki/i/g-8tEhqgrMv-DLrASvSM-7pgsPos9qX1Lpx3VVOGRYTTZpgtUnWbMEsw7DLDuU7ecjtrkl6nqnCrFqxepgRU1A.svg';
 
   return (
@@ -270,17 +352,20 @@ export default function ContactPage() {
           {/* 좌측: 타이틀 영역 (데스크탑에서만 표시) */}
           <div className="hidden lg:block lg:sticky lg:top-20">
             {/* 로고 - 데스크탑 */}
-            <img
-              src={ktLogoUrl}
-              alt="KT 텔레캅"
-              className="h-10 mb-8 ml-1"
-            />
+            {currentConfig.logo ? (
+              <img
+                src={currentConfig.logo}
+                alt={currentConfig.logoAlt}
+                className={`h-10 mb-8 ml-1 ${template === 'kb-card' ? 'object-contain' : ''}`}
+              />
+            ) : (
+              <div className="text-2xl font-bold text-[#ffbc00] mb-8 ml-1">{currentConfig.logoAlt}</div>
+            )}
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-6">
-              전화번호를 남겨주시면<br />
-              연락드릴게요
+              {currentConfig.title}
             </h1>
             <p className="text-xl text-gray-600">
-              <span className="text-blue-500 font-semibold">평균 1일</span> 이내로 연락드려요!
+              {currentConfig.subtitle}
             </p>
           </div>
 
@@ -288,17 +373,20 @@ export default function ContactPage() {
           <div className="lg:bg-white lg:rounded-2xl lg:p-8 lg:shadow-sm lg:border lg:border-gray-100">
             {/* 로고 + 타이틀 - 모바일 */}
             <div className="lg:hidden mb-8">
-              <img
-                src={ktLogoUrl}
-                alt="KT 텔레캅"
-                className="h-8 mb-4 ml-1"
-              />
+              {currentConfig.logo ? (
+                <img
+                  src={currentConfig.logo}
+                  alt={currentConfig.logoAlt}
+                  className={`h-8 mb-4 ml-1 ${template === 'kb-card' ? 'object-contain' : ''}`}
+                />
+              ) : (
+                <div className="text-xl font-bold text-[#ffbc00] mb-4 ml-1">{currentConfig.logoAlt}</div>
+              )}
               <h1 className="text-2xl font-bold text-gray-900 leading-tight mb-2">
-                전화번호를 남겨주시면<br />
-                연락드릴게요
+                {currentConfig.title}
               </h1>
               <p className="text-base text-gray-600">
-                <span className="text-blue-500 font-semibold">평균 1일</span> 이내로 연락드려요!
+                {currentConfig.subtitle}
               </p>
             </div>
 
@@ -310,93 +398,203 @@ export default function ContactPage() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* 문의 유형 */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  문의형태
-                </label>
-                <div className="flex items-center gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
+              
+              {/* KB 카드 전용 폼 필드 */}
+              {template === 'kb-card' ? (
+                <>
+                  <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                     <h3 className="font-bold text-gray-800 mb-2">신청정보입력</h3>
+                     <p className="text-sm text-gray-500">* 표시는 필수입력</p>
+                  </div>
+
+                  {/* 차량톤수 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      차량톤수 <span className="text-red-500">*</span>
+                    </label>
                     <input
-                      type="radio"
-                      name="inquiryType"
-                      checked={formData.inquiryType === 'new'}
-                      onChange={() => setFormData(prev => ({ ...prev, inquiryType: 'new' }))}
-                      className="w-5 h-5 text-blue-500 border-gray-300 focus:ring-blue-500"
+                      type="text"
+                      value={formData.vehicleTonnage}
+                      onChange={(e) => setFormData(prev => ({ ...prev, vehicleTonnage: e.target.value }))}
+                      className="w-full h-12 px-4 bg-white border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#ffbc00]/50 focus:border-[#ffbc00]"
                     />
-                    <span className="text-gray-700">신규 상담문의</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  </div>
+
+                  {/* 성명(대표자) */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      성명(대표자) <span className="text-red-500">*</span>
+                    </label>
                     <input
-                      type="radio"
-                      name="inquiryType"
-                      checked={formData.inquiryType === 'as'}
-                      onChange={() => setFormData(prev => ({ ...prev, inquiryType: 'as' }))}
-                      className="w-5 h-5 text-blue-500 border-gray-300 focus:ring-blue-500"
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full h-12 px-4 bg-white border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#ffbc00]/50 focus:border-[#ffbc00]"
                     />
-                    <span className="text-gray-700">AS 문의</span>
-                  </label>
-                </div>
-              </div>
+                  </div>
 
-              {/* 전화번호 */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  전화번호
-                </label>
-                <input
-                  type="tel"
-                  inputMode="numeric"
-                  placeholder=""
-                  value={formData.phoneNumber}
-                  onChange={(e) => {
-                    const formatted = formatPhoneNumber(e.target.value);
-                    setFormData((prev) => ({ ...prev, phoneNumber: formatted }));
-                  }}
-                  className="w-full h-12 px-4 bg-white border border-gray-300 rounded-lg text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                />
-              </div>
+                  {/* 주소 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      주소 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.address}
+                      onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                      className="w-full h-12 px-4 bg-white border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#ffbc00]/50 focus:border-[#ffbc00]"
+                    />
+                  </div>
 
-              {/* 설치 희망 지역 */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  설치 희망 지역
-                </label>
-                <input
-                  type="text"
-                  placeholder="예: 서울시 강남구"
-                  value={formData.installRegion}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, installRegion: e.target.value }))}
-                  className="w-full h-12 px-4 bg-white border border-gray-300 rounded-lg text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                />
-              </div>
+                  {/* 연락처 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      연락처 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      value={formData.phoneNumber}
+                      onChange={(e) => {
+                         const formatted = formatPhoneNumber(e.target.value);
+                         setFormData(prev => ({ ...prev, phoneNumber: formatted }));
+                      }}
+                      className="w-full h-12 px-4 bg-white border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#ffbc00]/50 focus:border-[#ffbc00]"
+                    />
+                  </div>
 
-              {/* 설치 대수 */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  설치 예상 대수
-                </label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="예: 4"
-                  value={formData.installCount}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9]/g, '');
-                    setFormData((prev) => ({ ...prev, installCount: value }));
-                  }}
-                  className="w-full h-12 px-4 bg-white border border-gray-300 rounded-lg text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                />
-              </div>
+                  {/* KB국민카드 보유확인 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      KB국민카드 보유확인 <span className="text-red-500">*</span>
+                    </label>
+                    <div className="space-y-2">
+                      {['신용카드(일반, 화물카드)', '체크카드(일반, 화물카드)', '카드없음'].map((option) => (
+                        <label key={option} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="kbCardStatus"
+                            value={option}
+                            checked={formData.kbCardStatus === option}
+                            onChange={(e) => setFormData(prev => ({ ...prev, kbCardStatus: e.target.value }))}
+                            className="w-5 h-5 text-[#ffbc00] border-gray-300 focus:ring-[#ffbc00]"
+                          />
+                          <span className="text-gray-700">{option}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
 
-              {/* 개인정보 동의 */}
+                  {/* 월예상 주유비 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      월예상 주유비 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.monthlyFuelCost}
+                      onChange={(e) => setFormData(prev => ({ ...prev, monthlyFuelCost: e.target.value }))}
+                      className="w-full h-12 px-4 bg-white border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#ffbc00]/50 focus:border-[#ffbc00]"
+                    />
+                  </div>
+
+                </>
+              ) : (
+                /* 기존 (CCTV) 폼 필드 */
+                <>
+                  {/* 문의 유형 */}
+                  {currentConfig.showInquiryType && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                        문의형태
+                      </label>
+                      <div className="flex items-center gap-6">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="inquiryType"
+                            checked={formData.inquiryType === 'new'}
+                            onChange={() => setFormData(prev => ({ ...prev, inquiryType: 'new' }))}
+                            className="w-5 h-5 text-blue-500 border-gray-300 focus:ring-blue-500"
+                          />
+                          <span className="text-gray-700">신규 상담문의</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="inquiryType"
+                            checked={formData.inquiryType === 'as'}
+                            onChange={() => setFormData(prev => ({ ...prev, inquiryType: 'as' }))}
+                            className="w-5 h-5 text-blue-500 border-gray-300 focus:ring-blue-500"
+                          />
+                          <span className="text-gray-700">AS 문의</span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 전화번호 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      전화번호
+                    </label>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      placeholder=""
+                      value={formData.phoneNumber}
+                      onChange={(e) => {
+                        const formatted = formatPhoneNumber(e.target.value);
+                        setFormData((prev) => ({ ...prev, phoneNumber: formatted }));
+                      }}
+                      className="w-full h-12 px-4 bg-white border border-gray-300 rounded-lg text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    />
+                  </div>
+
+                  {/* 설치 희망 지역 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {currentConfig.regionLabel || '설치 희망 지역'}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder={currentConfig.regionPlaceholder}
+                      value={formData.installRegion}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, installRegion: e.target.value }))}
+                      className="w-full h-12 px-4 bg-white border border-gray-300 rounded-lg text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    />
+                  </div>
+
+                  {/* 설치 대수 */}
+                  {currentConfig.showInstallCount && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {currentConfig.countLabel}
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder={currentConfig.countPlaceholder}
+                        value={formData.installCount}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, '');
+                          setFormData((prev) => ({ ...prev, installCount: value }));
+                        }}
+                        className="w-full h-12 px-4 bg-white border border-gray-300 rounded-lg text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* 개인정보 동의 (공통) */}
               <label className="flex items-start gap-3 cursor-pointer">
                 <div className="relative mt-0.5">
                   <input
                     type="checkbox"
                     checked={formData.privacyConsent}
                     onChange={(e) => setFormData(prev => ({ ...prev, privacyConsent: e.target.checked }))}
-                    className="w-5 h-5 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                    className={`w-5 h-5 border-gray-300 rounded ${template === 'kb-card' ? 'text-[#ffbc00] focus:ring-[#ffbc00]' : 'text-blue-500 focus:ring-blue-500'}`}
                   />
                 </div>
                 <span className="text-sm text-gray-600">
@@ -404,7 +602,7 @@ export default function ContactPage() {
                   <a
                     href="/landing/policies"
                     target="_blank"
-                    className="text-blue-500 underline"
+                    className="underline"
                     onClick={(e) => e.stopPropagation()}
                   >
                     개인정보 수집 및 이용
@@ -417,7 +615,7 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={!isFormValid || isSubmitting}
-                className="w-full h-14 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white text-lg font-semibold rounded-xl transition-colors disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className={`w-full h-14 bg-${currentConfig.themeColor === 'yellow' ? '[#ffbc00] hover:bg-[#e5a900]' : 'blue-500 hover:bg-blue-600'} disabled:bg-gray-300 text-white text-lg font-semibold rounded-xl transition-colors disabled:cursor-not-allowed flex items-center justify-center gap-2`}
               >
                 {isSubmitting ? (
                   <>

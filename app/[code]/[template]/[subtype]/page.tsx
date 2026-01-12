@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 
 // 템플릿별 컴포넌트 동적 import
 import KtCctvLanding from '@/app/landing/templates/kt-cctv';
+import KbCardLanding from '@/app/landing/templates/kb-card';
 
 /**
  * /{파트너코드}/{템플릿}/{서브타입} 실제 랜딩페이지
@@ -15,7 +16,7 @@ import KtCctvLanding from '@/app/landing/templates/kt-cctv';
  */
 
 // 지원하는 템플릿 목록
-const SUPPORTED_TEMPLATES = ['kt-cctv'] as const;
+const SUPPORTED_TEMPLATES = ['kt-cctv', 'kb-card'] as const;
 type SupportedTemplate = typeof SUPPORTED_TEMPLATES[number];
 
 function LandingContent() {
@@ -34,6 +35,14 @@ function LandingContent() {
     case 'kt-cctv':
       return (
         <KtCctvLanding
+          marketerCode={code}
+          template={template}
+          subtype={subtype}
+        />
+      );
+    case 'kb-card':
+      return (
+        <KbCardLanding
           marketerCode={code}
           template={template}
           subtype={subtype}

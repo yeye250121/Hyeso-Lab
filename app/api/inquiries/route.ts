@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     // 쿼리 빌더 - 예약 관련 필드 포함
     let query = supabaseAdmin
       .from('inquiries')
-      .select('id, phone_number, install_location, install_count, marketer_code, status, submitted_at, created_at, inquiry_type, reservation_date, reservation_time_slot, outdoor_count, indoor_count, address, address_detail, zonecode, documents, documents_submitted', { count: 'exact' })
+      .select('id, phone_number, install_location, install_count, marketer_code, status, submitted_at, created_at, inquiry_type, reservation_date, reservation_time_slot, outdoor_count, indoor_count, address, address_detail, zonecode, documents, documents_submitted, landing_template, landing_subtype', { count: 'exact' })
       .in('marketer_code', codes)
       .order('submitted_at', { ascending: false })
 

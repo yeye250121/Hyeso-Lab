@@ -10,6 +10,18 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'ktollehcctv.co',
       },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.truck-kbcard.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.thefairnews.co.kr',
+      },
     ],
   },
 };
