@@ -3,12 +3,11 @@ import '@/app/landing/globals.css';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
-  title: 'KT CCTV - 10초만에 알아보기',
-  description: 'KT텔레캅 CCTV 무료 견적 상담 신청',
-  keywords: 'CCTV, KT텔레캅, KT CCTV, 보안, 방범',
+  title: '상담 신청',
+  description: '쉽고 빠른 상담 신청',
   openGraph: {
-    title: 'KT CCTV - 10초만에 알아보기',
-    description: 'KT텔레캅 CCTV 무료 견적 상담 신청',
+    title: '상담 신청',
+    description: '쉽고 빠른 상담 신청',
     type: 'website',
   },
 };
