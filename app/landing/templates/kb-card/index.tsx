@@ -119,7 +119,7 @@ const SimpleHeader = () => (
   <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 h-16 lg:h-20 flex items-center justify-center shadow-sm">
     <div className="relative w-40 h-8 lg:w-48 lg:h-10">
       <Image
-        src="https://cdn.thefairnews.co.kr/news/photo/202404/26172_60797_4838.jpg"
+        src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/%EA%B5%AD%EB%AF%BC%EC%B9%B4%EB%93%9C_logo"
         alt="KB 국민카드"
         fill
         className="object-contain"

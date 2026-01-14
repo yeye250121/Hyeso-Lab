@@ -15,7 +15,7 @@ export const config = {
 
   // 히어로 이미지
   heroImage: {
-    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/KB_logo.svg/2560px-KB_logo.svg.png', 
+    src: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/%EA%B5%AD%EB%AF%BC%EC%B9%B4%EB%93%9C_logo', 
     alt: 'KB 화물복지카드',
   },
 

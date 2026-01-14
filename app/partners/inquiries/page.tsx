@@ -79,7 +79,7 @@ const KbCardDetails = ({ documents }: { documents: Record<string, string> }) => 
       <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border">
         <div className="w-8 h-5 relative">
           <img 
-            src="https://cdn.thefairnews.co.kr/news/photo/202404/26172_60797_4838.jpg" 
+            src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/%EA%B5%AD%EB%AF%BC%EC%B9%B4%EB%93%9C_logo" 
             alt="KB" 
             className="w-full h-full object-contain"
           />

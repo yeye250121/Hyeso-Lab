@@ -118,7 +118,7 @@ export default function ContactPage() {
       countPlaceholder: '예: 4',
     },
     'kb-card': {
-      logo: 'https://cdn.thefairnews.co.kr/news/photo/202404/26172_60797_4838.jpg',
+      logo: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/%EA%B5%AD%EB%AF%BC%EC%B9%B4%EB%93%9C_logo',
       logoAlt: 'KB국민카드',
       title: <>화물복지카드<br />간편 상담 신청</>,
       subtitle: <><span className="text-[#ffbc00] font-semibold">전문 상담원</span>이 빠르고 친절하게 안내해드려요.</>,
