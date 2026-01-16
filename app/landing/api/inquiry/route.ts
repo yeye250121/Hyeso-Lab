@@ -95,6 +95,9 @@ export async function POST(request: NextRequest) {
 
       // 파트너에게 알림톡 발송 (마케터 코드가 있는 경우)
       const marketerCode = data.marketerCode
+      const GLOBAL_ADMIN_CODE = 'S00001'
+
+      // 1. 담당 파트너에게 발송
       if (marketerCode) {
         try {
           console.log('[Inquiry] 파트너 알림톡 발송 시작:', marketerCode)
@@ -113,6 +116,28 @@ export async function POST(request: NextRequest) {
           }
         } catch (error) {
           console.error('⚠️ 파트너 알림톡 발송 실패:', error)
+        }
+      }
+
+      // 2. 총괄 관리자(S00001)에게 발송 (담당 파트너가 총괄 관리자가 아닐 경우에만)
+      if (marketerCode?.toUpperCase() !== GLOBAL_ADMIN_CODE) {
+        try {
+          console.log('[Inquiry] 총괄 관리자 알림톡 발송 시작:', GLOBAL_ADMIN_CODE)
+          const { data: admin } = await supabaseAdmin
+            .from('users')
+            .select('phone')
+            .eq('unique_code', GLOBAL_ADMIN_CODE)
+            .single()
+
+          if (admin?.phone) {
+            console.log('[Inquiry] 총괄 관리자 전화번호 조회 성공:', admin.phone.slice(0, 7) + '****')
+            await sendPartnerNewInquiryAlimtalk(admin.phone)
+            console.log('[Inquiry] 총괄 관리자 알림톡 발송 완료')
+          } else {
+            console.log('[Inquiry] 총괄 관리자 전화번호 없음')
+          }
+        } catch (error) {
+          console.error('⚠️ 총괄 관리자 알림톡 발송 실패:', error)
         }
       }
 
@@ -184,6 +209,8 @@ export async function POST(request: NextRequest) {
       });
 
       // 파트너에게 알림톡 발송 (마케터 코드가 있는 경우)
+      const GLOBAL_ADMIN_CODE = 'S00001'
+
       if (validationResult.data.marketerCode) {
         try {
           console.log('[Inquiry] 파트너 알림톡 발송 시작:', validationResult.data.marketerCode)
@@ -202,6 +229,28 @@ export async function POST(request: NextRequest) {
           }
         } catch (error) {
           console.error('⚠️ 파트너 알림톡 발송 실패:', error)
+        }
+      }
+
+      // 총괄 관리자(S00001)에게 발송 (담당 파트너가 총괄 관리자가 아닐 경우에만)
+      if (validationResult.data.marketerCode?.toUpperCase() !== GLOBAL_ADMIN_CODE) {
+        try {
+          console.log('[Inquiry] 총괄 관리자 알림톡 발송 시작:', GLOBAL_ADMIN_CODE)
+          const { data: admin } = await supabaseAdmin
+            .from('users')
+            .select('phone')
+            .eq('unique_code', GLOBAL_ADMIN_CODE)
+            .single()
+
+          if (admin?.phone) {
+            console.log('[Inquiry] 총괄 관리자 전화번호 조회 성공:', admin.phone.slice(0, 7) + '****')
+            await sendPartnerNewInquiryAlimtalk(admin.phone)
+            console.log('[Inquiry] 총괄 관리자 알림톡 발송 완료')
+          } else {
+            console.log('[Inquiry] 총괄 관리자 전화번호 없음')
+          }
+        } catch (error) {
+          console.error('⚠️ 총괄 관리자 알림톡 발송 실패:', error)
         }
       }
 
