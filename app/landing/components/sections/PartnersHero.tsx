@@ -23,6 +23,8 @@ export interface PartnersHeroProps {
   hideLogo?: boolean;
   /** 타이틀 위에 표시할 경고/강조 문구 */
   warningTitle?: React.ReactNode;
+  /** 경고 문구 아래 설명 */
+  warningContent?: React.ReactNode;
   /** 경고 문구 아래 이미지 URL */
   warningImageUrl?: string;
   /** 경고 이미지 alt */
@@ -75,6 +77,7 @@ export default function PartnersHero(props: PartnersHeroProps = {}) {
     hideNavButtons,
     hideLogo,
     warningTitle,
+    warningContent,
     warningImageUrl,
     warningImageAlt,
     disableLogoLink,
@@ -181,6 +184,11 @@ export default function PartnersHero(props: PartnersHeroProps = {}) {
               <h2 className="text-2xl lg:text-3xl font-bold text-white leading-tight mb-6">
                 {warningTitle}
               </h2>
+            )}
+            {warningContent && (
+              <p className="text-white/70 text-base lg:text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
+                {warningContent}
+              </p>
             )}
             {warningImageUrl && (
               <div className="flex flex-col items-center mb-16">
