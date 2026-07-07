@@ -79,7 +79,7 @@ export default function GuidesPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-text-primary">교육자료</h1>
-            <p className="text-text-secondary mt-1">피움 파트너를 위한 교육 가이드입니다</p>
+            <p className="text-text-secondary mt-1">혜택 연구소 파트너를 위한 교육 가이드입니다</p>
           </div>
 
           {/* 검색 */}
@@ -137,7 +137,7 @@ export default function GuidesPage() {
         <div className="bg-bg-card px-6 py-6">
           <h1 className="text-heading text-text-primary">교육자료</h1>
           <p className="text-body text-text-secondary mt-1">
-            피움 파트너를 위한 교육 가이드입니다
+            혜택 연구소 파트너를 위한 교육 가이드입니다
           </p>
         </div>
 

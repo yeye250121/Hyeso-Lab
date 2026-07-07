@@ -15,7 +15,7 @@ const defaultProps: PartnersSupportProps = {
   ),
   description: (
     <>
-      고객 상담부터 관리까지,<br />피움이 귀찮은 건 다 해드릴게요.
+      고객 상담부터 관리까지,<br />혜택 연구소가 귀찮은 건 다 해드릴게요.
     </>
   ),
   imageSrc: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_a_man_looking_phone_icon_v02.png',
@@ -26,7 +26,7 @@ export default function PartnersSupport(props: PartnersSupportProps = {}) {
   const { title, description, imageSrc, imageAlt } = { ...defaultProps, ...props };
 
   return (
-    <section className="relative bg-[#e8f3ff] pt-16 lg:pt-24 pb-48 lg:pb-56">
+    <section className="relative bg-[#fff0f4] pt-16 lg:pt-24 pb-48 lg:pb-56">
       <div className="max-w-[1100px] mx-auto px-6">
         <div className="text-center animate-on-scroll opacity-0 translate-y-12 transition-all duration-700 mb-12 lg:mb-16">
           <h3 className="text-2xl lg:text-3xl font-bold text-[#333d4b] leading-tight mb-4">

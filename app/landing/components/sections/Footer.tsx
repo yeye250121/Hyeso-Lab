@@ -24,7 +24,7 @@ interface FooterProps {
 }
 
 const defaultCompanyInfo = {
-  name: '피움',
+  name: '혜택 연구소',
   businessNumber: '573-07-03391',
   address: '경상남도 창원시 진해구 충장로 68-1, 2층 1호(충무동)',
   phone: '010-7469-4385',
@@ -47,7 +47,7 @@ const defaultLinkSections: FooterLinkSection[] = [
 ];
 
 export default function Footer({
-  logoSrc = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo',
+  logoSrc = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/hyeso-lab_logo_pic_text_black.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvaHllc28tbGFiX2xvZ29fcGljX3RleHRfYmxhY2sucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4MzQzOTY5NywiZXhwIjoxNzg0MDQ0NDk3fQ.0OSrIdhjHpi-MpWgqlIvh-cZprpWIJx4t6M7gHdQ10Y',
   companyInfo = defaultCompanyInfo,
   linkSections = defaultLinkSections,
   showCopyright = true,
@@ -60,10 +60,10 @@ export default function Footer({
           <div className="space-y-4">
             <Image
               src={logoSrc}
-              alt="Piooom"
-              width={80}
-              height={24}
-              className="h-6 w-auto brightness-0 invert"
+              alt="혜택 연구소"
+              width={166}
+              height={50}
+              className="h-[50px] w-auto brightness-0 invert"
             />
             <div className="space-y-1 text-sm text-[#8b95a1]">
               <p>{companyInfo.name}</p>
@@ -94,7 +94,7 @@ export default function Footer({
         {showCopyright && (
           <div className="mt-12 pt-8 border-t border-[#4e5968]">
             <p className="text-[#6b7684] text-sm text-center">
-              © {new Date().getFullYear()} Piooom. All rights reserved.
+              © {new Date().getFullYear()} 혜택 연구소. All rights reserved.
             </p>
           </div>
         )}

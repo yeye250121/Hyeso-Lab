@@ -33,7 +33,7 @@ export const ALIMTALK_TEMPLATES = {
   CUSTOMER_INQUIRY_RECEIVED: 'ppur_2025123018060012849110430',
 
   // 고객 예약 안내 - 고객에게 발송 (바로 예약하기 버튼 포함)
-  // (변수 없음, 버튼 URL: https://piooom.kr/book)
+  // (변수 없음, 버튼 URL: https://benefit-lab.kr/book)
   CUSTOMER_RESERVATION_GUIDE: 'ppur_2025123018083720835716306',
 } as const
 
@@ -108,7 +108,7 @@ export function getPartnerInquiryCancelledVariables(): AlimtalkVariables {
  * @returns 예약 페이지 전체 URL
  */
 export function getReservationUrl(inquiryId?: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://piooom.kr'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://benefit-lab.kr'
   if (inquiryId) {
     return `${baseUrl}/book/${inquiryId}`
   }

@@ -9,7 +9,7 @@ import Sidebar from './Sidebar'
 import BottomNav from './BottomNav'
 import { Menu, X } from 'lucide-react'
 
-const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo'
+const LOGO_URL = 'https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png'
 
 interface PartnerLayoutProps {
   children: React.ReactNode
@@ -69,7 +69,7 @@ export default function PartnerLayout({
             <h1 className="text-title text-text-primary">{title}</h1>
           ) : (
             <Link href="/partners/home">
-              <Image src={LOGO_URL} alt="Piooom" width={80} height={24} className="h-6 w-auto dark:brightness-0 dark:invert" />
+              <Image src={LOGO_URL} alt="혜택 연구소" width={80} height={24} className="h-6 w-auto dark:brightness-0 dark:invert" />
             </Link>
           )}
         </div>

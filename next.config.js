@@ -8,6 +8,14 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'yknptcjxrizgccxczzuy.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'urxbdqmrsfzmztkacfiv.supabase.co',
+      },
+      {
+        protocol: 'https',
         hostname: 'ktollehcctv.co',
       },
       {

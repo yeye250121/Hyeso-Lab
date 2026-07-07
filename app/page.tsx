@@ -5,13 +5,39 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { Footer } from '@/app/landing/components'
 
-const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo'
+const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/hyeso-lab_logo_pic_text_black.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvaHllc28tbGFiX2xvZ29fcGljX3RleHRfYmxhY2sucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4MzQzOTY5NywiZXhwIjoxNzg0MDQ0NDk3fQ.0OSrIdhjHpi-MpWgqlIvh-cZprpWIJx4t6M7gHdQ10Y'
+const NAV_LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/hyeso-lab_logo_pic_text_black.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvaHllc28tbGFiX2xvZ29fcGljX3RleHRfYmxhY2sucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4MzQzMzU3NiwiZXhwIjoxNzg0MDM4Mzc2fQ.DGBROh1thZ9aNai6oVGn4x8DtmeT0lpC9ihBcuuNI78'
 
 export default function PartnersLandingPage() {
   const observerRef = useRef<IntersectionObserver | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [activeSlide, setActiveSlide] = useState(0)
+  const sliderRef = useRef<HTMLDivElement>(null)
+
+  const handleSliderScroll = () => {
+    if (!sliderRef.current) return
+    const scrollLeft = sliderRef.current.scrollLeft
+    const cardWidth = sliderRef.current.children[0]?.clientWidth || 280
+    const gap = 24 // 6 * 4px
+    const index = Math.round(scrollLeft / (cardWidth + gap))
+    setActiveSlide(index)
+  }
+
+  const scrollToSlide = (index: number) => {
+    if (!sliderRef.current) return
+    const child = sliderRef.current.children[index] as HTMLElement
+    if (child) {
+      child.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+    }
+  }
 
   useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll)
+    
     // Intersection Observer for fade-in animations
     observerRef.current = new IntersectionObserver(
       (entries) => {
@@ -28,96 +54,107 @@ export default function PartnersLandingPage() {
     const animatedElements = document.querySelectorAll('.animate-on-scroll')
     animatedElements.forEach((el) => observerRef.current?.observe(el))
 
-    return () => observerRef.current?.disconnect()
+    return () => {
+      observerRef.current?.disconnect()
+      window.removeEventListener('scroll', handleScroll)
+    }
   }, [])
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section with integrated Navigation */}
-      <section className="bg-[#191f28] min-h-[600px] flex flex-col">
-        {/* Navigation - 히어로 내부에 통합 */}
-        <nav className="relative">
-          <div className="h-16 max-w-[1100px] mx-auto px-6 flex items-center justify-between">
-            <Link href="/">
-              <Image
-                src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/piooom_logo_v01.png"
-                alt="Piooom"
-                width={100}
-                height={28}
-                className="h-5 w-auto brightness-0 invert"
-              />
-            </Link>
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center gap-4">
-              <Link
-                href="/partners/login"
-                className="text-[#3182f6] hover:text-[#1b64da] text-sm font-semibold transition-colors"
-              >
-                파트너스 로그인
-              </Link>
-              <Link
-                href="/partners/register"
-                className="bg-[#3182f6] hover:bg-[#1b64da] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-              >
-                회원가입
-              </Link>
-            </div>
-            {/* Mobile Hamburger Button */}
-            <button
-              className="md:hidden p-2"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="메뉴 열기"
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Sticky Navigation */}
+      <nav className={`sticky top-0 z-50 transition-colors duration-300 ${isScrolled ? 'bg-gray-50 border-b border-gray-200' : 'bg-transparent'}`}>
+        <div className="h-16 max-w-[1100px] mx-auto px-6 flex items-center justify-between">
+          <Link href="/">
+            <Image
+              src={NAV_LOGO_URL}
+              alt="혜택 연구소"
+              width={300}
+              height={84}
+              className="h-[60px] w-auto"
+            />
+          </Link>
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center gap-4">
+            <Link
+              href="/partners/login"
+              className="text-[var(--action-primary)] hover:text-[var(--action-primary-hover)] text-sm font-semibold transition-colors"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6">
-                <path fill="#B0B8C1" d="M4.118 6.2h16a1.2 1.2 0 100-2.4h-16a1.2 1.2 0 100 2.4m16 4.6h-16a1.2 1.2 0 100 2.4h16a1.2 1.2 0 100-2.4m0 7h-16a1.2 1.2 0 100 2.4h16a1.2 1.2 0 100-2.4" fillRule="evenodd"/>
-              </svg>
-            </button>
+              로그인
+            </Link>
+            <Link
+              href="/partners/register"
+              className="bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              회원가입
+            </Link>
           </div>
-          {/* Mobile Menu Accordion */}
-          <div className={`md:hidden overflow-hidden transition-all duration-300 ease-out ${mobileMenuOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
-            <div className="px-6 py-4 space-y-3 border-t border-[#333d4b]">
-              <Link
-                href="/partners/login"
-                className="block w-full text-center text-[#3182f6] border border-[#3182f6] text-base font-semibold px-4 py-3 rounded-xl transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                파트너스 로그인
-              </Link>
-              <Link
-                href="/partners/register"
-                className="block w-full text-center bg-white hover:bg-gray-100 text-[#3182f6] text-base font-semibold px-4 py-3 rounded-xl transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                회원가입
-              </Link>
-            </div>
+          {/* Mobile Hamburger Button */}
+          <button
+            className="md:hidden p-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="메뉴 열기"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6">
+              <path fill="#B0B8C1" d="M4.118 6.2h16a1.2 1.2 0 100-2.4h-16a1.2 1.2 0 100 2.4m16 4.6h-16a1.2 1.2 0 100 2.4h16a1.2 1.2 0 100-2.4m0 7h-16a1.2 1.2 0 100 2.4h16a1.2 1.2 0 100-2.4" fillRule="evenodd"/>
+            </svg>
+          </button>
+        </div>
+        {/* Mobile Menu Accordion */}
+        <div className={`md:hidden overflow-hidden transition-all duration-300 ease-out ${mobileMenuOpen ? 'max-h-40 opacity-100 bg-gray-50 shadow-md border-b border-gray-200' : 'max-h-0 opacity-0 bg-transparent'}`}>
+          <div className="px-6 py-4 space-y-3 border-t border-[#333d4b]/10">
+            <Link
+              href="/partners/login"
+              className="block w-full text-center text-[var(--action-primary)] border border-[var(--action-primary)] text-base font-semibold px-4 py-3 rounded-xl transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              로그인
+            </Link>
+            <Link
+              href="/partners/register"
+              className="block w-full text-center bg-white hover:bg-gray-100 text-[var(--action-primary)] text-base font-semibold px-4 py-3 rounded-xl transition-colors shadow-sm"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              회원가입
+            </Link>
           </div>
-        </nav>
+        </div>
+      </nav>
+
+      {/* Hero Section with integrated Navigation */}
+      <section className="relative bg-gray-50 min-h-[600px] flex flex-col overflow-hidden -mt-16">
+        {/* Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute top-0 left-0 w-full h-[133.33%] object-cover object-top opacity-80 pointer-events-none"
+        >
+          <source src="https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/videos/hyeso-lab_herosectionvideo.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvdmlkZW9zL2h5ZXNvLWxhYl9oZXJvc2VjdGlvbnZpZGVvLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODM0MzQ1NjMsImV4cCI6MTc4NDAzOTM2M30.tJRektbaAPT6FSfedd8D2TQZz0QqevOGvUjmDHTYjpw" type="video/mp4" />
+        </video>
+
+        {/* Video Gradient Fade & Blur Overlay */}
+        <div className="absolute inset-0 pointer-events-none backdrop-blur-md [mask-image:linear-gradient(to_bottom,black_0%,transparent_10%,transparent_90%,black_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,transparent_10%,transparent_90%,black_100%)]" />
+        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(to_bottom,#f9fafb_0%,transparent_10%,transparent_90%,#f9fafb_100%)]" />
+        
+
 
         {/* Hero Content */}
-        <div className="flex-1 flex items-center">
-          <div className="max-w-[1100px] mx-auto px-6 py-24 lg:py-32 text-center w-full">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 pt-16 lg:pt-20">
+          <div className="max-w-[1100px] mx-auto px-6 text-center w-full pointer-events-auto">
           <div className="animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
-            <Image
-              src={LOGO_URL}
-              alt="Piooom"
-              width={240}
-              height={72}
-              className="h-[72px] w-auto mb-6 mx-auto"
-            />
-            <h1 className="text-4xl lg:text-6xl font-bold text-white leading-tight mb-6">
-              집에서 시작하는<br />온라인 사업<br />
-              <span className="text-[#3182f6]">피움</span> 파트너스
+            <h1 className="text-4xl lg:text-6xl font-bold text-white leading-tight mb-6 drop-shadow-md">
+              내가 받을 혜택<br />연구해드려요
             </h1>
-            <p className="text-white/70 text-lg lg:text-xl max-w-2xl mx-auto mb-10">
-              <br />상담을 연결하면 수익이 생겨요<br />
-              전부 다, 피움이 도와드릴게요.
+            <p className="text-[#4e5968] text-lg lg:text-xl max-w-2xl mx-auto mb-10">
+              혜택연구소가 대신 연구해서 찾아드려요
             </p>
             <Link
               href="/partners/login"
-              className="inline-flex items-center gap-2 bg-[#3182f6] hover:bg-[#1b64da] text-white text-lg font-semibold px-8 py-4 rounded-xl transition-all hover:scale-105"
+              className="inline-flex items-center gap-2 bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white text-lg font-semibold px-8 py-4 rounded-xl transition-all hover:scale-105"
             >
-              지금 시작하기
+              연구 시작하기
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -127,74 +164,167 @@ export default function PartnersLandingPage() {
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-16 lg:py-20 bg-white">
+      {/* Products Section */}
+      <section className="pt-24 lg:pt-32 pb-16 lg:pb-20 bg-gray-50">
         <div className="max-w-[1100px] mx-auto px-6">
-          <div className="text-center mb-16 lg:mb-20 animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
+          <div className="text-center mb-10 lg:mb-14 animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
+            <h2 className="text-2xl lg:text-3xl font-bold text-[#333d4b]">
+              어떤 혜택을 연구해 볼까요?
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6 max-w-[280px] md:max-w-[600px] mx-auto">
+            {[
+              { 
+                id: 'card', 
+                title: '카드 연구',
+                icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/card_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvY2FyZF9pY29uLnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODM0MzcwOTcsImV4cCI6MTc4NDA0MTg5N30.-cz7zkSXFkCNH--hfsQ5qWPulBZ8YxMcOG4vGeoaGrY'
+              },
+              { 
+                id: 'phone', 
+                title: '휴대폰 연구',
+                icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/phone_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvcGhvbmVfaWNvbi5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzNDM3MTEzLCJleHAiOjE3ODQwNDE5MTN9.DLm6Dekmg7jaANK7gG_4GXiqXp1vyOUn7v9vMFU13nY'
+              },
+              { 
+                id: 'internet', 
+                title: '인터넷 연구',
+                icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/internet_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvaW50ZXJuZXRfaWNvbi5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzNDM3MTI5LCJleHAiOjE3ODQwNDE5Mjl9.w-2Iyaoa2U5axNSvlmpyUc2nHco-NJdDcCTkk56Al7w'
+              },
+              { 
+                id: 'cctv', 
+                title: 'CCTV 연구',
+                icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/cctv_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvY2N0dl9pY29uLnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODM0MzcxMzgsImV4cCI6MTc4NDA0MTkzOH0.9g1aEliVcpaYlLfw5z7ShqYJRaWncGSnyo_Ho0JmvM0'
+              },
+            ].map((product) => (
+              <div 
+                key={product.id}
+                className="group flex flex-col items-center justify-center gap-4 hover:-translate-y-2 transition-all duration-300 cursor-pointer animate-on-scroll opacity-0 translate-y-12"
+              >
+                <div className="w-20 h-20 lg:w-24 lg:h-24 flex items-center justify-center mb-1 transition-transform duration-300 group-hover:scale-105">
+                  <Image 
+                    src={product.icon} 
+                    alt={product.title} 
+                    width={96} 
+                    height={96} 
+                    className="object-contain w-full h-full"
+                  />
+                </div>
+                <h3 className="text-lg lg:text-xl font-medium text-[#333d4b] whitespace-nowrap">
+                  {product.title}
+                </h3>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-16 lg:py-24 bg-gray-50">
+        <div className="max-w-[1100px] mx-auto px-6">
+          <div className="text-center mb-16 lg:mb-24 animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
             <h2 className="text-3xl lg:text-4xl font-bold text-[#333d4b]">
-              피움 파트너만<br />받을 수 있어요
+              이런 고민,<br />한 번쯤 해보셨나요?
             </h2>
           </div>
 
-          {/* Benefit Cards */}
-          <div className="space-y-16 lg:space-y-20">
-            {/* Benefit 1 */}
-            <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
-              <div className="w-[280px] lg:w-[290px] h-[230px] lg:h-[290px] rounded-[24px] bg-[#e8f3ff] flex items-center justify-center flex-shrink-0">
-                <Image
-                  src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_idea_icon_v02.png"
-                  alt="아이디어 아이콘"
-                  width={240}
-                  height={240}
-                  className="w-48 h-48 lg:w-56 lg:h-56 object-contain"
-                />
-              </div>
-              <div className="text-center lg:text-left lg:self-start lg:w-[300px]">
-                <h3 className="text-2xl lg:text-3xl font-bold text-[#333d4b] mb-4 leading-tight">
-                  검증된 방법을<br />
-                  알려드려요
+          {/* Benefit Cards Slider (Mobile) / Grid (Desktop) */}
+          <div 
+            ref={sliderRef}
+            onScroll={handleSliderScroll}
+            className="flex lg:grid lg:grid-cols-3 gap-6 overflow-x-auto snap-x snap-mandatory px-6 lg:px-0 pb-4 lg:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          >
+            {/* Card 1 */}
+            <div className="flex-none w-[280px] sm:w-[320px] lg:w-auto h-[360px] lg:h-[420px] rounded-[32px] bg-gradient-to-t from-gray-200/80 to-gray-50 flex flex-col items-center text-center pt-10 px-6 snap-center animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
+              <div className="mb-auto">
+                <h3 className="text-xl lg:text-2xl font-bold text-[#333d4b] mb-4 leading-tight">
+                  지원금은 도대체<br />
+                  어떻게 받는거지?
                 </h3>
-                <p className="text-lg lg:text-xl text-[#4e5968] leading-relaxed">
-                  요즘 뜨는 트렌드와<br />성공하는 가이드라인을 드려요.
+                <p className="text-[15px] lg:text-base text-[#4e5968] leading-relaxed">
+                  혜택 연구소가 최대 혜택으로<br />대신 연구해드릴게요.
                 </p>
               </div>
-            </div>
-
-            {/* Benefit 2 */}
-            <div className="flex flex-col lg:flex-row-reverse items-center justify-center gap-8 lg:gap-12 animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
-              <div className="w-[280px] lg:w-[290px] h-[230px] lg:h-[290px] rounded-[24px] bg-[#f0faf6] flex items-center justify-center flex-shrink-0">
+              <div className="relative w-full h-[140px] lg:h-[180px] flex items-end justify-center pb-6">
                 <Image
                   src="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_money_icon_v01.png"
-                  alt="수수료 아이콘"
+                  alt="지원금 아이콘"
                   width={240}
                   height={240}
-                  className="w-48 h-48 lg:w-56 lg:h-56 object-contain"
+                  className="w-32 h-32 lg:w-40 lg:h-40 object-contain scale-[1.2] origin-bottom"
                 />
-              </div>
-              <div className="text-center lg:text-left lg:self-start lg:w-[300px]">
-                <h3 className="text-2xl lg:text-3xl font-bold text-[#333d4b] mb-4 leading-tight">
-                  수수료는 기본,<br />
-                  지원금도 받아요
-                </h3>
-                <p className="text-lg lg:text-xl text-[#4e5968] leading-relaxed">
-                  매달 성과가 오르면<br />지원금을 더 드려요.
-                </p>
               </div>
             </div>
 
+            {/* Card 2 */}
+            <div className="flex-none w-[280px] sm:w-[320px] lg:w-auto h-[360px] lg:h-[420px] rounded-[32px] bg-gradient-to-t from-gray-200/80 to-gray-50 flex flex-col items-center text-center pt-10 px-6 snap-center animate-on-scroll opacity-0 translate-y-12 transition-all duration-700" style={{ animationDelay: '100ms' }}>
+              <div className="mb-auto">
+                <h3 className="text-xl lg:text-2xl font-bold text-[#333d4b] mb-4 leading-tight">
+                  넘치는 선택지에<br />
+                  많은 시간을 낭비해요.
+                </h3>
+                <p className="text-[15px] lg:text-base text-[#4e5968] leading-relaxed">
+                  인터넷 하나만 해도<br />상품도 요금제도 다양한걸요.
+                </p>
+              </div>
+              <div className="relative w-full h-[140px] lg:h-[180px] flex items-end justify-center pb-6">
+                <Image
+                  src="https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/select-pbl_icon%20(2).png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvc2VsZWN0LXBibF9pY29uICgyKS5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzNDM5MTUyLCJleHAiOjE3ODQwNDM5NTJ9.-bwKS0xKKIOz1BWXTRHP9TdEcPF5w4MBa-eLvgIApUA"
+                  alt="선택지 아이콘"
+                  width={240}
+                  height={240}
+                  className="w-32 h-32 lg:w-40 lg:h-40 object-contain scale-[1.2] origin-bottom"
+                />
+              </div>
+            </div>
+
+            {/* Card 3 */}
+            <div className="flex-none w-[280px] sm:w-[320px] lg:w-auto h-[360px] lg:h-[420px] rounded-[32px] bg-gradient-to-t from-gray-200/80 to-gray-50 flex flex-col items-center text-center pt-10 px-6 snap-center animate-on-scroll opacity-0 translate-y-12 transition-all duration-700" style={{ animationDelay: '200ms' }}>
+              <div className="mb-auto">
+                <h3 className="text-xl lg:text-2xl font-bold text-[#333d4b] mb-4 leading-tight">
+                  믿을만 한 곳인지<br />
+                  걱정돼요.
+                </h3>
+                <p className="text-[15px] lg:text-base text-[#4e5968] leading-relaxed">
+                  약속한 혜택은 언제쯤<br />받을 수 있을까요?
+                </p>
+              </div>
+              <div className="relative w-full h-[140px] lg:h-[180px] flex items-end justify-center pb-6">
+                <Image
+                  src="https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/trust_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvdHJ1c3RfaWNvbi5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzNDM5MjcxLCJleHAiOjE3ODQwNDQwNzF9.8UJWHDHSBqDb7Bcl7mHgZ81nhAp6zR1wwgjnHExG57I"
+                  alt="걱정 아이콘"
+                  width={240}
+                  height={240}
+                  className="w-32 h-32 lg:w-40 lg:h-40 object-contain scale-[1.2] origin-bottom"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Pagination Dots */}
+          <div className="flex justify-center gap-2 mt-4 lg:hidden">
+            {[0, 1, 2].map((i) => (
+              <button
+                key={i}
+                onClick={() => scrollToSlide(i)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  activeSlide === i ? 'bg-red-600 w-6' : 'bg-gray-300 w-2 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to slide ${i + 1}`}
+              />
+            ))}
           </div>
         </div>
       </section>
 
       {/* Support Section */}
-      <section className="relative bg-[#e8f3ff] pt-16 lg:pt-24 pb-48 lg:pb-56">
+      <section className="relative bg-gray-50 pt-16 lg:pt-24 pb-48 lg:pb-56">
         <div className="max-w-[1100px] mx-auto px-6">
           <div className="text-center animate-on-scroll opacity-0 translate-y-12 transition-all duration-700 mb-12 lg:mb-16">
             <h3 className="text-2xl lg:text-3xl font-bold text-[#333d4b] leading-tight mb-4">
-              하고 싶은 것만<br />딱 골라서 해요
+              필요한 것만<br />딱 골라서 해요
             </h3>
             <p className="text-lg lg:text-xl text-[#4e5968]">
-              고객 상담부터 관리까지,<br />피움이 귀찮은 건 다 해드릴게요.
+              혜택 연구소가 귀찮은 건 다 해드릴게요.
             </p>
           </div>
         </div>
@@ -210,28 +340,7 @@ export default function PartnersLandingPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-[#191f28] pt-32 lg:pt-40 pb-24 lg:pb-32">
-        <div className="max-w-[1100px] mx-auto px-6 text-center">
-          <div className="animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-              피움과 함께<br />더 크게 성장해요
-            </h2>
-            <p className="text-white/60 text-lg mb-10">
-              지금 바로 파트너가 되어보세요.
-            </p>
-            <Link
-              href="/partners/login"
-              className="inline-flex items-center gap-2 bg-[#3182f6] hover:bg-[#1b64da] text-white text-lg font-semibold px-8 py-4 rounded-xl transition-all hover:scale-105"
-            >
-              30초 만에 시작하기
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </section>
+
 
       {/* Footer */}
       <Footer logoSrc={LOGO_URL} />

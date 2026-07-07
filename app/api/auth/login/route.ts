@@ -14,28 +14,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 사용자 조회
-    const { data: user, error } = await supabaseAdmin
-      .from('users')
-      .select('*')
-      .eq('login_id', loginId)
-      .single()
-
-    if (error || !user) {
+    // 하드코딩 로그인 확인
+    if (loginId !== 'siwwyy1012' || password !== 'hi1012@@') {
       return NextResponse.json(
         { error: '아이디 또는 비밀번호가 일치하지 않습니다' },
         { status: 401 }
       )
     }
 
-    // 비밀번호 검증
-    const isValidPassword = await bcrypt.compare(password, user.password_hash)
-
-    if (!isValidPassword) {
-      return NextResponse.json(
-        { error: '아이디 또는 비밀번호가 일치하지 않습니다' },
-        { status: 401 }
-      )
+    const user = {
+      id: 'hardcoded-partner-id-123',
+      login_id: 'siwwyy1012',
+      unique_code: 'P000000',
+      nickname: '테스트 파트너',
+      level: 1,
     }
 
     // JWT 토큰 생성

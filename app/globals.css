@@ -17,9 +17,9 @@
   --text-primary: #191F28;
   --text-secondary: #8B95A1;
   --text-tertiary: #B0B8C1;
-  --action-primary: #3182F6;
-  --action-primary-hover: #1B64DA;
-  --status-new: #3182F6;
+  --action-primary: #ff8fab;
+  --action-primary-hover: #ff7096;
+  --status-new: #ff8fab;
   --status-progress: #FF9500;
   --status-done: #34C759;
   --status-cancelled: #8B95A1;
@@ -37,9 +37,9 @@
   --text-primary: #F9FAFB;
   --text-secondary: #9CA3AF;
   --text-tertiary: #6B7280;
-  --action-primary: #3B82F6;
-  --action-primary-hover: #2563EB;
-  --status-new: #3B82F6;
+  --action-primary: #ff9ebb;
+  --action-primary-hover: #ff8fab;
+  --status-new: #ff9ebb;
   --status-progress: #F59E0B;
   --status-done: #10B981;
   --status-cancelled: #6B7280;
@@ -115,7 +115,7 @@ body {
 }
 
 .dark .tiptap-editor blockquote {
-  background-color: rgba(59, 130, 246, 0.1);
+  background-color: rgba(255, 143, 171, 0.1);
   border-left-color: var(--action-primary);
 }
 
@@ -254,7 +254,7 @@ body {
 
 /* 선택 영역 스타일 */
 .tiptap-editor ::selection {
-  background-color: rgba(49, 130, 246, 0.2);
+  background-color: rgba(255, 143, 171, 0.2);
 }
 
 /* Google Slides 임베드 스타일 */

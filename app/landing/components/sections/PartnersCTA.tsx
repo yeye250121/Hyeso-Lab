@@ -12,7 +12,7 @@ export interface PartnersCTAProps {
 const defaultProps: PartnersCTAProps = {
   title: (
     <>
-      피움과 함께<br />더 크게 성장해요
+      혜택 연구소와 함께<br />더 크게 성장해요
     </>
   ),
   description: '지금 바로 파트너가 되어보세요.',
@@ -45,7 +45,7 @@ export default function PartnersCTA(props: PartnersCTAProps = {}) {
           </p>
           <Link
             href={ctaHref!}
-            className="inline-flex items-center gap-2 bg-[#3182f6] hover:bg-[#1b64da] text-white text-lg font-semibold px-8 py-4 rounded-xl transition-all hover:scale-105"
+            className="inline-flex items-center gap-2 bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white text-lg font-semibold px-8 py-4 rounded-xl transition-all hover:scale-105"
           >
             {ctaText}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

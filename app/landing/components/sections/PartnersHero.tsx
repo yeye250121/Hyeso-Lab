@@ -36,19 +36,19 @@ export interface PartnersHeroProps {
 }
 
 const defaultProps: PartnersHeroProps = {
-  logoUrl: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo',
-  logoWithTextUrl: 'https://i.namu.wiki/i/g-8tEhqgrMv-DLrASvSM-7pgsPos9qX1Lpx3VVOGRYTTZpgtUnWbMEsw7DLDuU7ecjtrkl6nqnCrFqxepgRU1A.svg',
+  logoUrl: 'https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png',
+  logoWithTextUrl: 'https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png',
   logoClassName: '',
   title: (
     <>
       집에서 시작하는<br />온라인 사업<br />
-      <span className="text-[#3182f6]">피움</span> 파트너스
+      <span className="text-[var(--action-primary)]">혜택 연구소</span> 파트너스
     </>
   ),
   subtitle: (
     <>
       <br />상담을 연결하면 수익이 생겨요<br />
-      전부 다, 피움이 도와드릴게요.
+      전부 다, 혜택 연구소가 도와드릴게요.
     </>
   ),
   ctaText: '지금 시작하기',
@@ -93,7 +93,7 @@ export default function PartnersHero(props: PartnersHeroProps = {}) {
             {disableLogoLink ? (
               <Image
                 src={logoWithTextUrl!}
-                alt="Piooom"
+                alt="혜택 연구소"
                 width={100}
                 height={28}
                 className="h-5 w-auto brightness-0 invert"
@@ -102,7 +102,7 @@ export default function PartnersHero(props: PartnersHeroProps = {}) {
               <Link href="/">
                 <Image
                   src={logoWithTextUrl!}
-                  alt="Piooom"
+                  alt="혜택 연구소"
                   width={100}
                   height={28}
                   className="h-5 w-auto brightness-0 invert"
@@ -114,13 +114,13 @@ export default function PartnersHero(props: PartnersHeroProps = {}) {
               <div className="hidden md:flex items-center gap-4">
                 <Link
                   href={loginHref!}
-                  className="text-[#3182f6] hover:text-[#1b64da] text-sm font-semibold transition-colors"
+                  className="text-[var(--action-primary)] hover:text-[var(--action-primary-hover)] text-sm font-semibold transition-colors"
                 >
                   파트너스 로그인
                 </Link>
                 <Link
                   href={registerHref!}
-                  className="bg-[#3182f6] hover:bg-[#1b64da] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                  className="bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
                 >
                   회원가입
                 </Link>
@@ -145,14 +145,14 @@ export default function PartnersHero(props: PartnersHeroProps = {}) {
               <div className="px-6 py-4 space-y-3 border-t border-[#333d4b]">
                 <Link
                   href={loginHref!}
-                  className="block w-full text-center text-[#3182f6] border border-[#3182f6] text-base font-semibold px-4 py-3 rounded-xl transition-colors"
+                  className="block w-full text-center text-[var(--action-primary)] border border-[var(--action-primary)] text-base font-semibold px-4 py-3 rounded-xl transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   파트너스 로그인
                 </Link>
                 <Link
                   href={registerHref!}
-                  className="block w-full text-center bg-white hover:bg-gray-100 text-[#3182f6] text-base font-semibold px-4 py-3 rounded-xl transition-colors"
+                  className="block w-full text-center bg-white hover:bg-gray-100 text-[var(--action-primary)] text-base font-semibold px-4 py-3 rounded-xl transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   회원가입
@@ -211,7 +211,7 @@ export default function PartnersHero(props: PartnersHeroProps = {}) {
             {!hideCta && (
               <Link
                 href={ctaHref!}
-                className="inline-flex items-center gap-2 bg-[#3182f6] hover:bg-[#1b64da] text-white text-lg font-semibold px-8 py-4 rounded-xl transition-all hover:scale-105"
+                className="inline-flex items-center gap-2 bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white text-lg font-semibold px-8 py-4 rounded-xl transition-all hover:scale-105"
               >
                 {ctaText}
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

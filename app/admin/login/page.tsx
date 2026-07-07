@@ -8,7 +8,7 @@ import { useAuthStore } from '@/lib/admin/store'
 import api from '@/lib/admin/api'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 
-const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo'
+const LOGO_URL = 'https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
         <div className="bg-bg-card rounded-card p-8">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <Image src={LOGO_URL} alt="Piooom" width={140} height={40} className="h-10 w-auto dark:brightness-0 dark:invert" />
+              <Image src={LOGO_URL} alt="혜택 연구소" width={140} height={40} className="h-10 w-auto dark:brightness-0 dark:invert" />
               <span className="text-headline text-text-primary">Admin</span>
             </div>
             <p className="text-body text-text-secondary">관리자 로그인</p>

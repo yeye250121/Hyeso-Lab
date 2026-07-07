@@ -280,10 +280,10 @@ export default function MyPage() {
                           {page.description && (
                             <p className="text-caption text-text-tertiary mt-1">{page.description}</p>
                           )}
-                          <p className="text-caption text-action-primary mt-1">piooom.ai.kr{page.url}</p>
+                          <p className="text-caption text-action-primary mt-1">benefit-lab.kr{page.url}</p>
                         </div>
                         <a
-                          href={`https://piooom.ai.kr${page.url}`}
+                          href={`https://benefit-lab.kr${page.url}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="px-4 py-2 bg-action-primary/10 text-action-primary rounded-button text-body font-medium hover:bg-action-primary/20 transition-colors flex items-center gap-2"
@@ -480,7 +480,7 @@ export default function MyPage() {
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-body text-text-primary font-medium">{page.name}</p>
                         <a
-                          href={`https://piooom.ai.kr${page.url}`}
+                          href={`https://benefit-lab.kr${page.url}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="px-3 py-1.5 bg-action-primary/10 text-action-primary rounded-button text-caption font-medium flex items-center gap-1"
@@ -492,7 +492,7 @@ export default function MyPage() {
                       {page.description && (
                         <p className="text-caption text-text-tertiary">{page.description}</p>
                       )}
-                      <p className="text-caption text-action-primary mt-1">piooom.ai.kr{page.url}</p>
+                      <p className="text-caption text-action-primary mt-1">benefit-lab.kr{page.url}</p>
                     </div>
                   ))}
                 </div>

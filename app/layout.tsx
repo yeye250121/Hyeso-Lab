@@ -9,8 +9,8 @@ const notoSansKR = Noto_Sans_KR({
 });
 
 export const metadata: Metadata = {
-  title: "Piooom",
-  description: "집에서 딸깍, 피움",
+  title: "혜택 연구소",
+  description: "집에서 딸깍, 혜택 연구소",
 };
 
 export default function RootLayout({
@@ -20,8 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className={`${notoSansKR.variable} font-sans antialiased`}>
-        {children}
+      <body className={`${notoSansKR.variable} font-sans antialiased bg-gray-50`}>
+        <div className="max-w-[1100px] mx-auto w-full min-h-screen bg-gray-50 flex flex-col relative shadow-sm">
+          {children}
+        </div>
       </body>
     </html>
   );

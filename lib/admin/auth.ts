@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'piooom-secret-key-2024'
+const JWT_SECRET = process.env.JWT_SECRET || 'benefit-lab-secret-key-2024'
 
 export interface AdminContext {
   id: string

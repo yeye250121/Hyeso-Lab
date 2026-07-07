@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'piooom-secret-key-2024'
+const JWT_SECRET = process.env.JWT_SECRET || 'benefit-lab-secret-key-2024'
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,40 +17,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Find user by loginId
-    const { data: user, error } = await supabaseAdmin
-      .from('users')
-      .select('*')
-      .eq('login_id', loginId)
-      .single()
-
-    console.log('[Admin Login] User query result:', { user: user?.login_id, error })
-
-    if (error || !user) {
-      console.log('[Admin Login] User not found or error')
+    // 하드코딩 로그인 확인
+    if (loginId !== 'siwwyy1012' || password !== 'hi1012@@') {
       return NextResponse.json(
         { error: '아이디 또는 비밀번호가 올바르지 않습니다' },
         { status: 401 }
       )
     }
 
-    // Check if user is admin (S code)
-    if (!user.unique_code.startsWith('S')) {
-      return NextResponse.json(
-        { error: '관리자 권한이 없습니다' },
-        { status: 403 }
-      )
-    }
-
-    // Verify password
-    console.log('[Admin Login] Verifying password, hash exists:', !!user.password_hash)
-    const isValidPassword = await bcrypt.compare(password, user.password_hash)
-    console.log('[Admin Login] Password valid:', isValidPassword)
-    if (!isValidPassword) {
-      return NextResponse.json(
-        { error: '아이디 또는 비밀번호가 올바르지 않습니다' },
-        { status: 401 }
-      )
+    const user = {
+      id: 'hardcoded-admin-id-123',
+      login_id: 'siwwyy1012',
+      unique_code: 'S000000',
+      nickname: '최고 관리자',
     }
 
     // Generate JWT token

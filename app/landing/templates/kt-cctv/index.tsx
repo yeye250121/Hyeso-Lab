@@ -59,10 +59,10 @@ const AnimatedHeroTitle = ({ ctaHref }: { ctaHref: string }) => {
       {/* 세로선 */}
       <div className={`w-[2px] h-20 lg:h-28 bg-white/40 mb-4 transition-all duration-700 ease-out ${showLine ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'}`} style={{ transformOrigin: 'top' }} />
 
-      {/* KT 로고 */}
+      {/* 로고 */}
       <img
-        src="https://i.namu.wiki/i/g-8tEhqgrMv-DLrASvSM-7pgsPos9qX1Lpx3VVOGRYTTZpgtUnWbMEsw7DLDuU7ecjtrkl6nqnCrFqxepgRU1A.svg"
-        alt="KT 텔레캅"
+        src="https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png"
+        alt="혜택 연구소"
         className={`h-10 lg:h-12 brightness-0 invert mb-4 transition-all duration-700 ease-out ${showLogo ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
       />
 
@@ -74,7 +74,7 @@ const AnimatedHeroTitle = ({ ctaHref }: { ctaHref: string }) => {
       {/* CTA 버튼 */}
       <a
         href={ctaHref}
-        className={`inline-flex items-center gap-2 bg-[#3182f6] hover:bg-[#1b64da] text-white text-base lg:text-lg font-semibold px-6 lg:px-8 py-3 lg:py-4 rounded-xl transition-all duration-700 ease-out hover:scale-105 ${showButton ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+        className={`inline-flex items-center gap-2 bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white text-base lg:text-lg font-semibold px-6 lg:px-8 py-3 lg:py-4 rounded-xl transition-all duration-700 ease-out hover:scale-105 ${showButton ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
       >
         프로모션 받기
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -205,7 +205,7 @@ const ktCctvContent2 = {
 
 // 비교 섹션 컴포넌트 (타이틀 + 비교 테이블)
 const ComparisonSection = () => (
-  <section className="relative bg-[#e8f3ff] pt-16 lg:pt-24 pb-16 lg:pb-24 overflow-hidden">
+  <section className="relative bg-[#fff0f4] pt-16 lg:pt-24 pb-16 lg:pb-24 overflow-hidden">
     <div className="max-w-[1100px] mx-auto px-6">
       {/* 타이틀 */}
       <div className="text-center animate-on-scroll opacity-0 translate-y-12 transition-all duration-700 mb-12 lg:mb-16">
@@ -243,10 +243,10 @@ const ComparisonSection = () => (
 
           {/* 오른쪽: KT 텔레캅 (크게, 강조) */}
           <div className="flex-1 scale-110 shadow-xl rounded-xl z-10">
-            <div className="bg-blue-500 text-center py-4 rounded-t-xl">
+            <div className="bg-[var(--action-primary)] text-center py-4 rounded-t-xl">
               <img
-                src="https://i.namu.wiki/i/g-8tEhqgrMv-DLrASvSM-7pgsPos9qX1Lpx3VVOGRYTTZpgtUnWbMEsw7DLDuU7ecjtrkl6nqnCrFqxepgRU1A.svg"
-                alt="KT 텔레캅"
+                src="https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png"
+                alt="혜택 연구소"
                 className="h-6 mx-auto brightness-0 invert"
               />
             </div>
@@ -257,13 +257,13 @@ const ComparisonSection = () => (
               </div>
               <div className="border-b border-gray-100 py-5 px-4 text-center">
                 <p className="text-sm text-gray-500 mb-1">5년 사용 시</p>
-                <p className="text-xl font-bold text-blue-600">144만원</p>
-                <p className="text-xs text-blue-500 font-medium">+0원</p>
+                <p className="text-xl font-bold text-[var(--action-primary-hover)]">144만원</p>
+                <p className="text-xs text-[var(--action-primary)] font-medium">+0원</p>
               </div>
               <div className="py-5 px-4 text-center">
                 <p className="text-sm text-gray-500 mb-1">10년 사용 시</p>
-                <p className="text-xl font-bold text-blue-600">144만원</p>
-                <p className="text-xs text-blue-500 font-medium">+0원</p>
+                <p className="text-xl font-bold text-[var(--action-primary-hover)]">144만원</p>
+                <p className="text-xs text-[var(--action-primary)] font-medium">+0원</p>
               </div>
             </div>
           </div>
@@ -272,10 +272,10 @@ const ComparisonSection = () => (
         {/* 하단 안내 */}
         <div className="text-center mt-14 lg:mt-16">
           <p className="text-base lg:text-lg text-gray-500 mb-2">월 4만원 기준, 10년 사용 시</p>
-          <p className="text-2xl lg:text-3xl font-bold text-blue-600 mb-6">336만원 더 저렴해요</p>
+          <p className="text-2xl lg:text-3xl font-bold text-[var(--action-primary)] mb-6">336만원 더 저렴해요</p>
           <a
             href="#contact"
-            className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white text-lg font-semibold px-8 py-4 rounded-xl transition-all hover:scale-105"
+            className="inline-flex items-center gap-2 bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white text-lg font-semibold px-8 py-4 rounded-xl transition-all hover:scale-105"
           >
             지금 할인 받기
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -291,7 +291,7 @@ const ComparisonSection = () => (
 // 마퀴 리뷰 카드 컴포넌트
 const MarqueeReviewCard = ({ review }: { review: { id: string; content: string } }) => (
   <div className="flex-shrink-0 w-[320px] bg-white rounded-2xl p-6 shadow-sm">
-    <p className="text-sm font-medium text-blue-600 mb-3">{review.id}</p>
+    <p className="text-sm font-medium text-[var(--action-primary)] mb-3">{review.id}</p>
     <p className="text-gray-700 leading-relaxed text-[15px]">{review.content}</p>
   </div>
 );
@@ -385,16 +385,22 @@ export default function KtCctvLanding({ marketerCode, template, subtype }: KtCct
             hideNavButtons={true}
             hideLogo={true}
             disableLogoLink={true}
-            logoWithTextUrl="https://i.namu.wiki/i/g-8tEhqgrMv-DLrASvSM-7pgsPos9qX1Lpx3VVOGRYTTZpgtUnWbMEsw7DLDuU7ecjtrkl6nqnCrFqxepgRU1A.svg"
+            logoWithTextUrl="https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png"
             warningTitle={<><span className="text-3xl lg:text-4xl">중국산 저가 양산품을</span><br /><span className="text-2xl lg:text-3xl">주의하세요!</span></>}
             warningImageUrl="https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_alram_v01.png"
-            warningImageAlt="경고 사이렌"
+            warningContent="단순히 싸다고 이름 모를 브랜드를 선택하면 잦은 고장과 사후 관리 문제로 결국 더 큰 비용이 발생할 수 있습니다."
+            features={[
+              { title: '잔고장이 적어요', description: '검증된 브랜드로 뛰어난 내구성' },
+              { title: '확실한 A/S 보장', description: '전국 어디서나 빠른 사후 관리' },
+            ]}
+            logoUrl="https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png"
+            logoAlt="혜택 연구소"
           />
           <PartnersBenefits
             sectionTitle={ktCctvContent1.benefits.sectionTitle}
             benefits={ktCctvContent1.benefits.benefits}
-            logoUrl="https://i.namu.wiki/i/g-8tEhqgrMv-DLrASvSM-7pgsPos9qX1Lpx3VVOGRYTTZpgtUnWbMEsw7DLDuU7ecjtrkl6nqnCrFqxepgRU1A.svg"
-            logoAlt="KT 텔레캅"
+            logoUrl="https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png"
+            logoAlt="혜택 연구소"
           />
           <ComparisonSection />
           <PartnersCTA
@@ -449,7 +455,18 @@ export default function KtCctvLanding({ marketerCode, template, subtype }: KtCct
           hideSubtitle={true}
           hideCta={true}
           disableLogoLink={true}
-          logoWithTextUrl="https://i.namu.wiki/i/g-8tEhqgrMv-DLrASvSM-7pgsPos9qX1Lpx3VVOGRYTTZpgtUnWbMEsw7DLDuU7ecjtrkl6nqnCrFqxepgRU1A.svg"
+          logoWithTextUrl="https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png"
+          title={<>아직 고민되시나요?</>}
+          description="지금 바로 신청하시면 전문가가 무료로 상담해 드립니다."
+          points={[
+            '설치비, 가입비 전액 지원',
+            '원하는 날짜/시간에 방문',
+            '3년 무상 A/S 보장'
+          ]}
+          ctaText="전문가와 무료 상담하기"
+          ctaHref={contactUrl}
+          logoUrl="https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png"
+          logoAlt="혜택 연구소"
         />
         {/* 가격 비교 섹션 (타이틀 + 비교 테이블 + 폰 이미지) */}
         <ComparisonSection />
@@ -457,8 +474,8 @@ export default function KtCctvLanding({ marketerCode, template, subtype }: KtCct
         <PartnersBenefits
           sectionTitle={ktCctvContent1.benefits.sectionTitle}
           benefits={ktCctvContent1.benefits.benefits}
-          logoUrl="https://i.namu.wiki/i/g-8tEhqgrMv-DLrASvSM-7pgsPos9qX1Lpx3VVOGRYTTZpgtUnWbMEsw7DLDuU7ecjtrkl6nqnCrFqxepgRU1A.svg"
-          logoAlt="KT 텔레캅"
+          logoUrl="https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png"
+          logoAlt="혜택 연구소"
         />
         {/* 리뷰 섹션 */}
         <ReviewsSection reviews={ktCctvContent1.reviews} />

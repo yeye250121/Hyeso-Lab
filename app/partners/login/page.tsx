@@ -8,7 +8,7 @@ import { useAuthStore } from '@/lib/partners/store'
 import { Loader2 } from 'lucide-react'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 
-const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo'
+const LOGO_URL = 'https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -45,7 +45,7 @@ export default function LoginPage() {
       <div className="w-full max-w-[400px]">
         {/* 로고/타이틀 */}
         <div className="text-center mb-10">
-          <Image src={LOGO_URL} alt="Piooom" width={140} height={40} className="h-10 w-auto mx-auto mb-4 dark:brightness-0 dark:invert" />
+          <Image src={LOGO_URL} alt="혜택 연구소" width={140} height={40} className="h-10 w-auto mx-auto mb-4 dark:brightness-0 dark:invert" />
           <p className="text-body text-text-secondary">파트너스 로그인</p>
         </div>
 

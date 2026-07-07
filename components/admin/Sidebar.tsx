@@ -15,7 +15,7 @@ import { useAuthStore } from '@/lib/admin/store'
 import { useRouter } from 'next/navigation'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 
-const LOGO_URL = 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_logo'
+const LOGO_URL = 'https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png'
 
 const menuItems = [
   { href: '/admin/dashboard', label: '대시보드', icon: LayoutDashboard },
@@ -44,7 +44,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
       {/* 로고 */}
       <div className="p-6 border-b border-border">
         <Link href="/admin/dashboard" className="flex items-center gap-2">
-          <Image src={LOGO_URL} alt="Piooom" width={100} height={28} className="h-7 w-auto dark:brightness-0 dark:invert" />
+          <Image src={LOGO_URL} alt="혜택 연구소" width={100} height={28} className="h-7 w-auto dark:brightness-0 dark:invert" />
           <span className="text-title text-text-primary">Admin</span>
         </Link>
         <p className="text-small text-text-secondary mt-2">

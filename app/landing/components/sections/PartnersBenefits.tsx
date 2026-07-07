@@ -25,7 +25,7 @@ const defaultBenefits: BenefitCardItem[] = [
   {
     imageSrc: 'https://hvwgs4k77hcs8ntu.public.blob.vercel-storage.com/blooom_idea_icon_v02.png',
     imageAlt: '아이디어 아이콘',
-    bgColor: '#e8f3ff',
+    bgColor: '#fff0f4',
     title: (
       <>
         검증된 방법을<br />
@@ -59,7 +59,7 @@ const defaultBenefits: BenefitCardItem[] = [
 const defaultProps: PartnersBenefitsProps = {
   sectionTitle: (
     <>
-      피움 파트너만<br />받을 수 있어요
+      혜택 연구소 파트너만<br />받을 수 있어요
     </>
   ),
   benefits: defaultBenefits,

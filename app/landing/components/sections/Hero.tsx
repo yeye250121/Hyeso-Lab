@@ -5,8 +5,8 @@ interface HeroProps {
 }
 
 const defaultProps: HeroProps = {
-  logoSrc: 'https://i.namu.wiki/i/g-8tEhqgrMv-DLrASvSM-7pgsPos9qX1Lpx3VVOGRYTTZpgtUnWbMEsw7DLDuU7ecjtrkl6nqnCrFqxepgRU1A.svg',
-  logoAlt: 'KT',
+  logoSrc: 'https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png',
+  logoAlt: '혜택 연구소',
   logoHeight: 50,
 };
 
