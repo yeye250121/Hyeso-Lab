@@ -31,10 +31,14 @@ export interface PartnersHeroProps {
   warningImageAlt?: string;
   /** 헤더 로고 클릭 비활성화 */
   disableLogoLink?: boolean;
+  /** 로고 alt 텍스트 */
+  logoAlt?: string;
   /** 서브타이틀 숨기기 */
   hideSubtitle?: boolean;
   /** CTA 버튼 숨기기 */
   hideCta?: boolean;
+  /** 하단 장점/특징 리스트 */
+  features?: { title: string; description: string }[];
 }
 
 const defaultProps: PartnersHeroProps = {
@@ -81,8 +85,10 @@ export default function PartnersHero(props: PartnersHeroProps = {}) {
     warningImageUrl,
     warningImageAlt,
     disableLogoLink,
+    logoAlt,
     hideSubtitle,
     hideCta,
+    features,
   } = { ...defaultProps, ...props };
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -215,6 +221,16 @@ export default function PartnersHero(props: PartnersHeroProps = {}) {
               <p className="text-white/70 text-lg lg:text-xl max-w-2xl mx-auto mb-12">
                 {subtitle}
               </p>
+            )}
+            {features && features.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto mb-12">
+                {features.map((feature, idx) => (
+                  <div key={idx} className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-left border border-white/10">
+                    <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
+                    <p className="text-white/80">{feature.description}</p>
+                  </div>
+                ))}
+              </div>
             )}
             {!hideCta && (
               <Link
