@@ -456,15 +456,6 @@ export default function KtCctvLanding({ marketerCode, template, subtype }: KtCct
           hideCta={true}
           disableLogoLink={true}
           logoWithTextUrl="https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png"
-          title={<>아직 고민되시나요?</>}
-          description="지금 바로 신청하시면 전문가가 무료로 상담해 드립니다."
-          points={[
-            '설치비, 가입비 전액 지원',
-            '원하는 날짜/시간에 방문',
-            '3년 무상 A/S 보장'
-          ]}
-          ctaText="전문가와 무료 상담하기"
-          ctaHref={contactUrl}
           logoUrl="https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png"
           logoAlt="혜택 연구소"
         />
