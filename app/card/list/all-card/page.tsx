@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { getAllCards } from '@/lib/cardApi';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
@@ -17,7 +18,9 @@ export default function AllCardPage() {
         </div>
 
         {/* 클라이언트 사이드 필터 및 리스트 렌더링 컴포넌트 */}
-        <CardListFilter initialCards={allCards} />
+        <Suspense fallback={<div className="py-20 text-center text-gray-400 font-medium animate-pulse">카드 목록을 불러오는 중입니다...</div>}>
+          <CardListFilter initialCards={allCards} />
+        </Suspense>
       </main>
 
       <Footer />
