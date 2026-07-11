@@ -16,7 +16,7 @@ const topCashbacks = [
 ];
 
 const regularCards = [
-  { name: '아정당 우리카드', desc: '통신/렌탈 할인 혜택', bg: 'bg-gradient-to-br from-blue-400 to-blue-600' },
+  { name: 'KB국민 굿데이카드', desc: '주유/통신/커피 할인', bg: 'bg-gradient-to-br from-blue-400 to-blue-600' },
   { name: '청년도약계좌 우대금리', desc: '최대 86만원 캐시백', bg: 'bg-gradient-to-br from-orange-400 to-orange-600' },
   { name: '코웨이 렌탈 할인카드', desc: '매월 최대 4.2만원 혜택', bg: 'bg-gradient-to-br from-gray-200 to-gray-400' },
   { name: 'Triple in LOCA', desc: '생활업종 최대 3만원 할인', bg: 'bg-gradient-to-br from-rose-300 to-rose-500' },

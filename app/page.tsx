@@ -141,7 +141,8 @@ export default function PartnersLandingPage() {
                 icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/cctv_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvY2N0dl9pY29uLnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODM0MzcxMzgsImV4cCI6MTc4NDA0MTkzOH0.9g1aEliVcpaYlLfw5z7ShqYJRaWncGSnyo_Ho0JmvM0'
               },
             ].map((product) => (
-              <div 
+              <Link 
+                href={`/${product.id}`}
                 key={product.id}
                 className="group flex flex-col items-center justify-center gap-4 hover:-translate-y-2 transition-all duration-300 cursor-pointer animate-on-scroll opacity-0 translate-y-12"
               >
@@ -157,7 +158,7 @@ export default function PartnersLandingPage() {
                 <h3 className="text-lg lg:text-xl font-medium text-[#333d4b] whitespace-nowrap">
                   {product.title}
                 </h3>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
