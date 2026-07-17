@@ -113,22 +113,22 @@ export default function CardListFilter({ initialCards }: CardListFilterProps) {
         </div>
 
         {/* 타입 토글 */}
-        <div className="flex gap-2 mb-6 bg-gray-100 p-1.5 rounded-xl w-fit">
+        <div className="flex gap-1 sm:gap-2 mb-6 bg-gray-100 p-1.5 rounded-xl w-full sm:w-fit overflow-x-auto hide-scrollbar">
           <button 
             onClick={() => setTypeFilter('all')}
-            className={`px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${typeFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+            className={`flex-1 sm:flex-none px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${typeFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
           >
             전체카드
           </button>
           <button 
             onClick={() => setTypeFilter('신용카드')}
-            className={`px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${typeFilter === '신용카드' ? 'bg-white text-[var(--action-primary)] shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+            className={`flex-1 sm:flex-none px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${typeFilter === '신용카드' ? 'bg-white text-[var(--action-primary)] shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
           >
             신용카드
           </button>
           <button 
             onClick={() => setTypeFilter('체크카드')}
-            className={`px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${typeFilter === '체크카드' ? 'bg-white text-[var(--action-primary)] shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+            className={`flex-1 sm:flex-none px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${typeFilter === '체크카드' ? 'bg-white text-[var(--action-primary)] shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
           >
             체크카드
           </button>
@@ -139,7 +139,7 @@ export default function CardListFilter({ initialCards }: CardListFilterProps) {
           {/* 카드사 필터 바텀시트 호출 버튼 (작은 위스의 박스 형태로 왼쪽에 위치) */}
           <button 
             onClick={() => setIsCompanySheetOpen(true)}
-            className="flex items-center justify-between bg-gray-50 border border-gray-200 text-gray-700 font-medium py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors w-fit"
+            className="flex items-center justify-between bg-gray-50 border border-gray-200 text-gray-700 font-medium py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors w-fit max-w-[55%] min-w-0"
           >
             <span className="truncate">{companyFilter === 'all' ? '모든 카드사' : companyFilter}</span>
             <ChevronDown className="w-4 h-4 text-gray-400 ml-1.5 shrink-0" />
