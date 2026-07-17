@@ -3,6 +3,9 @@ import Footer from "@/components/shared/Footer";
 import { Search, ChevronRight, ChevronLeft, CreditCard } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { getAllCards } from "@/lib/cardApi";
+
+export const revalidate = 0;
 
 // Mock Data
 const topCashbacks = [
@@ -15,35 +18,38 @@ const topCashbacks = [
   { name: 'KB국민(체크)', benefit: '최대 3만원', bg: 'bg-transparent', image: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/app/card/kb_heartyouping_check-cardlogo-icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvYXBwL2NhcmQva2JfaGVhcnR5b3VwaW5nX2NoZWNrLWNhcmRsb2dvLWljb24ucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4NDI4NDU5OSwiZXhwIjoxODE1ODIwNTk5fQ.hVXVPbGdfyfJNku3SDfiwFmEw8775i2nuay3YwSr2vM' },
 ];
 
-const regularCards = [
-  { name: 'KB국민 굿데이카드', desc: '주유/통신/커피 할인', bg: 'bg-gradient-to-br from-blue-400 to-blue-600' },
-  { name: '청년도약계좌 우대금리', desc: '최대 86만원 캐시백', bg: 'bg-gradient-to-br from-orange-400 to-orange-600' },
-  { name: '코웨이 렌탈 할인카드', desc: '매월 최대 4.2만원 혜택', bg: 'bg-gradient-to-br from-gray-200 to-gray-400' },
-  { name: 'Triple in LOCA', desc: '생활업종 최대 3만원 할인', bg: 'bg-gradient-to-br from-rose-300 to-rose-500' },
-  { name: 'BC 바로 클리어 플러스', desc: '휴대폰요금/스트리밍 10% 할인', bg: 'bg-gradient-to-br from-red-400 to-red-600' },
-];
-
-const recommendedCards = [
-  { name: '신한카드 Mr.Life', desc: '공과금/할인 혜택', category: '생활', bg: 'bg-gradient-to-b from-red-500 to-red-700' },
-  { name: 'taptap O', desc: 'OTT·멤버십 50% 할인', category: '디지털/구독', bg: 'bg-gradient-to-b from-gray-100 to-gray-300' },
-  { name: 'LOCA 365', desc: '관리비·보험·교육 할인', category: '공과금/관리비', bg: 'bg-gradient-to-b from-orange-300 to-orange-500' },
-  { name: '올바른 FLEX 카드', desc: '청년도약계좌 우대금리', category: '카페/디저트', bg: 'bg-gradient-to-b from-blue-300 to-blue-500' },
-  { name: '에너지플러스 현대카드', desc: '최대 60만원 혜택 제공', category: '주유', bg: 'bg-gradient-to-b from-green-500 to-green-700' },
-];
-
 const cardCompanies = [
   { name: '신한카드', color: 'text-[#0046ff]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/app/card/shinhan-card-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvYXBwL2NhcmQvc2hpbmhhbi1jYXJkLWxvZ28ucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4NDI4NDU5OSwiZXhwIjoxODE1ODIwNTk5fQ.qQd-7o_prZqtzCAUK0sJbEjTpeHBxFrLMYW7CaIDRXQ' },
   { name: '현대카드', color: 'text-black', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/app/card/hyundai-card-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvYXBwL2NhcmQvaHl1bmRhaS1jYXJkLWxvZ28ucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4NDI4NDU5OSwiZXhwIjoxODE1ODIwNTk5fQ.6aTAbKsBQYBWKgZYj6s0UoGkFlUIplMo4dL04TCJMVY' },
   { name: '롯데카드', color: 'text-[#ed1c24]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/app/card/lotte-card-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvYXBwL2NhcmQvbG90dGUtY2FyZC1sb2dvLnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODQyODQ2MDAsImV4cCI6MTgxNTgyMDYwMH0._gtyK5BbC410WRX_dhjYmStt4cdfO_BCJiLOz9Odg58' },
   { name: '삼성카드', color: 'text-[#0f62fe]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/app/card/samsung-card-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvYXBwL2NhcmQvc2Ftc3VuZy1jYXJkLWxvZ28ucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4NDI4NDYwMCwiZXhwIjoxODE1ODIwNjAwfQ.wTd1_s0mNuqh-jIhvpHYtFllOLu7zdSoQ2Qid-KOwFY' },
   { name: '하나카드', color: 'text-[#009384]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/app/card/hana-card-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvYXBwL2NhcmQvaGFuYS1jYXJkLWxvZ28ucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4NDI4NDYwMCwiZXhwIjoxODE1ODIwNjAwfQ.VkMYrQhiEsaW2CCbRc6DHrGwFuXy0fyx0Qz7b5EHmVo' },
-  { name: 'KB국민카드', color: 'text-[#645c4c]', logo: 'https://i.namu.wiki/i/27HLrlwQWd6UyINsNSHg85uHiLUcw_BxvN51R6uT3BPbwlN9FaqGFbDL-cqj1VIEsxomk-0T7DSudxPqfn_0LQ.svg' },
+  { name: 'KB국민카드', color: 'text-[#645c4c]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/logo_kbcard.png' },
   { name: 'BC카드', color: 'text-[#ed1c24]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/app/card/bc-card-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvYXBwL2NhcmQvYmMtY2FyZC1sb2dvLnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODQyODQ2MDAsImV4cCI6MTgxNTgyMDYwMH0.YcPOaJVIbLyJIyipP8O3ILeScgVeW655VPIH6gj0g4M' },
   { name: '우리카드', color: 'text-[#0078d7]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/app/card/woori-card-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvYXBwL2NhcmQvd29vcmktY2FyZC1sb2dvLnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODQyODQ2MDAsImV4cCI6MTgxNTgyMDYwMH0.U0b8ebyHyCMwvge62dcqm7CFWp2s3nU9Syum4rHvlY0' },
   { name: 'NH농협카드', color: 'text-[#009b4d]', logo: 'https://i.namu.wiki/i/NRx2sGZQx0nmZg0ceOGaR4VsK1ESprdayF8d40LAFYn8Lv3adn9qTJFP-pvCLn5c3ZUNgNL05Hyglj4--iMX6w.svg' },
 ];
 
-export default function CardPage() {
+export default async function CardPage() {
+  const cards = await getAllCards();
+  const getCard = (name: string) => cards.find(c => c.name === name);
+
+  const regularCardsData = [
+    { card: getCard('KB국민 굿데이카드'), desc: '주유/통신/커피 할인', bg: 'bg-gradient-to-br from-blue-400 to-blue-600' },
+    { card: getCard('올바른 FLEX 카드'), desc: '최대 86만원 캐시백', bg: 'bg-gradient-to-br from-orange-400 to-orange-600' },
+    { card: getCard('NH올원 Rental&코웨이카드'), desc: '매월 최대 4.2만원 혜택', bg: 'bg-gradient-to-br from-gray-200 to-gray-400' },
+    { card: getCard('Triple in LOCA'), desc: '생활업종 최대 3만원 할인', bg: 'bg-gradient-to-br from-rose-300 to-rose-500' },
+    { card: getCard('BC 바로 클리어 플러스'), desc: '휴대폰요금/스트리밍 10% 할인', bg: 'bg-gradient-to-br from-red-400 to-red-600' },
+  ].filter(item => item.card);
+
+  const recommendedCardsData = [
+    { card: getCard('신한카드 Mr.Life'), desc: '공과금/할인 혜택', category: '생활', bg: 'bg-gradient-to-b from-red-500 to-red-700' },
+    { card: getCard('삼성카드 taptap O'), desc: 'OTT·멤버십 50% 할인', category: '디지털/구독', bg: 'bg-gradient-to-b from-gray-100 to-gray-300' },
+    { card: getCard('LOCA 365'), desc: '관리비·보험·교육 할인', category: '공과금/관리비', bg: 'bg-gradient-to-b from-orange-300 to-orange-500' },
+    { card: getCard('신한카드 Deep Oil'), desc: '주유 금액 10% 결제일 할인', category: '주유', bg: 'bg-gradient-to-b from-blue-300 to-blue-500' },
+    { card: getCard('에너지플러스 현대카드'), desc: '에너지플러스앱 결제시 15%할인', category: '주유', bg: 'bg-gradient-to-b from-green-500 to-green-700' },
+  ].filter(item => item.card);
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -122,16 +128,26 @@ export default function CardPage() {
           <section className="mb-20">
             <h2 className="text-2xl font-bold text-gray-900 mb-8">정기결제 할인 받으세요!</h2>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-8">
-              {regularCards.map((card, idx) => (
-                <div key={idx} className="flex flex-col items-center group cursor-pointer">
-                  <div className="relative w-40 h-40 bg-[#f8f9fa] rounded-full flex items-center justify-center mb-6 overflow-visible group-hover:bg-pink-50 transition-colors">
-                    {/* Fake Card Graphic */}
-                    <div className={`absolute w-16 h-24 ${card.bg} rounded-lg shadow-lg border border-white/20 transform group-hover:-translate-y-4 group-hover:rotate-6 transition-all duration-300`} />
-                  </div>
-                  <p className="text-sm text-gray-500 mb-1">{card.desc}</p>
-                  <p className="font-semibold text-gray-900 text-center leading-tight">{card.name}</p>
-                </div>
-              ))}
+              {regularCardsData.map((item, idx) => {
+                const card = item.card!;
+                const imageUrl = (card.card_image_urls && card.card_image_urls.length > 0) ? card.card_image_urls[0] : card.card_image_url;
+                
+                return (
+                  <Link href={`/card/detail/${card.id}`} key={idx} className="flex flex-col items-center group cursor-pointer">
+                    <div className="relative w-36 h-36 md:w-40 md:h-40 bg-[#f8f9fa] rounded-full flex items-center justify-center mb-6 overflow-visible group-hover:bg-pink-50 transition-colors">
+                      {imageUrl ? (
+                        <div className="absolute w-28 h-28 md:w-32 md:h-32 transform group-hover:-translate-y-4 group-hover:rotate-6 transition-all duration-300">
+                          <Image src={imageUrl} alt={card.name} fill className="object-contain drop-shadow-md" />
+                        </div>
+                      ) : (
+                        <div className={`absolute w-16 h-24 ${item.bg} rounded-lg shadow-lg border border-white/20 transform group-hover:-translate-y-4 group-hover:rotate-6 transition-all duration-300`} />
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-500 mb-1 line-clamp-1">{item.desc}</p>
+                    <p className="font-semibold text-gray-900 text-center leading-tight break-keep line-clamp-2">{card.name}</p>
+                  </Link>
+                );
+              })}
             </div>
             <div className="flex justify-center">
               <Link href="/card/list/all-card" className="px-6 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
@@ -148,16 +164,27 @@ export default function CardPage() {
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-8">
-              {recommendedCards.map((card, idx) => (
-                <div key={idx} className="flex flex-col items-center group cursor-pointer">
-                  <h4 className="text-lg font-bold text-gray-900 mb-6">{card.category}</h4>
-                  <div className="relative w-40 h-40 bg-[#f8f9fa] rounded-full flex items-center justify-center mb-6 overflow-visible group-hover:bg-pink-50 transition-colors">
-                    <div className={`absolute w-16 h-24 ${card.bg} rounded-lg shadow-lg border border-white/20 transform group-hover:-translate-y-4 group-hover:-rotate-6 transition-all duration-300`} />
-                  </div>
-                  <p className="text-sm text-gray-500 mb-1">{card.name}</p>
-                  <p className="font-semibold text-gray-900 text-center leading-tight">{card.desc}</p>
-                </div>
-              ))}
+              {recommendedCardsData.map((item, idx) => {
+                const card = item.card!;
+                const imageUrl = (card.card_image_urls && card.card_image_urls.length > 0) ? card.card_image_urls[0] : card.card_image_url;
+
+                return (
+                  <Link href={`/card/detail/${card.id}`} key={idx} className="flex flex-col items-center group cursor-pointer">
+                    <h4 className="text-base md:text-lg font-bold text-gray-900 mb-6">{item.category}</h4>
+                    <div className="relative w-36 h-36 md:w-40 md:h-40 bg-[#f8f9fa] rounded-full flex items-center justify-center mb-6 overflow-visible group-hover:bg-pink-50 transition-colors">
+                      {imageUrl ? (
+                        <div className="absolute w-28 h-28 md:w-32 md:h-32 transform group-hover:-translate-y-4 group-hover:-rotate-6 transition-all duration-300">
+                          <Image src={imageUrl} alt={card.name} fill className="object-contain drop-shadow-md" />
+                        </div>
+                      ) : (
+                        <div className={`absolute w-16 h-24 ${item.bg} rounded-lg shadow-lg border border-white/20 transform group-hover:-translate-y-4 group-hover:-rotate-6 transition-all duration-300`} />
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-500 mb-1 line-clamp-1">{card.name}</p>
+                    <p className="font-semibold text-gray-900 text-center leading-tight break-keep line-clamp-2">{item.desc}</p>
+                  </Link>
+                );
+              })}
             </div>
             <div className="flex justify-center">
               <Link href="/card/list/all-card" className="px-6 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
