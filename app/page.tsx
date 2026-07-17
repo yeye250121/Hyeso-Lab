@@ -6,8 +6,8 @@ import { useEffect, useRef, useState } from 'react'
 import Footer from '@/components/shared/Footer'
 import Navbar from '@/components/shared/Navbar'
 
-const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/hyeso-lab_logo_pic_text_black.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvaHllc28tbGFiX2xvZ29fcGljX3RleHRfYmxhY2sucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4MzQzOTY5NywiZXhwIjoxNzg0MDQ0NDk3fQ.0OSrIdhjHpi-MpWgqlIvh-cZprpWIJx4t6M7gHdQ10Y'
-const NAV_LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/hyeso-lab_logo_pic_text_black.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvaHllc28tbGFiX2xvZ29fcGljX3RleHRfYmxhY2sucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4MzQzMzU3NiwiZXhwIjoxNzg0MDM4Mzc2fQ.DGBROh1thZ9aNai6oVGn4x8DtmeT0lpC9ihBcuuNI78'
+const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/hyeso-lab_logo_pic_text_black.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvaHllc28tbGFiX2xvZ29fcGljX3RleHRfYmxhY2sucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4NDI4NDYwMCwiZXhwIjoxODE1ODIwNjAwfQ.HOfatTrz3hEPzY4QQqFdycndnVzoBOQJHBuj-gSiKPI'
+const NAV_LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/hyeso-lab_logo_pic_text_black.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvaHllc28tbGFiX2xvZ29fcGljX3RleHRfYmxhY2sucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4NDI4NDYwMCwiZXhwIjoxODE1ODIwNjAwfQ.HOfatTrz3hEPzY4QQqFdycndnVzoBOQJHBuj-gSiKPI'
 
 export default function PartnersLandingPage() {
   const observerRef = useRef<IntersectionObserver | null>(null)
@@ -76,7 +76,7 @@ export default function PartnersLandingPage() {
           playsInline
           className="absolute top-0 left-0 w-full h-[133.33%] object-cover object-top opacity-80 pointer-events-none"
         >
-          <source src="https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/videos/hyeso-lab_herosectionvideo.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvdmlkZW9zL2h5ZXNvLWxhYl9oZXJvc2VjdGlvbnZpZGVvLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODM0MzQ1NjMsImV4cCI6MTc4NDAzOTM2M30.tJRektbaAPT6FSfedd8D2TQZz0QqevOGvUjmDHTYjpw" type="video/mp4" />
+          <source src="https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/videos/hyeso-lab_herosectionvideo.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvdmlkZW9zL2h5ZXNvLWxhYl9oZXJvc2VjdGlvbnZpZGVvLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODQyODQ2MDAsImV4cCI6MTgxNTgyMDYwMH0.V83z-zWuvE1EPdJiNEX4o1Sg0HlY780HwSd_E8NqRTU" type="video/mp4" />
         </video>
 
         {/* Video Gradient Fade & Blur Overlay */}
@@ -123,22 +123,22 @@ export default function PartnersLandingPage() {
               { 
                 id: 'card', 
                 title: '카드 연구',
-                icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/card_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvY2FyZF9pY29uLnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODM0MzcwOTcsImV4cCI6MTc4NDA0MTg5N30.-cz7zkSXFkCNH--hfsQ5qWPulBZ8YxMcOG4vGeoaGrY'
+                icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/card_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvY2FyZF9pY29uLnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODQyODQ2MDAsImV4cCI6MTgxNTgyMDYwMH0.knGFkRUBNInxhVgjHrdhyv7nVugkbJN5C9AdljnED7k'
               },
               { 
                 id: 'phone', 
                 title: '휴대폰 연구',
-                icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/phone_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvcGhvbmVfaWNvbi5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzNDM3MTEzLCJleHAiOjE3ODQwNDE5MTN9.DLm6Dekmg7jaANK7gG_4GXiqXp1vyOUn7v9vMFU13nY'
+                icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/phone_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvcGhvbmVfaWNvbi5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg0Mjg0NjAxLCJleHAiOjE4MTU4MjA2MDF9.e9Z0P57kS6Y6pzmeWLn9yrCYBbOOqRtkT19LUxDJbAQ'
               },
               { 
                 id: 'internet', 
                 title: '인터넷 연구',
-                icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/internet_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvaW50ZXJuZXRfaWNvbi5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzNDM3MTI5LCJleHAiOjE3ODQwNDE5Mjl9.w-2Iyaoa2U5axNSvlmpyUc2nHco-NJdDcCTkk56Al7w'
+                icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/internet_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvaW50ZXJuZXRfaWNvbi5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg0Mjg0NjAxLCJleHAiOjE4MTU4MjA2MDF9.41jUWee7UFdYD9x3HI4eaRU0hHcx0jziDdd_WEJNzQc'
               },
               { 
                 id: 'cctv', 
                 title: 'CCTV 연구',
-                icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/cctv_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvY2N0dl9pY29uLnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODM0MzcxMzgsImV4cCI6MTc4NDA0MTkzOH0.9g1aEliVcpaYlLfw5z7ShqYJRaWncGSnyo_Ho0JmvM0'
+                icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/cctv_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvY2N0dl9pY29uLnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODQyODQ2MDEsImV4cCI6MTgxNTgyMDYwMX0.3fQdue-9q417l6EU6aeyMuW2u4bxQlpaHBJgfdtJUPc'
               },
             ].map((product) => (
               <Link 
@@ -214,7 +214,7 @@ export default function PartnersLandingPage() {
               </div>
               <div className="relative w-full h-[140px] lg:h-[180px] flex items-end justify-center pb-6">
                 <Image
-                  src="https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/select-pbl_icon%20(2).png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvc2VsZWN0LXBibF9pY29uICgyKS5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzNDM5MTUyLCJleHAiOjE3ODQwNDM5NTJ9.-bwKS0xKKIOz1BWXTRHP9TdEcPF5w4MBa-eLvgIApUA"
+                  src="https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/select-pbl_icon%20(2).png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvc2VsZWN0LXBibF9pY29uICgyKS5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg0Mjg0NjAxLCJleHAiOjE4MTU4MjA2MDF9.Buk00z4VfGSSIvsEfdUQ6NLcXemakLydvixjYKvoLsM"
                   alt="선택지 아이콘"
                   width={240}
                   height={240}
@@ -236,7 +236,7 @@ export default function PartnersLandingPage() {
               </div>
               <div className="relative w-full h-[140px] lg:h-[180px] flex items-end justify-center pb-6">
                 <Image
-                  src="https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/trust_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvdHJ1c3RfaWNvbi5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzgzNDM5MjcxLCJleHAiOjE3ODQwNDQwNzF9.8UJWHDHSBqDb7Bcl7mHgZ81nhAp6zR1wwgjnHExG57I"
+                  src="https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/icons/trust_icon.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvaWNvbnMvdHJ1c3RfaWNvbi5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg0Mjg0NjAxLCJleHAiOjE4MTU4MjA2MDF9.nSpypk8IJasl5s_VeDNIpQaa0601FPmOZVWBbrCSVyE"
                   alt="걱정 아이콘"
                   width={240}
                   height={240}

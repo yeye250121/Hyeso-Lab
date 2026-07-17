@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${notoSansKR.variable} font-sans antialiased bg-gray-50`}>
-        <div className="max-w-[1100px] mx-auto w-full min-h-screen bg-gray-50 flex flex-col relative shadow-sm">
+        <div className="w-full min-h-screen bg-gray-50 flex flex-col relative">
           {children}
         </div>
       </body>

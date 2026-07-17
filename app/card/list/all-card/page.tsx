@@ -4,8 +4,10 @@ import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
 import CardListFilter from '@/components/card/CardListFilter';
 
-export default function AllCardPage() {
-  const allCards = getAllCards();
+export const revalidate = 0;
+
+export default async function AllCardPage() {
+  const allCards = await getAllCards();
 
   return (
     <div className="min-h-screen flex flex-col bg-white">

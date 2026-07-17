@@ -33,6 +33,7 @@ export default function CardListFilter({ initialCards }: CardListFilterProps) {
   const [companyFilter, setCompanyFilter] = useState<string>('all');
   const [sortOrder, setSortOrder] = useState<string>('popular');
   const [isCompanySheetOpen, setIsCompanySheetOpen] = useState(false);
+  const [isSortSheetOpen, setIsSortSheetOpen] = useState(false);
 
   // 추출된 유니크한 카드사 목록 (전체보기 제외, 우리카드를 무조건 첫 번째로)
   const companies = useMemo(() => {
@@ -51,7 +52,7 @@ export default function CardListFilter({ initialCards }: CardListFilterProps) {
       result = result.filter(c => 
         c.name.toLowerCase().includes(q) || 
         c.company.toLowerCase().includes(q) || 
-        c.benefits.some(b => b.toLowerCase().includes(q))
+        c.benefits.some(b => (typeof b === 'string' ? b : b?.title || '').toLowerCase().includes(q))
       );
     }
 
@@ -133,32 +134,31 @@ export default function CardListFilter({ initialCards }: CardListFilterProps) {
           </button>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+        <div className="flex flex-row justify-between items-center mb-4">
           
-          {/* 카드사 필터 바텀시트 호출 버튼 */}
+          {/* 카드사 필터 바텀시트 호출 버튼 (작은 위스의 박스 형태로 왼쪽에 위치) */}
           <button 
             onClick={() => setIsCompanySheetOpen(true)}
-            className="flex items-center justify-between bg-gray-50 border border-gray-200 text-gray-700 font-medium py-3 pl-4 pr-4 rounded-xl hover:bg-gray-100 transition-colors w-full sm:w-auto min-w-[160px]"
+            className="flex items-center justify-between bg-gray-50 border border-gray-200 text-gray-700 font-medium py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors w-fit"
           >
             <span className="truncate">{companyFilter === 'all' ? '모든 카드사' : companyFilter}</span>
-            <ChevronDown className="w-4 h-4 text-gray-400 ml-2 shrink-0" />
+            <ChevronDown className="w-4 h-4 text-gray-400 ml-1.5 shrink-0" />
           </button>
 
-          {/* 정렬 방식 필터 Select */}
-          <div className="relative w-full sm:w-auto">
-            <select 
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              className="appearance-none bg-gray-50 border border-gray-200 text-gray-700 font-medium py-3 pl-4 pr-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-100 focus:border-[var(--action-primary)] w-full sm:w-auto min-w-[160px] cursor-pointer"
-            >
-              <option value="popular">인기순</option>
-              <option value="benefit">혜택순</option>
-              <option value="issue">전월발급순</option>
-              <option value="condition">전월실적 낮은순</option>
-              <option value="fee">연회비 낮은순</option>
-            </select>
-            <SlidersHorizontal className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          </div>
+          {/* 정렬 방식 필터 바텀시트 호출 버튼 (박스 없이 텍스트 + 미니멀 화살표로 오른쪽에 위치) */}
+          <button
+            onClick={() => setIsSortSheetOpen(true)}
+            className="flex items-center gap-1 text-gray-600 font-medium hover:text-gray-900 transition-colors"
+          >
+            <span>{
+              sortOrder === 'popular' ? '인기순' :
+              sortOrder === 'benefit' ? '혜택순' :
+              sortOrder === 'issue' ? '전월발급순' :
+              sortOrder === 'condition' ? '전월실적 낮은순' :
+              sortOrder === 'fee' ? '연회비 낮은순' : '인기순'
+            }</span>
+            <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+          </button>
         </div>
       </div>
 
@@ -171,14 +171,17 @@ export default function CardListFilter({ initialCards }: CardListFilterProps) {
         ) : (
           filteredAndSortedCards.map((card) => {
             const logoUrl = COMPANY_LOGOS[card.company];
+            const displayImageUrl = (card.card_image_urls && card.card_image_urls.length > 0) ? card.card_image_urls[0] : card.card_image_url;
             
             return (
               <Link href={`/card/detail/${card.id}`} key={card.id}>
                 <div className="flex flex-row items-center gap-5 py-5 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer group px-2">
                   
-                  {/* 좌측: 로고 동그라미 - 보더 0px, 회색 채우기 */}
-                  <div className="w-14 h-14 md:w-16 md:h-16 shrink-0 bg-gray-100 border-0 rounded-full flex justify-center items-center overflow-hidden p-2">
-                    {logoUrl ? (
+                  {/* 좌측: 카드 이미지 또는 로고 동그라미 */}
+                  <div className={`w-14 h-14 md:w-16 md:h-16 shrink-0 flex justify-center items-center overflow-hidden ${displayImageUrl ? 'rounded-lg bg-transparent p-0' : 'bg-gray-100 border-0 rounded-full p-2'}`}>
+                    {displayImageUrl ? (
+                      <img src={displayImageUrl} alt={card.name} className="w-full h-full object-contain drop-shadow-sm" />
+                    ) : logoUrl ? (
                       <img src={logoUrl} alt={card.company} className="w-full h-full object-contain mix-blend-multiply" />
                     ) : (
                       <span className="text-[9px] md:text-[10px] font-bold text-gray-400 text-center leading-tight break-keep">
@@ -187,7 +190,7 @@ export default function CardListFilter({ initialCards }: CardListFilterProps) {
                     )}
                   </div>
 
-                  {/* 중앙: 텍스트 미니멀 설명 */}
+                  {/* 중앙: 텍스트 미니멀 설명 및 부가 정보 */}
                   <div className="flex-1 flex flex-col min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xs font-semibold text-gray-400">{card.company}</span>
@@ -200,20 +203,20 @@ export default function CardListFilter({ initialCards }: CardListFilterProps) {
                     <h2 className="text-base md:text-lg font-bold text-gray-900 group-hover:text-[var(--action-primary)] transition-colors truncate">
                       {card.name}
                     </h2>
-                    <p className="text-sm text-gray-500 truncate mt-0.5">
-                      {card.promo ? card.promo : card.benefits[0]}
+                    <p className="text-sm text-gray-500 truncate mt-0.5 mb-1.5">
+                      {card.promo ? `${card.promo} • ` : ''}{card.benefits.slice(0, 3).map(b => typeof b === 'string' ? b : b?.title || '').join(' • ')}
                     </p>
-                  </div>
-
-                  {/* 우측: 아이콘 (연회비/실적) */}
-                  <div className="hidden sm:flex flex-col items-end gap-1.5 shrink-0 ml-4">
-                    <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                      <CreditCard className="w-3.5 h-3.5 shrink-0" />
-                      <span>{card.fees.split('/')[0]}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                      <Info className="w-3.5 h-3.5 shrink-0" />
-                      <span>{card.condition}</span>
+                    
+                    {/* 연회비 및 실적 (왼쪽으로 이동) */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1 text-xs text-gray-400">
+                        <CreditCard className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">{card.fees.split('/')[0]}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-gray-400">
+                        <Info className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">{card.condition}</span>
+                      </div>
                     </div>
                   </div>
 
@@ -273,6 +276,57 @@ export default function CardListFilter({ initialCards }: CardListFilterProps) {
                 </button>
               )
             })}
+          </div>
+        </div>
+      </div>
+
+      {/* 정렬 방식 선택 바텀시트 / 모달 */}
+      <div 
+        className={`fixed inset-0 z-50 flex items-end sm:items-center justify-center transition-all duration-300 ${isSortSheetOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}
+      >
+        {/* Backdrop */}
+        <div 
+          className="absolute inset-0 bg-black/40"
+          onClick={() => setIsSortSheetOpen(false)}
+        />
+        
+        {/* Sheet / Modal Content */}
+        <div 
+          className={`relative w-full sm:w-[400px] bg-white rounded-t-3xl sm:rounded-3xl p-6 pb-10 sm:pb-6 shadow-2xl transform transition-transform duration-300 ease-out ${isSortSheetOpen ? 'translate-y-0 scale-100' : 'translate-y-full sm:translate-y-12 sm:scale-95'}`}
+        >
+          <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6 sm:hidden" />
+          
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-gray-900">정렬 기준</h3>
+            <button onClick={() => setIsSortSheetOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors p-1">
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            {[
+              { id: 'popular', label: '인기순' },
+              { id: 'benefit', label: '혜택순' },
+              { id: 'issue', label: '전월발급순' },
+              { id: 'condition', label: '전월실적 낮은순' },
+              { id: 'fee', label: '연회비 낮은순' }
+            ].map(option => (
+              <button
+                key={option.id}
+                onClick={() => {
+                  setSortOrder(option.id);
+                  setIsSortSheetOpen(false);
+                }}
+                className={`flex items-center justify-between p-4 rounded-xl transition-colors ${sortOrder === option.id ? 'bg-pink-50 text-[var(--action-primary)] font-bold' : 'hover:bg-gray-50 text-gray-700 font-medium'}`}
+              >
+                <span>{option.label}</span>
+                {sortOrder === option.id && (
+                  <svg className="w-5 h-5 text-[var(--action-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </button>
+            ))}
           </div>
         </div>
       </div>

@@ -30,6 +30,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'cdn.thefairnews.co.kr',
       },
+      {
+        protocol: 'https',
+        hostname: 'd1c5n4ri2guedi.cloudfront.net',
+      },
     ],
   },
 };

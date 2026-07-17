@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import api from '@/lib/admin/api'
 import { Users, FileText, TrendingUp, Clock } from 'lucide-react'
+import InviteKeyGenerator from '@/components/admin/InviteKeyGenerator'
 
 interface DashboardStats {
   totalPartners: number
@@ -174,6 +175,8 @@ export default function DashboardPage() {
             </p>
           )}
         </div>
+
+        <InviteKeyGenerator />
       </div>
     </AdminLayout>
   )
