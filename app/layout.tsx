@@ -19,9 +19,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
-      <body className={`${notoSansKR.variable} font-sans antialiased bg-gray-50`}>
-        <div className="max-w-[1100px] mx-auto w-full min-h-screen bg-gray-50 flex flex-col relative shadow-sm">
+    <html lang="ko" className="overflow-x-hidden">
+      <body className={`${notoSansKR.variable} font-sans antialiased bg-gray-50 overflow-x-hidden w-full`}>
+        <div className="max-w-[1100px] mx-auto w-full min-h-screen bg-gray-50 flex flex-col relative shadow-sm overflow-x-hidden">
           {children}
         </div>
       </body>

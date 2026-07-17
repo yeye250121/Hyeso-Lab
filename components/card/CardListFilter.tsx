@@ -208,12 +208,12 @@ export default function CardListFilter({ initialCards }: CardListFilterProps) {
                     </p>
                     
                     {/* 연회비 및 실적 (왼쪽으로 이동) */}
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1 text-xs text-gray-400">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex items-center gap-1 text-xs text-gray-400 min-w-0">
                         <CreditCard className="w-3.5 h-3.5 shrink-0" />
                         <span className="truncate">{card.fees.split('/')[0]}</span>
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-gray-400">
+                      <div className="flex items-center gap-1 text-xs text-gray-400 min-w-0">
                         <Info className="w-3.5 h-3.5 shrink-0" />
                         <span className="truncate">{card.condition}</span>
                       </div>
