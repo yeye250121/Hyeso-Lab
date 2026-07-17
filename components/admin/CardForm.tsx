@@ -128,7 +128,7 @@ export default function CardForm({ initialData }: { initialData?: any }) {
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         <label className="block text-sm font-medium text-gray-700 mb-3">상세 혜택 (상세 페이지용)</label>
         <div className="min-h-[400px] border rounded-lg overflow-hidden">
-          <TipTapEditor value={detailedBenefits} onChange={(val) => setValue('detailed_benefits', val)} />
+          <TipTapEditor content={detailedBenefits} onChange={(val) => setValue('detailed_benefits', val)} />
         </div>
       </div>
 
