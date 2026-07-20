@@ -51,7 +51,7 @@ const defaultLinkSections: FooterLinkSection[] = [
 ];
 
 export default function Footer({
-  logoSrc = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/hyeso-lab_logo_pic_text_black.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvaHllc28tbGFiX2xvZ29fcGljX3RleHRfYmxhY2sucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4MzQzOTY5NywiZXhwIjoxNzg0MDQ0NDk3fQ.0OSrIdhjHpi-MpWgqlIvh-cZprpWIJx4t6M7gHdQ10Y',
+  logoSrc = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-lab_logo_pic_text_black.png',
   companyInfo = defaultCompanyInfo,
   linkSections = defaultLinkSections,
   showCopyright = true,
