@@ -11,16 +11,16 @@ interface CardListFilterProps {
 }
 
 const COMPANY_LOGOS: Record<string, string> = {
-  '신한카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/app/card/shinhan-card-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvYXBwL2NhcmQvc2hpbmhhbi1jYXJkLWxvZ28ucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4Mzc2OTYwMSwiZXhwIjoxNzg0Mzc0NDAxfQ.JHYWjnBr9MTReZU5IGQC10QscJYkSIWRFN1jGM9FMDA',
-  '현대카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/app/card/hyundai-card-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvYXBwL2NhcmQvaHl1bmRhaS1jYXJkLWxvZ28ucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4Mzc2OTc5NSwiZXhwIjoxNzg0Mzc0NTk1fQ.K7CAHbt852GGj7C_LTAmPVZWuL5CLPVSvufT_Tpot6s',
-  '롯데카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/app/card/lotte-card-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvYXBwL2NhcmQvbG90dGUtY2FyZC1sb2dvLnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODM3Njk1ODQsImV4cCI6MTc4NDM3NDM4NH0.uWHUkpLnOH4kvcPyWQI24PYQ8gDYAYEnveGOYJOL4DY',
-  '삼성카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/app/card/samsung-card-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvYXBwL2NhcmQvc2Ftc3VuZy1jYXJkLWxvZ28ucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4Mzc2OTU5NSwiZXhwIjoxNzg0Mzc0Mzk1fQ.xEpRszMNlU9ZXdtxx_CjrhofU7SeAA4go10YDxw1Shs',
-  '하나카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/app/card/hana-card-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvYXBwL2NhcmQvaGFuYS1jYXJkLWxvZ28ucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4Mzc2OTU3OCwiZXhwIjoxNzg0Mzc0Mzc4fQ.EvVq7PzB0v1WWJDPBsDcDdKvdL5zy1NReqttJ084jaY',
-  'KB국민카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/logo_kbcard.png',
-  'BC바로카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/app/card/bc-card-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvYXBwL2NhcmQvYmMtY2FyZC1sb2dvLnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODM3Njk1NzMsImV4cCI6MTc4NDM3NDM3M30.Wb7i6FPP4_45LPN2QbOkcrSmKwK1xTTf8anBUSVzXMc',
-  '우리카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/sign/HYESO-LAB/logos/app/card/woori-card-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wYzEzYTRlNC02NWI3LTRlODEtYWVhZC03OTA0NzkzODYyYmIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIWUVTTy1MQUIvbG9nb3MvYXBwL2NhcmQvd29vcmktY2FyZC1sb2dvLnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODM3NzA2NjQsImV4cCI6MTc4NDM3NTQ2NH0.TB5kRQRpfEOh0nAdfYXwFz5yP33Xsr9r8Rgoj6uQArU',
-  'NH농협카드': 'https://i.namu.wiki/i/NRx2sGZQx0nmZg0ceOGaR4VsK1ESprdayF8d40LAFYn8Lv3adn9qTJFP-pvCLn5c3ZUNgNL05Hyglj4--iMX6w.svg',
-  'IBK기업은행': 'https://i.namu.wiki/i/oG-R9lG9Fw7r-VvF5UXY9h-2L3eF7sJ4y4g5kE2S-p9-J0v1qW6R_a7p8rGv8V_fD_6H3-Z5_jO1V8vF0_Z2Q.svg',
+  '신한카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/tips_logo_sh.png',
+  '현대카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/tips_logo_hd.png',
+  '롯데카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/tips_logo_lc.png',
+  '삼성카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/samsung-card-logo.png',
+  '하나카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/tips_logo_hn.png',
+  'KB국민카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/tips_logo_kb.png',
+  'BC바로카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/tips_logo_bc.png',
+  '우리카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/tips_logo_wr.png',
+  'NH농협카드': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/tips_logo_nh.png',
+  'IBK기업은행': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/tips_logo_ibk.png',
 };
 
 export default function CardListFilter({ initialCards }: CardListFilterProps) {
@@ -265,7 +265,7 @@ export default function CardListFilter({ initialCards }: CardListFilterProps) {
                   }}
                   className={`flex flex-col items-center justify-center p-3 rounded-2xl transition-all ${isSelected ? 'border-2 border-[var(--action-primary)] bg-pink-50 shadow-sm' : 'border-0 bg-[#f4f5f7] hover:bg-gray-200'}`}
                 >
-                  <div className="w-10 h-10 mb-2 bg-white rounded-full shadow-sm flex items-center justify-center overflow-hidden p-1.5">
+                  <div className="w-14 h-10 mb-2 flex items-center justify-center">
                     {logoUrl ? (
                       <img src={logoUrl} alt={c} className="w-full h-full object-contain mix-blend-multiply" />
                     ) : (
