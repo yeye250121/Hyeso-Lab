@@ -15,6 +15,7 @@ interface FooterProps {
   logoSrc?: string;
   companyInfo?: {
     name: string;
+    representative: string;
     businessNumber: string;
     address: string;
     phone: string;
@@ -24,9 +25,10 @@ interface FooterProps {
 }
 
 const defaultCompanyInfo = {
-  name: '혜택 연구소',
-  businessNumber: '573-07-03391',
-  address: '경상남도 창원시 진해구 충장로 68-1, 2층 1호(충무동)',
+  name: '씨씨엔',
+  representative: '이경태',
+  businessNumber: '118-19-02349',
+  address: '경상남도 창원시 진해구 신항2로 114, 423호(용원동, 다인로얄팰리스 부산신항2차)',
   phone: '010-7469-4385',
 };
 
@@ -34,8 +36,10 @@ const defaultLinkSections: FooterLinkSection[] = [
   {
     title: '서비스',
     links: [
-      { text: '파트너 로그인', href: '/partners/login' },
-      { text: '파트너 가입', href: '/partners/register' },
+      { text: '카드 혜택', href: '/card' },
+      { text: '인터넷 혜택', href: '/internet' },
+      { text: '휴대폰 혜택', href: '/phone' },
+      { text: 'CCTV 혜택', href: '/cctv' },
     ],
   },
   {
@@ -66,7 +70,7 @@ export default function Footer({
               className="h-[50px] w-auto brightness-0 opacity-60 transition-opacity"
             />
             <div className="space-y-1 text-sm text-gray-500">
-              <p>{companyInfo.name}</p>
+              <p>{companyInfo.name} | 대표자 : {companyInfo.representative}</p>
               <p>사업자등록번호 : {companyInfo.businessNumber}</p>
               <p>주소 : {companyInfo.address}</p>
             </div>
