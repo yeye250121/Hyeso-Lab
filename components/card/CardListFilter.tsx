@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { CreditCard, Info, SlidersHorizontal, ChevronDown, X, Search } from 'lucide-react';
+import { CreditCard, Info, ChevronDown, X, Search } from 'lucide-react';
 import type { CardData } from '@/lib/cardApi';
 
 interface CardListFilterProps {
@@ -25,12 +25,16 @@ const COMPANY_LOGOS: Record<string, string> = {
 
 export default function CardListFilter({ initialCards }: CardListFilterProps) {
   const searchParams = useSearchParams();
+  const requestedCompany = searchParams?.get('company');
+  const initialCompanyFilter =
+    requestedCompany &&
+    Object.prototype.hasOwnProperty.call(COMPANY_LOGOS, requestedCompany)
+      ? requestedCompany
+      : 'all';
   
   const [searchQuery, setSearchQuery] = useState(searchParams?.get('q') || '');
   const [typeFilter, setTypeFilter] = useState<'all' | '신용카드' | '체크카드'>('all');
-  
-  // 처음에 전체카드가 나오도록 'all'로 초기화
-  const [companyFilter, setCompanyFilter] = useState<string>('all');
+  const [companyFilter, setCompanyFilter] = useState<string>(initialCompanyFilter);
   const [sortOrder, setSortOrder] = useState<string>('popular');
   const [isCompanySheetOpen, setIsCompanySheetOpen] = useState(false);
   const [isSortSheetOpen, setIsSortSheetOpen] = useState(false);

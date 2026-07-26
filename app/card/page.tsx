@@ -1,6 +1,6 @@
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
-import { Search, ChevronRight, ChevronLeft, CreditCard } from "lucide-react";
+import { Search, ChevronRight, CreditCard } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { getAllCards } from "@/lib/cardApi";
@@ -25,7 +25,7 @@ const cardCompanies = [
   { name: '삼성카드', color: 'text-[#0f62fe]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/samsung-card-logo.png' },
   { name: '하나카드', color: 'text-[#009384]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/hana-card-logo.png' },
   { name: 'KB국민카드', color: 'text-[#645c4c]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/logo_kbcard.png' },
-  { name: 'BC카드', color: 'text-[#ed1c24]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/bc-card-logo.png' },
+  { name: 'BC카드', filterName: 'BC바로카드', color: 'text-[#ed1c24]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/bc-card-logo.png' },
   { name: '우리카드', color: 'text-[#0078d7]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/woori-card-logo.png' },
   { name: 'NH농협카드', color: 'text-[#009b4d]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/tips_logo_nh.png' },
 ];
@@ -203,9 +203,13 @@ export default async function CardPage() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {cardCompanies.map((company, idx) => (
-                <div 
-                  key={idx} 
+              {cardCompanies.map((company) => (
+                <Link
+                  href={{
+                    pathname: '/card/list/all-card',
+                    query: { company: company.filterName || company.name },
+                  }}
+                  key={company.name}
                   className="bg-[#f8f9fa] hover:bg-gray-100 h-16 rounded-xl flex items-center justify-center cursor-pointer transition-colors px-4"
                 >
                   {company.logo ? (
@@ -218,7 +222,7 @@ export default async function CardPage() {
                       {company.name}
                     </span>
                   )}
-                </div>
+                </Link>
               ))}
             </div>
           </section>
