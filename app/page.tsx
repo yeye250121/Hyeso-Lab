@@ -96,7 +96,7 @@ export default function PartnersLandingPage() {
               혜택연구소가 대신 연구해서 찾아드려요
             </p>
             <Link
-              href="/partners/login"
+              href="/card"
               className="inline-flex items-center gap-2 bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white text-lg font-semibold px-8 py-4 rounded-xl transition-all hover:scale-105"
             >
               연구 시작하기

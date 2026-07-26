@@ -29,9 +29,6 @@ export default function Header() {
             <Link href="/landing" className="text-gray-700 hover:text-purple-600 transition">
               상담 신청
             </Link>
-            <Link href="/partners" className="text-gray-700 hover:text-purple-600 transition">
-              파트너
-            </Link>
           </nav>
 
           {/* CTA Buttons */}
@@ -42,12 +39,6 @@ export default function Header() {
             >
               상담하기
             </a>
-            <Link
-              href="/partners/login"
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
-            >
-              로그인
-            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -83,20 +74,6 @@ export default function Header() {
               onClick={() => setIsMenuOpen(false)}
             >
               상담 신청
-            </Link>
-            <Link
-              href="/partners"
-              className="block px-3 py-2 text-gray-700 hover:bg-purple-50 rounded-md"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              파트너
-            </Link>
-            <Link
-              href="/partners/login"
-              className="block px-3 py-2 text-purple-600 font-medium hover:bg-purple-50 rounded-md"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              로그인
             </Link>
           </div>
         </div>

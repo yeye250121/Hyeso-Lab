@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { supabase } from '@/lib/supabase';
 import TipTapEditor from '@/components/admin/TipTapEditor';
 import { saveCard } from '@/app/admin/cards/actions';
+import api from '@/lib/admin/api';
 
 export default function CardForm({ initialData }: { initialData?: any }) {
   const [loading, setLoading] = useState(false);
@@ -21,6 +21,7 @@ export default function CardForm({ initialData }: { initialData?: any }) {
       fees: initialData?.fees || '',
       benefits: initialData?.benefits?.join('\n') || '',
       card_image_url: initialData?.card_image_url || '',
+      official_product_url: initialData?.official_product_url || '',
       detailed_benefits: initialData?.detailed_benefits || ''
     }
   });
@@ -43,21 +44,18 @@ export default function CardForm({ initialData }: { initialData?: any }) {
     if (!file) return;
 
     setUploadingImage(true);
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
-    const filePath = `card-images/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('HYESO-LAB')
-      .upload(filePath, file);
-
-    if (uploadError) {
-      alert('이미지 업로드 실패: ' + uploadError.message);
-    } else {
-      const { data } = supabase.storage.from('HYESO-LAB').getPublicUrl(filePath);
-      setValue('card_image_url', data.publicUrl);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await api.post('/admin/uploads', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setValue('card_image_url', response.data.url);
+    } catch (error: any) {
+      alert('이미지 업로드 실패: ' + (error.response?.data?.error || '알 수 없는 오류'));
+    } finally {
+      setUploadingImage(false);
     }
-    setUploadingImage(false);
   };
 
   return (
@@ -102,6 +100,21 @@ export default function CardForm({ initialData }: { initialData?: any }) {
           </div>
         </div>
 
+      </div>
+
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">공식 상품 상세 URL</label>
+            <input
+              type="url"
+              {...register('official_product_url')}
+              className="w-full px-3 py-2 border rounded-lg"
+              placeholder="https://card-company.example/product/..."
+            />
+            <p className="mt-1 text-xs text-gray-500">제휴·상담사 추적값이 없는 카드사 공식 상품 페이지</p>
+          </div>
+        </div>
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">

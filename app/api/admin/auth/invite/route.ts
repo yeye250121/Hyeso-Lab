@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { verifyAdminAuth } from '@/lib/admin/auth';
 import crypto from 'crypto';
 
@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
     if (!adminUser) {
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
     }
+    const supabaseAdmin = getSupabaseAdmin();
 
     // 2. Generate random invite key
     const key = `INV-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;

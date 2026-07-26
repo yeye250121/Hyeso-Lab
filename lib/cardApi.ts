@@ -17,6 +17,8 @@ export interface CardData {
   card_image_url?: string;
   card_image_urls?: string[];
   detailed_benefits?: string;
+  official_product_url?: string;
+  official_product_url_verified_at?: string;
 }
 
 // 전체 카드 목록 불러오기

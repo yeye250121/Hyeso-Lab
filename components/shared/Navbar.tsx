@@ -47,22 +47,6 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Right Menu (Login/Register) */}
-        <div className="hidden md:flex items-center gap-4">
-          <Link
-            href="/partners/login"
-            className="text-[var(--action-primary)] hover:text-[var(--action-primary-hover)] text-sm font-semibold transition-colors"
-          >
-            로그인
-          </Link>
-          <Link
-            href="/partners/register"
-            className="bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-          >
-            회원가입
-          </Link>
-        </div>
-
         {/* Mobile Hamburger Button */}
         <button
           className="md:hidden p-2"
@@ -106,22 +90,6 @@ export default function Navbar() {
             CCTV 혜택
           </Link>
 
-          <div className="h-[1px] bg-gray-200 my-2" />
-          
-          <Link
-            href="/partners/login"
-            className="block w-full text-center text-[var(--action-primary)] border border-[var(--action-primary)] text-base font-semibold px-4 py-3 rounded-xl transition-colors"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            로그인
-          </Link>
-          <Link
-            href="/partners/register"
-            className="block w-full text-center bg-[var(--action-primary)] text-white text-base font-semibold px-4 py-3 rounded-xl transition-colors shadow-sm"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            회원가입
-          </Link>
         </div>
       </div>
     </nav>

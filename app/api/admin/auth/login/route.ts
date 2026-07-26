@@ -1,20 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '@/lib/admin/auth';
 import { cookies } from 'next/headers';
+import { z } from 'zod';
+
+const loginSchema = z.object({
+  loginId: z.string().trim().min(1).max(100),
+  password: z.string().min(1).max(200),
+  rememberMe: z.boolean().optional().default(false),
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const { loginId, password, rememberMe } = await req.json();
-
-    if (!loginId || !password) {
+    const parsed = loginSchema.safeParse(await req.json());
+    if (!parsed.success) {
       return NextResponse.json({ error: '아이디와 비밀번호를 입력해주세요.' }, { status: 400 });
     }
+    const { loginId, password, rememberMe } = parsed.data;
+    const supabaseAdmin = getSupabaseAdmin();
 
     const { data: user, error } = await supabaseAdmin
       .from('admin_users')
-      .select('*')
+      .select('id, login_id, password_hash, unique_code, nickname')
       .eq('login_id', loginId)
       .single();
 
@@ -34,7 +42,7 @@ export async function POST(req: NextRequest) {
       nickname: user.nickname,
     };
 
-    const token = generateToken(adminContext);
+    const token = generateToken(adminContext, rememberMe);
 
     // Set cookie
     cookies().set('admin-token', token, {
@@ -47,7 +55,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       message: '로그인 성공',
-      token,
       admin: adminContext
     });
 

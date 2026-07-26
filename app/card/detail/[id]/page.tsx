@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
 import { CreditCard, Info, ChevronDown } from 'lucide-react';
-import Link from 'next/link';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -92,9 +91,24 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
             </div>
 
             {/* CTA 버튼 */}
-            <button className="w-full bg-[var(--action-primary)] text-white font-bold py-4 rounded-xl text-lg hover:bg-[var(--action-primary-hover)] transition-colors shadow-lg shadow-pink-100">
-              카드 자세히 보기
-            </button>
+            {card.official_product_url ? (
+              <a
+                href={card.official_product_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full bg-[var(--action-primary)] text-center text-white font-bold py-4 rounded-xl text-lg hover:bg-[var(--action-primary-hover)] transition-colors shadow-lg shadow-pink-100"
+              >
+                카드 자세히 보기
+              </a>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="w-full bg-gray-300 text-white font-bold py-4 rounded-xl text-lg cursor-not-allowed"
+              >
+                공식 상품 페이지 준비 중
+              </button>
+            )}
           </div>
 
           {/* 우측: 카드 이미지 */}

@@ -1,7 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 /**
  * Supabase Admin Client
@@ -15,9 +12,30 @@ const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.
  * - Server-side operations that require admin privileges
  * - Operations that need to bypass RLS policies
  */
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-})
+let adminClient: SupabaseClient | null = null
+
+function isMissing(value: string | undefined): boolean {
+  return !value || value === 'placeholder' || value.startsWith('your-')
+}
+
+export function getSupabaseAdmin(): SupabaseClient {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (isMissing(supabaseUrl) || isMissing(serviceRoleKey)) {
+    throw new Error(
+      'NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be configured for server-side admin access.'
+    )
+  }
+
+  if (!adminClient) {
+    adminClient = createClient(supabaseUrl!, serviceRoleKey!, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
+  }
+
+  return adminClient
+}

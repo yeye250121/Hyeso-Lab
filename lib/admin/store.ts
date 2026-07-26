@@ -11,10 +11,8 @@ interface Admin {
 
 interface AuthState {
   admin: Admin | null
-  token: string | null
-  setToken: (token: string) => void
   setAdmin: (admin: Admin) => void
-  logout: () => void
+  logout: () => Promise<void>
   isAuthenticated: () => boolean
 }
 
@@ -22,8 +20,6 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       admin: null,
-      token: null,
-      setToken: (token) => set({ token }),
       setAdmin: (admin) => set({ admin }),
       logout: async () => {
         try {
@@ -31,11 +27,11 @@ export const useAuthStore = create<AuthState>()(
         } catch (error) {
           console.error('Logout error:', error)
         }
-        set({ token: null, admin: null })
+        set({ admin: null })
       },
       isAuthenticated: () => {
         const state = get()
-        return !!state.token && !!state.admin
+        return !!state.admin
       },
     }),
     {

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useAuthStore } from '@/lib/admin/store'
+import api from '@/lib/admin/api'
 import Sidebar from './Sidebar'
 import { Menu, X } from 'lucide-react'
 
@@ -16,16 +17,22 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter()
-  const { isAuthenticated } = useAuthStore()
+  const { setAdmin } = useAuthStore()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isChecking, setIsChecking] = useState(true)
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      router.push('/admin/login')
-    } else {
-      setIsChecking(false)
+    const verifySession = async () => {
+      try {
+        const response = await api.get('/admin/auth/session')
+        setAdmin(response.data.admin)
+        setIsChecking(false)
+      } catch {
+        router.replace('/admin/login')
+      }
     }
+
+    verifySession()
   }, [])
 
   if (isChecking) {

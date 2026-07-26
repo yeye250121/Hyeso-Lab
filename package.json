@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "cards:ajd:build": "node scripts/import_ajd_card_benefits.js build",
+    "cards:urls:build": "node scripts/build_card_product_urls.js",
+    "cards:urls:validate": "node scripts/validate_card_product_urls.js report"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

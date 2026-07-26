@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import Link from 'next/link'
 import { useAuthStore } from '@/lib/admin/store'
 import api from '@/lib/admin/api'
 import ThemeToggle from '@/components/shared/ThemeToggle'
@@ -12,7 +11,7 @@ const LOGO_URL = 'https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/pub
 
 export default function AdminLoginPage() {
   const router = useRouter()
-  const { setAdmin, setToken } = useAuthStore()
+  const { setAdmin } = useAuthStore()
   const [loginId, setLoginId] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
@@ -26,9 +25,8 @@ export default function AdminLoginPage() {
 
     try {
       const response = await api.post('/admin/auth/login', { loginId, password, rememberMe })
-      const { token, admin } = response.data
+      const { admin } = response.data
 
-      setToken(token)
       setAdmin(admin)
       router.push('/admin/dashboard')
     } catch (err: any) {
@@ -117,15 +115,6 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
-          {/* 파트너 로그인 링크 */}
-          <div className="mt-6 pt-6 border-t border-border">
-            <Link
-              href="/partners/login"
-              className="block w-full py-3 text-center text-small text-text-tertiary hover:text-text-secondary transition-colors"
-            >
-              파트너로 로그인
-            </Link>
-          </div>
         </div>
       </div>
     </div>

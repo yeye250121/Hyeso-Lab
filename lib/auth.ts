@@ -1,8 +1,6 @@
 import { NextRequest } from 'next/server'
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this'
-
 export interface UserContext {
   id: string
   loginId: string
@@ -11,20 +9,31 @@ export interface UserContext {
   level: number
 }
 
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET
+  if (!secret || secret.length < 32) {
+    throw new Error('JWT_SECRET must be configured with at least 32 characters.')
+  }
+  return secret
+}
+
 /**
  * JWT 토큰에서 사용자 정보 추출
  */
 export function getUserContext(request: NextRequest): UserContext | null {
   const authHeader = request.headers.get('authorization')
+  const cookieToken = request.cookies.get('partner-token')?.value
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!cookieToken && (!authHeader || !authHeader.startsWith('Bearer '))) {
     return null
   }
 
-  const token = authHeader.substring(7)
+  const token = cookieToken || authHeader!.substring(7)
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as UserContext
+    const decoded = jwt.verify(token, getJwtSecret(), {
+      algorithms: ['HS256'],
+    }) as UserContext
 
     if (!decoded?.uniqueCode || typeof decoded.uniqueCode !== 'string') {
       return null
@@ -57,7 +66,10 @@ export function generateToken(user: UserContext, rememberMe: boolean = false): s
       nickname: user.nickname,
       level: user.level,
     },
-    JWT_SECRET,
-    { expiresIn: rememberMe ? '30d' : '1d' }
+    getJwtSecret(),
+    {
+      algorithm: 'HS256',
+      expiresIn: rememberMe ? '30d' : '1d',
+    }
   )
 }

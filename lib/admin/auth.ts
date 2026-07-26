@@ -1,8 +1,6 @@
 import { NextRequest } from 'next/server'
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'benefit-lab-secret-key-2024'
-
 export interface AdminContext {
   id: string
   loginId: string
@@ -10,27 +8,26 @@ export interface AdminContext {
   nickname: string
 }
 
-/**
- * 관리자(S코드) 인증 확인
- */
-export function getAdminContext(request: NextRequest): AdminContext | null {
-  const authHeader = request.headers.get('authorization')
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET
+  if (!secret || secret.length < 32 || secret.startsWith('replace-')) {
+    throw new Error('JWT_SECRET must be configured with at least 32 characters.')
   }
+  return secret
+}
 
-  const token = authHeader.substring(7)
-
+export function verifyAdminToken(token: string): AdminContext | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = jwt.verify(token, getJwtSecret(), {
+      algorithms: ['HS256'],
+    }) as jwt.JwtPayload
 
-    if (!decoded?.uniqueCode || typeof decoded.uniqueCode !== 'string') {
-      return null
-    }
-
-    // S코드 확인 (관리자만)
-    if (!decoded.uniqueCode.startsWith('S')) {
+    if (
+      typeof decoded.id !== 'string' ||
+      typeof decoded.loginId !== 'string' ||
+      typeof decoded.uniqueCode !== 'string' ||
+      !decoded.uniqueCode.startsWith('S')
+    ) {
       return null
     }
 
@@ -38,18 +35,34 @@ export function getAdminContext(request: NextRequest): AdminContext | null {
       id: decoded.id,
       loginId: decoded.loginId,
       uniqueCode: decoded.uniqueCode,
-      nickname: decoded.nickname || '',
+      nickname: typeof decoded.nickname === 'string' ? decoded.nickname : '',
     }
   } catch (error) {
-    console.error('[Admin Auth] 토큰 검증 실패:', error)
+    if (error instanceof Error && error.message.includes('JWT_SECRET')) {
+      console.error('[Admin Auth] 서버 인증 설정 오류:', error.message)
+    }
     return null
   }
+}
+
+export function getAdminContext(request: NextRequest): AdminContext | null {
+  const cookieToken = request.cookies.get('admin-token')?.value
+  const authHeader = request.headers.get('authorization')
+  const bearerToken = authHeader?.startsWith('Bearer ')
+    ? authHeader.slice(7)
+    : undefined
+  const token = cookieToken || bearerToken
+
+  return token ? verifyAdminToken(token) : null
 }
 
 /**
  * JWT 토큰 생성
  */
-export function generateToken(user: AdminContext): string {
+export function generateToken(
+  user: AdminContext,
+  rememberMe: boolean = false
+): string {
   return jwt.sign(
     {
       id: user.id,
@@ -57,8 +70,11 @@ export function generateToken(user: AdminContext): string {
       uniqueCode: user.uniqueCode,
       nickname: user.nickname,
     },
-    JWT_SECRET,
-    { expiresIn: '7d' }
+    getJwtSecret(),
+    {
+      algorithm: 'HS256',
+      expiresIn: rememberMe ? '7d' : '1d',
+    }
   )
 }
 

@@ -25,7 +25,18 @@ benefit-lab/
 ## 🚀 실행 방법
 
 ### 1. 환경 변수 설정
-프로젝트 구동을 위해 필요한 환경 변수(Supabase URL, Key 등)를 `.env.local` 파일에 설정해야 합니다. (개발 환경 기준)
+`.env.example`을 기준으로 `.env.local`을 구성합니다.
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+JWT_SECRET=
+```
+
+- `SUPABASE_SERVICE_ROLE_KEY`는 관리자 API 전용이며 브라우저에 노출하면 안 됩니다.
+- `JWT_SECRET`는 32자 이상의 임의 문자열을 사용해야 합니다.
+- 관리자 인증과 관리 데이터 접근은 서버에서만 처리됩니다.
 
 ### 2. 의존성 설치
 ```bash
@@ -51,3 +62,15 @@ npm run dev
 - **폼 및 유효성 검사**: React Hook Form, Zod
 - **텍스트 에디터**: Tiptap
 - **아이콘**: Lucide React
+
+## 🗄️ Supabase 스키마 관리
+
+`supabase/migrations/`가 데이터베이스 스키마의 기준입니다. 루트의 기존 SQL
+파일들은 이전 개발 이력으로만 남아 있으며 새 변경에는 사용하지 않습니다.
+
+관리 테이블은 모두 RLS가 활성화되어 있고 `anon`, `authenticated` 역할에는
+권한이 없습니다. 카드 데이터만 공개 읽기가 가능하며, 쓰기는 관리자 API의
+service role을 통해 처리합니다.
+
+정산 파일은 비공개 `benefit-lab-private` 버킷에 저장되며 인증된 관리자
+다운로드 API를 통해서만 내려받습니다.

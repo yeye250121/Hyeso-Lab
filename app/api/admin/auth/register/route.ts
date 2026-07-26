@@ -1,75 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import bcrypt from 'bcryptjs';
+import { z } from 'zod';
+
+const registerSchema = z.object({
+  loginId: z.string().trim().min(4).max(50).regex(/^[a-zA-Z0-9._-]+$/),
+  password: z.string().min(10).max(200),
+  nickname: z.string().trim().min(1).max(50),
+  inviteKey: z.string().trim().min(1).max(100),
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const { loginId, password, nickname, inviteKey } = await req.json();
-
-    if (!loginId || !password || !nickname || !inviteKey) {
-      return NextResponse.json({ error: '모든 필드를 입력해주세요.' }, { status: 400 });
+    const parsed = registerSchema.safeParse(await req.json());
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: '입력값을 확인해주세요. 비밀번호는 10자 이상이어야 합니다.' },
+        { status: 400 }
+      );
     }
-
-    // 1. Verify invite key
-    const { data: keyData, error: keyError } = await supabaseAdmin
-      .from('admin_invite_keys')
-      .select('*')
-      .eq('key', inviteKey)
-      .single();
-
-    if (keyError || !keyData) {
-      return NextResponse.json({ error: '유효하지 않은 인증 키입니다.' }, { status: 400 });
-    }
-
-    if (keyData.is_used) {
-      return NextResponse.json({ error: '이미 사용된 인증 키입니다.' }, { status: 400 });
-    }
-
-    if (new Date(keyData.expires_at) < new Date()) {
-      return NextResponse.json({ error: '만료된 인증 키입니다.' }, { status: 400 });
-    }
-
-    // 2. Check if loginId exists
-    const { data: existingUser } = await supabaseAdmin
-      .from('admin_users')
-      .select('id')
-      .eq('login_id', loginId)
-      .single();
-
-    if (existingUser) {
-      return NextResponse.json({ error: '이미 존재하는 아이디입니다.' }, { status: 400 });
-    }
-
-    // 3. Hash password and insert user
+    const { loginId, password, nickname, inviteKey } = parsed.data;
+    const supabaseAdmin = getSupabaseAdmin();
     const passwordHash = await bcrypt.hash(password, 10);
-    const uniqueCode = `S-${Math.floor(1000 + Math.random() * 9000)}`;
+    const { data, error } = await supabaseAdmin.rpc('register_admin_with_invite', {
+      p_invite_key: inviteKey,
+      p_login_id: loginId,
+      p_password_hash: passwordHash,
+      p_nickname: nickname,
+    });
 
-    const { data: newUser, error: insertError } = await supabaseAdmin
-      .from('admin_users')
-      .insert({
-        login_id: loginId,
-        password_hash: passwordHash,
-        unique_code: uniqueCode,
-        nickname: nickname
-      })
-      .select()
-      .single();
-
-    if (insertError) {
-      throw insertError;
+    if (error || !data?.[0]) {
+      const duplicateLogin = error?.code === '23505';
+      return NextResponse.json(
+        {
+          error: duplicateLogin
+            ? '이미 존재하는 아이디입니다.'
+            : '유효하지 않거나 만료된 인증 키입니다.',
+        },
+        { status: 400 }
+      );
     }
-
-    // 4. Mark key as used
-    await supabaseAdmin
-      .from('admin_invite_keys')
-      .update({ is_used: true })
-      .eq('key', inviteKey);
+    const newUser = data[0];
 
     return NextResponse.json({
       message: '회원가입 성공',
       user: {
-        loginId: newUser.login_id,
-        nickname: newUser.nickname
+        loginId: newUser.user_login_id,
+        nickname: newUser.user_nickname
       }
     });
 

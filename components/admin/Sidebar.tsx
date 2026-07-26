@@ -10,6 +10,7 @@ import {
   Receipt,
   BookOpen,
   LogOut,
+  Package,
 } from 'lucide-react'
 import { useAuthStore } from '@/lib/admin/store'
 import { useRouter } from 'next/navigation'
@@ -20,7 +21,10 @@ const LOGO_URL = 'https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/pub
 const menuItems = [
   { href: '/admin/dashboard', label: '대시보드', icon: LayoutDashboard },
   { href: '/admin/inquiries', label: '문의 관리', icon: FileText },
-  { href: '/admin/products', label: '상품 관리', icon: Receipt },
+  { href: '/admin/partners', label: '파트너 관리', icon: Users },
+  { href: '/admin/settlements', label: '정산서 관리', icon: Receipt },
+  { href: '/admin/guides', label: '가이드 관리', icon: BookOpen },
+  { href: '/admin/products', label: '상품 관리', icon: Package },
 ]
 
 interface SidebarProps {
@@ -32,8 +36,8 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
   const router = useRouter()
   const { admin, logout } = useAuthStore()
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await logout()
     router.push('/admin/login')
   }
 
