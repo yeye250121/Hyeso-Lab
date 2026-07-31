@@ -102,7 +102,7 @@ export default async function CardPage() {
 
         {/* Rest of the Content */}
         <div className="max-w-[1100px] mx-auto px-6">
-          {/* AI Custom Card Recommendation CTA */}
+          {/*
           <section className="mb-8">
             <Link href="/card/recommend" className="block w-full bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] rounded-3xl p-8 text-center transition-all transform hover:-translate-y-1 shadow-lg">
               <p className="text-white/90 text-sm md:text-base mb-2 font-medium">
@@ -114,7 +114,6 @@ export default async function CardPage() {
             </Link>
           </section>
 
-          {/* Advertisement Banner Section (Placeholder) */}
           <section className="relative bg-[#f8f9fa] border-2 border-dashed border-gray-200 rounded-3xl p-8 md:p-12 mb-16 flex flex-col items-center justify-center min-h-[200px]">
             <h3 className="text-xl font-bold text-gray-500 mb-2">
               광고 영역 (자동 롤링 배너)
@@ -123,6 +122,7 @@ export default async function CardPage() {
               ※ 실제 서비스 시 자동으로 넘어가는 배너 광고판이 위치할 곳입니다.
             </p>
           </section>
+          */}
 
           {/* Regular Cards Section */}
           <section className="mb-20">
