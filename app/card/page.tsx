@@ -3,9 +3,11 @@ import Footer from "@/components/shared/Footer";
 import { Search, ChevronRight, CreditCard } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { getAllCards } from "@/lib/cardApi";
+import { getCardsByNames } from "@/lib/cardApi";
 
-export const revalidate = 0;
+// 카드 데이터는 실시간성이 필요 없다. 관리자 수정 시에는
+// app/admin/cards/actions.ts 의 revalidatePath 가 즉시 갱신한다.
+export const revalidate = 3600;
 
 // Mock Data
 const topCashbacks = [
@@ -30,25 +32,39 @@ const cardCompanies = [
   { name: 'NH농협카드', color: 'text-[#009b4d]', logo: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/tips_logo_nh.png' },
 ];
 
+// 큐레이션 섹션에 노출할 카드 (이름으로 조회한다)
+const regularCardsCuration = [
+  { name: 'KB국민 굿데이카드', desc: '주유/통신/커피 할인', bg: 'bg-gradient-to-br from-blue-400 to-blue-600' },
+  { name: '올바른 FLEX 카드', desc: '최대 86만원 캐시백', bg: 'bg-gradient-to-br from-orange-400 to-orange-600' },
+  { name: 'NH올원 Rental&코웨이카드', desc: '매월 최대 4.2만원 혜택', bg: 'bg-gradient-to-br from-gray-200 to-gray-400' },
+  { name: 'Triple in LOCA', desc: '생활업종 최대 3만원 할인', bg: 'bg-gradient-to-br from-rose-300 to-rose-500' },
+  { name: 'BC 바로 클리어 플러스', desc: '휴대폰요금/스트리밍 10% 할인', bg: 'bg-gradient-to-br from-red-400 to-red-600' },
+];
+
+const recommendedCardsCuration = [
+  { name: '신한카드 Mr.Life', desc: '공과금/할인 혜택', category: '생활', bg: 'bg-gradient-to-b from-red-500 to-red-700' },
+  { name: '삼성카드 taptap O', desc: 'OTT·멤버십 50% 할인', category: '디지털/구독', bg: 'bg-gradient-to-b from-gray-100 to-gray-300' },
+  { name: 'LOCA 365', desc: '관리비·보험·교육 할인', category: '공과금/관리비', bg: 'bg-gradient-to-b from-orange-300 to-orange-500' },
+  { name: '신한카드 Deep Oil', desc: '주유 금액 10% 결제일 할인', category: '주유', bg: 'bg-gradient-to-b from-blue-300 to-blue-500' },
+  { name: '에너지플러스 현대카드', desc: '에너지플러스앱 결제시 15%할인', category: '주유', bg: 'bg-gradient-to-b from-green-500 to-green-700' },
+];
+
 export default async function CardPage() {
-  const cards = await getAllCards();
-  const getCard = (name: string) => cards.find(c => c.name === name);
+  // 174개 전체가 아니라 실제로 노출하는 10개만 조회한다.
+  const curatedNames = [
+    ...regularCardsCuration.map(item => item.name),
+    ...recommendedCardsCuration.map(item => item.name),
+  ];
+  const cards = await getCardsByNames(curatedNames);
+  const cardsByName = new Map(cards.map(card => [card.name, card]));
 
-  const regularCardsData = [
-    { card: getCard('KB국민 굿데이카드'), desc: '주유/통신/커피 할인', bg: 'bg-gradient-to-br from-blue-400 to-blue-600' },
-    { card: getCard('올바른 FLEX 카드'), desc: '최대 86만원 캐시백', bg: 'bg-gradient-to-br from-orange-400 to-orange-600' },
-    { card: getCard('NH올원 Rental&코웨이카드'), desc: '매월 최대 4.2만원 혜택', bg: 'bg-gradient-to-br from-gray-200 to-gray-400' },
-    { card: getCard('Triple in LOCA'), desc: '생활업종 최대 3만원 할인', bg: 'bg-gradient-to-br from-rose-300 to-rose-500' },
-    { card: getCard('BC 바로 클리어 플러스'), desc: '휴대폰요금/스트리밍 10% 할인', bg: 'bg-gradient-to-br from-red-400 to-red-600' },
-  ].filter(item => item.card);
+  const regularCardsData = regularCardsCuration
+    .map(item => ({ ...item, card: cardsByName.get(item.name) }))
+    .filter(item => item.card);
 
-  const recommendedCardsData = [
-    { card: getCard('신한카드 Mr.Life'), desc: '공과금/할인 혜택', category: '생활', bg: 'bg-gradient-to-b from-red-500 to-red-700' },
-    { card: getCard('삼성카드 taptap O'), desc: 'OTT·멤버십 50% 할인', category: '디지털/구독', bg: 'bg-gradient-to-b from-gray-100 to-gray-300' },
-    { card: getCard('LOCA 365'), desc: '관리비·보험·교육 할인', category: '공과금/관리비', bg: 'bg-gradient-to-b from-orange-300 to-orange-500' },
-    { card: getCard('신한카드 Deep Oil'), desc: '주유 금액 10% 결제일 할인', category: '주유', bg: 'bg-gradient-to-b from-blue-300 to-blue-500' },
-    { card: getCard('에너지플러스 현대카드'), desc: '에너지플러스앱 결제시 15%할인', category: '주유', bg: 'bg-gradient-to-b from-green-500 to-green-700' },
-  ].filter(item => item.card);
+  const recommendedCardsData = recommendedCardsCuration
+    .map(item => ({ ...item, card: cardsByName.get(item.name) }))
+    .filter(item => item.card);
 
   return (
     <div className="min-h-screen bg-white">
@@ -214,7 +230,13 @@ export default async function CardPage() {
                 >
                   {company.logo ? (
                     <div className="w-full h-full flex items-center justify-center py-3">
-                      <img src={company.logo} alt={company.name} className="max-w-[120px] max-h-full object-contain" />
+                      <Image
+                        src={company.logo}
+                        alt={company.name}
+                        width={120}
+                        height={40}
+                        className="max-w-[120px] max-h-full w-auto h-auto object-contain"
+                      />
                     </div>
                   ) : (
                     <span className={`font-bold text-lg ${company.color} flex items-center gap-2`}>

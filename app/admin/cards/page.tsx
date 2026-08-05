@@ -1,9 +1,10 @@
-import { getAllCards } from '@/lib/cardApi';
+import { getCardsForAdmin } from '@/lib/cardApi';
+import Image from 'next/image';
 import Link from 'next/link';
 import AdminLayout from '@/components/admin/AdminLayout';
 
 export default async function AdminCardsPage() {
-  const cards = await getAllCards();
+  const cards = await getCardsForAdmin();
   
   return (
     <AdminLayout>
@@ -33,7 +34,13 @@ export default async function AdminCardsPage() {
                     <div className="flex items-center">
                       <div className="h-10 w-10 shrink-0 mr-4 bg-gray-100 rounded-lg flex items-center justify-center p-1">
                         {card.card_image_url ? (
-                          <img className="h-full w-full object-contain" src={card.card_image_url} alt="" />
+                          <Image
+                            className="h-full w-full object-contain"
+                            src={card.card_image_url}
+                            alt=""
+                            width={40}
+                            height={40}
+                          />
                         ) : (
                           <span className="text-xs text-gray-400">No Img</span>
                         )}

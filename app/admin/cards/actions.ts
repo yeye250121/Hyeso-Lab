@@ -3,8 +3,9 @@
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { verifyAdminToken } from '@/lib/admin/auth';
 import { cookies } from 'next/headers';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { CARDS_CACHE_TAG } from '@/lib/cardApi';
 import { z } from 'zod';
 
 const cardSchema = z.object({
@@ -58,6 +59,7 @@ export async function saveCard(formData: any) {
     throw new Error('Failed to save card');
   }
 
+  revalidateTag(CARDS_CACHE_TAG);
   revalidatePath('/admin/cards');
   revalidatePath('/card/list/all-card');
   revalidatePath(`/card/detail/${payload.id}`);

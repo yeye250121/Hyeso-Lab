@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import Footer from '@/components/shared/Footer'
+import HeroVideo from '@/components/shared/HeroVideo'
 import Navbar from '@/components/shared/Navbar'
 
 const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-lab_logo_pic_text_black.png'
@@ -69,15 +70,7 @@ export default function PartnersLandingPage() {
       {/* Hero Section with integrated Navigation */}
       <section className="relative bg-gray-50 min-h-[600px] flex flex-col overflow-hidden -mt-16">
         {/* Background Video */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute top-0 left-0 w-full h-[133.33%] object-cover object-top opacity-80 pointer-events-none"
-        >
-          <source src="https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/videos/hyeso-lab_herosectionvideo.mp4" type="video/mp4" />
-        </video>
+        <HeroVideo />
 
         {/* Video Gradient Fade & Blur Overlay */}
         <div className="absolute inset-0 pointer-events-none backdrop-blur-md [mask-image:linear-gradient(to_bottom,black_0%,transparent_10%,transparent_90%,black_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,transparent_10%,transparent_90%,black_100%)]" />

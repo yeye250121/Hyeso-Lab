@@ -1,13 +1,17 @@
 "use client";
 
 import { useState, useMemo } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { CreditCard, Info, ChevronDown, X, Search } from 'lucide-react';
-import type { CardData } from '@/lib/cardApi';
+import type { CardListItem } from '@/lib/cardApi';
 
 interface CardListFilterProps {
-  initialCards: CardData[];
+  initialCards: CardListItem[];
+  // 서버에서 읽어 넘긴 초기 필터값. useSearchParams 를 쓰면 정적/서버 렌더링이
+  // 클라이언트 렌더링으로 폴백되므로 props 로 받는다.
+  initialCompany?: string;
+  initialQuery?: string;
 }
 
 const COMPANY_LOGOS: Record<string, string> = {
@@ -23,16 +27,18 @@ const COMPANY_LOGOS: Record<string, string> = {
   'IBK기업은행': 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/app/card/tips_logo_ibk.png',
 };
 
-export default function CardListFilter({ initialCards }: CardListFilterProps) {
-  const searchParams = useSearchParams();
-  const requestedCompany = searchParams?.get('company');
+export default function CardListFilter({
+  initialCards,
+  initialCompany,
+  initialQuery,
+}: CardListFilterProps) {
   const initialCompanyFilter =
-    requestedCompany &&
-    Object.prototype.hasOwnProperty.call(COMPANY_LOGOS, requestedCompany)
-      ? requestedCompany
+    initialCompany &&
+    Object.prototype.hasOwnProperty.call(COMPANY_LOGOS, initialCompany)
+      ? initialCompany
       : 'all';
-  
-  const [searchQuery, setSearchQuery] = useState(searchParams?.get('q') || '');
+
+  const [searchQuery, setSearchQuery] = useState(initialQuery || '');
   const [typeFilter, setTypeFilter] = useState<'all' | '신용카드' | '체크카드'>('all');
   const [companyFilter, setCompanyFilter] = useState<string>(initialCompanyFilter);
   const [sortOrder, setSortOrder] = useState<string>('popular');
@@ -173,10 +179,12 @@ export default function CardListFilter({ initialCards }: CardListFilterProps) {
             <p className="text-gray-500 font-medium">조건에 맞는 카드가 없습니다.</p>
           </div>
         ) : (
-          filteredAndSortedCards.map((card) => {
+          filteredAndSortedCards.map((card, index) => {
             const logoUrl = COMPANY_LOGOS[card.company];
             const displayImageUrl = (card.card_image_urls && card.card_image_urls.length > 0) ? card.card_image_urls[0] : card.card_image_url;
-            
+            // 첫 화면에 보이는 카드만 우선 로드하고 나머지는 lazy 로 남긴다.
+            const isAboveTheFold = index < 4;
+
             return (
               <Link href={`/card/detail/${card.id}`} key={card.id}>
                 <div className="flex flex-row items-center gap-5 py-5 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer group px-2">
@@ -184,9 +192,23 @@ export default function CardListFilter({ initialCards }: CardListFilterProps) {
                   {/* 좌측: 카드 이미지 또는 로고 동그라미 */}
                   <div className={`w-14 h-14 md:w-16 md:h-16 shrink-0 flex justify-center items-center overflow-hidden ${displayImageUrl ? 'rounded-lg bg-transparent p-0' : 'bg-gray-100 border-0 rounded-full p-2'}`}>
                     {displayImageUrl ? (
-                      <img src={displayImageUrl} alt={card.name} className="w-full h-full object-contain drop-shadow-sm" />
+                      <Image
+                        src={displayImageUrl}
+                        alt={card.name}
+                        width={64}
+                        height={64}
+                        priority={isAboveTheFold}
+                        className="w-full h-full object-contain drop-shadow-sm"
+                      />
                     ) : logoUrl ? (
-                      <img src={logoUrl} alt={card.company} className="w-full h-full object-contain mix-blend-multiply" />
+                      <Image
+                        src={logoUrl}
+                        alt={card.company}
+                        width={64}
+                        height={64}
+                        priority={isAboveTheFold}
+                        className="w-full h-full object-contain mix-blend-multiply"
+                      />
                     ) : (
                       <span className="text-[9px] md:text-[10px] font-bold text-gray-400 text-center leading-tight break-keep">
                         {card.company.replace('카드', '')}
@@ -271,7 +293,13 @@ export default function CardListFilter({ initialCards }: CardListFilterProps) {
                 >
                   <div className="w-14 h-10 mb-2 flex items-center justify-center">
                     {logoUrl ? (
-                      <img src={logoUrl} alt={c} className="w-full h-full object-contain mix-blend-multiply" />
+                      <Image
+                        src={logoUrl}
+                        alt={c}
+                        width={56}
+                        height={40}
+                        className="w-full h-full object-contain mix-blend-multiply"
+                      />
                     ) : (
                       <span className="text-[9px] font-bold text-gray-400">{c.replace('카드','')}</span>
                     )}

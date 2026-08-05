@@ -1,4 +1,4 @@
-import { getCardById, getAllCards } from '@/lib/cardApi';
+import { getCardById, getAllCardIds } from '@/lib/cardApi';
 import { notFound } from 'next/navigation';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
@@ -14,15 +14,14 @@ interface CardDetailPageProps {
   };
 }
 
-export const revalidate = 0;
+// revalidate 를 0으로 두면 아래 generateStaticParams 의 프리렌더 효과가 사라진다.
+export const revalidate = 3600;
 
 
 // 빌드 시점에 모든 174개 카드의 HTML을 미리 생성하여 로딩 속도 극대화
 export async function generateStaticParams() {
-  const cards = await getAllCards();
-  return cards.map((card) => ({
-    id: card.id,
-  }));
+  const ids = await getAllCardIds();
+  return ids.map((id) => ({ id }));
 }
 
 export default async function CardDetailPage({ params }: CardDetailPageProps) {
