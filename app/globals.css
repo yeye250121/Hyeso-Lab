@@ -48,10 +48,12 @@
   --border: #374151;
 }
 
+/* font-family 는 layout.tsx 의 body className="font-sans" 가 지정한다
+   (tailwind.config.ts -> var(--font-noto-sans-kr)). 여기서 다시 선언하면
+   명시도만 헷갈리고 실제로는 클래스 쪽이 이기므로 두지 않는다. */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 /* Footer */
