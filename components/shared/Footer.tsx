@@ -39,7 +39,7 @@ const defaultLinkSections: FooterLinkSection[] = [
       { text: '카드 혜택', href: '/card' },
       { text: '인터넷 혜택', href: '/internet' },
       { text: '휴대폰 혜택', href: '/phone' },
-      { text: 'CCTV 혜택', href: '/cctv' },
+      { text: '가전렌탈 혜택', href: '/electronics' },
     ],
   },
   {

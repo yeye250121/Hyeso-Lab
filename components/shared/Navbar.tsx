@@ -42,8 +42,8 @@ export default function Navbar() {
           <Link href="/internet" className="text-gray-700 hover:text-[var(--action-primary)] text-[15px] font-semibold transition-colors">
             인터넷 혜택
           </Link>
-          <Link href="/cctv" className="text-gray-700 hover:text-[var(--action-primary)] text-[15px] font-semibold transition-colors">
-            CCTV 혜택
+          <Link href="/electronics" className="text-gray-700 hover:text-[var(--action-primary)] text-[15px] font-semibold transition-colors">
+            가전렌탈 혜택
           </Link>
         </div>
 
@@ -83,11 +83,11 @@ export default function Navbar() {
             인터넷 혜택
           </Link>
           <Link
-            href="/cctv"
+            href="/electronics"
             className="block w-full text-left text-gray-700 hover:text-[var(--action-primary)] text-base font-semibold px-4 py-2 transition-colors"
             onClick={() => setMobileMenuOpen(false)}
           >
-            CCTV 혜택
+            가전렌탈 혜택
           </Link>
 
         </div>

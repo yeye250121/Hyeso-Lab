@@ -129,9 +129,9 @@ export default function PartnersLandingPage() {
                 icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/icons/internet_icon.png'
               },
               { 
-                id: 'cctv', 
-                title: 'CCTV 연구',
-                icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/icons/cctv_icon.png'
+                id: 'electronics',
+                title: '가전 렌탈',
+                icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/icons/electronics_icon.png'
               },
             ].map((product) => (
               <Link 
