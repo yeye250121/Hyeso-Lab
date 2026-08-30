@@ -16,7 +16,7 @@ export default function CategoryGrid({
   showAll?: boolean;
 }) {
   return (
-    <ul className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-x-3 gap-y-6">
+    <ul className="grid grid-cols-4 sm:grid-cols-8 gap-x-3 gap-y-6">
       {categories.map((cat) => {
         const Icon = categoryIcon(cat.slug);
         const ready = cat.productCount > 0;

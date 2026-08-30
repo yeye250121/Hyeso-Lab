@@ -5,6 +5,7 @@ import Footer from '@/components/shared/Footer';
 import { getCategoryTree, getProductsForCategory } from '@/lib/electronicsApi';
 import CategoryGrid from '@/components/electronics/CategoryGrid';
 import HeroSearch from '@/components/electronics/HeroSearch';
+import { POPULAR_CATEGORY_SLUGS } from '@/components/electronics/popularCategories';
 import ProductCard from '@/components/electronics/ProductCard';
 
 // 카탈로그는 실시간성이 필요 없다. 관리자 수정 시 revalidateTag 로 즉시 갱신한다.
@@ -21,9 +22,12 @@ export default async function ElectronicsHubPage() {
     getProductsForCategory('water-purifier'),
   ]);
 
-  // 대분류 구분 없이 소분류만 한 줄로 편다. 히어로를 미니멀하게 가져가는 만큼
-  // 그룹 헤딩도 두지 않는다.
-  const categories = tree.flatMap((group) => group.children);
+  // 허브는 한 줄만 보여준다. 나머지는 전체보기 타일로 /electronics/category
+  // (카테고리 목차)에 넘긴다.
+  const all = tree.flatMap((group) => group.children);
+  const categories = POPULAR_CATEGORY_SLUGS.map((slug) =>
+    all.find((c) => c.slug === slug)
+  ).filter((c): c is NonNullable<typeof c> => Boolean(c));
   const top = popular.slice(0, 4);
 
   return (

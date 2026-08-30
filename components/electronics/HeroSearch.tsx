@@ -13,7 +13,7 @@ export default function HeroSearch({ defaultValue = '' }: { defaultValue?: strin
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const q = query.trim();
-    router.push(q ? `/electronics/category?q=${encodeURIComponent(q)}` : '/electronics/category');
+    router.push(q ? `/electronics/search?q=${encodeURIComponent(q)}` : '/electronics/search');
   };
 
   return (

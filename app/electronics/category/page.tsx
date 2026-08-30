@@ -2,32 +2,34 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
-import { getAllProducts, getCategoryTree } from '@/lib/electronicsApi';
-import ProductListFilter from '@/components/electronics/ProductListFilter';
+import { getCategoryTree } from '@/lib/electronicsApi';
 import CategoryGrid from '@/components/electronics/CategoryGrid';
-import HeroSearch from '@/components/electronics/HeroSearch';
+import { POPULAR_CATEGORY_SLUGS } from '@/components/electronics/popularCategories';
 
+// 상품 카테고리 목차. 상품은 보여주지 않고, 누르면 /electronics/{슬러그} 로 간다.
+//
 // 정적 세그먼트라 /electronics/[category] 보다 우선한다.
-// 'category' 라는 슬러그를 가진 카테고리는 만들지 말 것.
+// 'category' 라는 슬러그를 가진 카테고리는 만들지 말 것(영영 가려진다).
 export const revalidate = 3600;
 
 export const metadata = {
-  title: '전체 렌탈 상품 | 혜택 연구소',
-  description: '등록된 모든 가전 렌탈 상품을 한 곳에서 검색하고 비교해 보세요.',
+  title: '전체 카테고리 | 혜택 연구소',
+  description: '가전 렌탈 카테고리를 한눈에 보고 원하는 상품군으로 이동하세요.',
 };
 
-interface PageProps {
-  searchParams?: Record<string, string | string[] | undefined>;
-}
+export default async function CategoryIndexPage() {
+  const tree = await getCategoryTree();
+  const all = tree.flatMap((g) => g.children);
 
-function firstValue(v?: string | string[]): string | undefined {
-  return Array.isArray(v) ? v[0] : v;
-}
+  // "인기"는 허브 첫 줄과 같은 목록을 쓴다. 목차에서도 자주 찾는 것을 위에 둔다.
+  const popular = POPULAR_CATEGORY_SLUGS.map((slug) => all.find((c) => c.slug === slug)).filter(
+    (c): c is NonNullable<typeof c> => Boolean(c)
+  );
 
-export default async function AllProductsPage({ searchParams }: PageProps) {
-  const [products, tree] = await Promise.all([getAllProducts(), getCategoryTree()]);
-  const query = firstValue(searchParams?.q);
-  const categories = tree.flatMap((g) => g.children);
+  const groups = [
+    ...(popular.length > 0 ? [{ slug: 'popular', name: '인기', children: popular }] : []),
+    ...tree.filter((g) => g.children.length > 0),
+  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -39,30 +41,19 @@ export default async function AllProductsPage({ searchParams }: PageProps) {
             가전 렌탈
           </Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-[#333d4b] font-medium">전체보기</span>
+          <span className="text-[#333d4b] font-medium">전체 카테고리</span>
         </nav>
 
-        <div className="max-w-[640px] mb-10">
-          <HeroSearch defaultValue={query ?? ''} />
+        <h1 className="text-2xl lg:text-3xl font-bold text-[#333d4b] mb-10">전체 카테고리</h1>
+
+        <div className="space-y-12">
+          {groups.map((group) => (
+            <section key={group.slug}>
+              <h2 className="text-base font-bold text-[#333d4b] mb-5">{group.name}</h2>
+              <CategoryGrid categories={group.children} showAll={false} />
+            </section>
+          ))}
         </div>
-
-        {products.length > 0 ? (
-          <ProductListFilter
-            products={products}
-            filterSchema={[]}
-            initialQuery={query}
-            emptyHint={
-              '아직 등록되지 않은 상품일 수 있어요.\n지금은 정수기부터 순서대로 열고 있습니다.'
-            }
-          />
-        ) : (
-          <p className="py-20 text-center text-gray-500">등록된 상품이 아직 없습니다.</p>
-        )}
-
-        <section className="mt-16 pt-12 border-t border-gray-100">
-          <h2 className="text-lg font-bold text-[#333d4b] mb-6">카테고리로 찾기</h2>
-          <CategoryGrid categories={categories} showAll={false} />
-        </section>
       </main>
 
       <Footer />
