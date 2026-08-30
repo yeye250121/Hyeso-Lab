@@ -58,6 +58,9 @@ export type ProductListItem = {
   image_urls: string[];
   specs: ProductSpecs;
   review_count: number;
+  /** 전체보기처럼 카테고리를 가로지르는 목록에서 상세 링크를 만들 때 쓴다 */
+  category_slug: string;
+  category_name: string;
   /** 전체 요금제 중 최저 월 렌탈료 */
   minFee: number;
   /** 정가(최저가 요금제 기준). 없으면 null */
@@ -163,6 +166,11 @@ export async function getCategoryBySlug(slug: string): Promise<CategoryNode | un
   return flatten(await getCategoryTree()).find((c) => c.slug === slug);
 }
 
+/**
+ * 상품 목록을 ProductListItem 으로 만든다.
+ * 요금제는 (약정 x 관리방법 -> 최저가) 로 압축해서 붙인다. 요금제 원본은
+ * 정수기만 2,897행이라 그대로 내려보내면 페이로드가 감당이 안 된다.
+ */
 type RawPlan = {
   product_id: string;
   contract_months: number;
@@ -171,18 +179,84 @@ type RawPlan = {
   list_price: number | null;
 };
 
-/**
- * 카테고리의 상품 목록. 요금제는 (약정 x 관리방법 -> 최저가) 로 압축해서 붙인다.
- * unstable_cache 안에서 돌기 때문에 무거운 조인은 1시간에 한 번만 실행된다.
- */
+type RawProductRow = Omit<ProductListItem, 'minFee' | 'listPrice' | 'plans' | 'category_slug' | 'category_name'> & {
+  display_order: number;
+  electronics_categories: { slug: string; name: string };
+};
+
+const PRODUCT_WITH_CATEGORY = `${PRODUCT_LIST_COLUMNS}, electronics_categories!inner(slug, name)`;
+
+async function attachPlanSummaries(rows: RawProductRow[]): Promise<ProductListItem[]> {
+  if (rows.length === 0) return [];
+
+  // 요금제 원본 대신 조합 단위로 접어둔 뷰를 쓴다.
+  // 원본을 그대로 조회하면 PostgREST 기본 1000행 제한에 걸린다.
+  const { data: plans, error } = await supabase
+    .from('electronics_plan_summary')
+    .select('product_id, contract_months, care_type, monthly_fee, list_price')
+    .in(
+      'product_id',
+      rows.map((r) => r.id)
+    );
+  if (error) console.error('Error fetching electronics plan summary:', error);
+
+  const grouped = new Map<string, Map<string, { fee: number; list: number | null }>>();
+  for (const p of (plans ?? []) as RawPlan[]) {
+    let byCombo = grouped.get(p.product_id);
+    if (!byCombo) grouped.set(p.product_id, (byCombo = new Map()));
+    const key = `${p.contract_months}|${p.care_type ?? ''}`;
+    const prev = byCombo.get(key);
+    if (!prev || p.monthly_fee < prev.fee) {
+      byCombo.set(key, { fee: p.monthly_fee, list: p.list_price });
+    }
+  }
+
+  return rows
+    .map((r) => {
+      const byCombo = grouped.get(r.id);
+      const summaries: PlanSummary[] = [];
+      let minFee = Number.POSITIVE_INFINITY;
+      let listPrice: number | null = null;
+
+      for (const [key, v] of byCombo ?? []) {
+        const [months, care] = key.split('|');
+        summaries.push({ c: Number(months), t: care || null, f: v.fee });
+        if (v.fee < minFee) {
+          minFee = v.fee;
+          listPrice = v.list;
+        }
+      }
+      summaries.sort((a, b) => a.c - b.c || a.f - b.f);
+
+      return {
+        id: r.id,
+        slug: r.slug,
+        brand: r.brand,
+        model_code: r.model_code,
+        display_name: r.display_name,
+        image_urls: r.image_urls ?? [],
+        specs: (r.specs ?? {}) as ProductSpecs,
+        review_count: r.review_count ?? 0,
+        category_slug: r.electronics_categories?.slug ?? '',
+        category_name: r.electronics_categories?.name ?? '',
+        minFee: Number.isFinite(minFee) ? minFee : 0,
+        listPrice: listPrice && listPrice > minFee ? listPrice : null,
+        plans: summaries,
+      };
+    })
+    .filter((p) => p.plans.length > 0)
+    .sort((a, b) => a.minFee - b.minFee);
+}
+
+/** 한 카테고리의 상품 목록. */
 export const getProductsForCategory = unstable_cache(
   async (categorySlug: string): Promise<ProductListItem[]> => {
     // 카테고리는 슬러그로 직접 조인한다. getCategoryBySlug 를 쓰면
     // unstable_cache 안에서 다른 unstable_cache 를 호출하게 되는데,
     // 그 조합에서 결과가 비어 돌아오는 문제가 있었다.
-    const { data: products, error } = await supabase
+    const { data, error } = await supabase
       .from('electronics_products')
-      .select(`${PRODUCT_LIST_COLUMNS}, electronics_categories!inner(slug)`)
+      .select(PRODUCT_WITH_CATEGORY)
       .eq('electronics_categories.slug', categorySlug)
       .order('display_order', { ascending: true });
 
@@ -190,71 +264,30 @@ export const getProductsForCategory = unstable_cache(
       console.error('Error fetching electronics products:', error);
       return [];
     }
-    const rows = (products ?? []) as (Omit<ProductListItem, 'minFee' | 'listPrice' | 'plans'> & {
-      display_order: number;
-    })[];
-    if (rows.length === 0) return [];
-
-    // 요금제 원본은 2,897행이라 PostgREST 기본 1000행 제한에 걸린다.
-    // 조합 단위로 접어둔 뷰(695행)를 쓴다.
-    const { data: plans, error: planErr } = await supabase
-      .from('electronics_plan_summary')
-      .select('product_id, contract_months, care_type, monthly_fee, list_price')
-      .in(
-        'product_id',
-        rows.map((r) => r.id)
-      );
-    if (planErr) console.error('Error fetching electronics plan summary:', planErr);
-
-    // product -> "약정|관리방법" -> 최저 요금제
-    const grouped = new Map<string, Map<string, { fee: number; list: number | null }>>();
-    for (const p of (plans ?? []) as RawPlan[]) {
-      let byCombo = grouped.get(p.product_id);
-      if (!byCombo) grouped.set(p.product_id, (byCombo = new Map()));
-      const key = `${p.contract_months}|${p.care_type ?? ''}`;
-      const prev = byCombo.get(key);
-      if (!prev || p.monthly_fee < prev.fee) {
-        byCombo.set(key, { fee: p.monthly_fee, list: p.list_price });
-      }
-    }
-
-    return rows
-      .map((r) => {
-        const byCombo = grouped.get(r.id);
-        const summaries: PlanSummary[] = [];
-        let minFee = Number.POSITIVE_INFINITY;
-        let listPrice: number | null = null;
-
-        for (const [key, v] of byCombo ?? []) {
-          const [months, care] = key.split('|');
-          summaries.push({ c: Number(months), t: care || null, f: v.fee });
-          if (v.fee < minFee) {
-            minFee = v.fee;
-            listPrice = v.list;
-          }
-        }
-        summaries.sort((a, b) => a.c - b.c || a.f - b.f);
-
-        return {
-          id: r.id,
-          slug: r.slug,
-          brand: r.brand,
-          model_code: r.model_code,
-          display_name: r.display_name,
-          image_urls: r.image_urls ?? [],
-          specs: (r.specs ?? {}) as ProductSpecs,
-          review_count: r.review_count ?? 0,
-          minFee: Number.isFinite(minFee) ? minFee : 0,
-          listPrice: listPrice && listPrice > minFee ? listPrice : null,
-          plans: summaries,
-        };
-      })
-      .filter((p) => p.plans.length > 0)
-      .sort((a, b) => a.minFee - b.minFee);
+    return attachPlanSummaries((data ?? []) as unknown as RawProductRow[]);
   },
   ['electronics-products-by-category'],
   { revalidate: 3600, tags: [ELECTRONICS_CACHE_TAG] }
 );
+
+/** 카테고리를 가리지 않는 전체 상품 목록. /electronics/category 가 쓴다. */
+export const getAllProducts = unstable_cache(
+  async (): Promise<ProductListItem[]> => {
+    const { data, error } = await supabase
+      .from('electronics_products')
+      .select(PRODUCT_WITH_CATEGORY)
+      .order('display_order', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching all electronics products:', error);
+      return [];
+    }
+    return attachPlanSummaries((data ?? []) as unknown as RawProductRow[]);
+  },
+  ['electronics-products-all'],
+  { revalidate: 3600, tags: [ELECTRONICS_CACHE_TAG] }
+);
+
 
 /** 상세 페이지. 요금제 전체를 내려보낸다(모델당 평균 15개라 가볍다). */
 export const getProductBySlug = unstable_cache(

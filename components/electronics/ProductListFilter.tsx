@@ -30,18 +30,22 @@ export default function ProductListFilter({
   filterSchema,
   initialQuery,
   initialBrand,
+  emptyHint,
 }: {
   products: ProductListItem[];
-  categorySlug: string;
+  /** 없으면 카테고리를 가로지르는 전체 목록으로 동작한다(전체보기 페이지). */
+  categorySlug?: string;
   filterSchema: FilterAxis[];
   initialQuery?: string;
   initialBrand?: string;
+  emptyHint?: string;
 }) {
   const [query, setQuery] = useState(initialQuery ?? '');
   const [brand, setBrand] = useState<string | null>(initialBrand ?? null);
   const [contract, setContract] = useState<number | null>(null);
   const [care, setCare] = useState<string | null>(null);
   const [specFilters, setSpecFilters] = useState<Record<string, string>>({});
+  const [category, setCategory] = useState<string | null>(null);
   const [sort, setSort] = useState<SortKey>('fee-asc');
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -59,6 +63,14 @@ export default function ProductListFilter({
     const found = new Set(products.flatMap((p) => p.plans.map((s) => s.t)).filter(Boolean));
     return CARE_TYPES.filter((c) => found.has(c));
   }, [products]);
+
+  // 전체보기에서는 카테고리 칩을 추가로 보여준다
+  const categories = useMemo(() => {
+    if (categorySlug) return [];
+    const seen = new Map<string, string>();
+    for (const p of products) if (p.category_slug) seen.set(p.category_slug, p.category_name);
+    return [...seen.entries()].map(([slug, name]) => ({ slug, name }));
+  }, [products, categorySlug]);
 
   const availableSpecs = useMemo(
     () =>
@@ -78,6 +90,7 @@ export default function ProductListFilter({
     (contract ? 1 : 0) +
     (care ? 1 : 0) +
     Object.keys(specFilters).length +
+    (category ? 1 : 0) +
     (query.trim() ? 1 : 0);
 
   const reset = () => {
@@ -86,6 +99,7 @@ export default function ProductListFilter({
     setContract(null);
     setCare(null);
     setSpecFilters({});
+    setCategory(null);
     setVisible(PAGE_SIZE);
   };
 
@@ -105,6 +119,7 @@ export default function ProductListFilter({
       })
       .filter((r): r is { product: ProductListItem; fee: number; months: number | null } => r !== null)
       .filter(({ product }) => {
+        if (category && product.category_slug !== category) return false;
         if (brand && product.brand !== brand) return false;
         for (const [key, value] of Object.entries(specFilters)) {
           if (product.specs[key as keyof ProductSpecs] !== value) return false;
@@ -122,7 +137,7 @@ export default function ProductListFilter({
       return a.product.display_name.localeCompare(b.product.display_name, 'ko');
     });
     return result;
-  }, [products, query, brand, contract, care, specFilters, sort]);
+  }, [products, query, brand, contract, care, specFilters, category, sort]);
 
   const shown = rows.slice(0, visible);
 
@@ -242,6 +257,12 @@ export default function ProductListFilter({
       {/* 적용된 필터 */}
       {activeCount > 0 && (
         <div className="flex flex-wrap items-center gap-2 py-3">
+          {category && (
+            <FilterPill
+              label={categories.find((c) => c.slug === category)?.name ?? category}
+              onRemove={() => setCategory(null)}
+            />
+          )}
           {brand && (
             <FilterPill label={brand} onRemove={() => setBrand(null)} />
           )}
@@ -277,8 +298,10 @@ export default function ProductListFilter({
       {shown.length === 0 ? (
         <div className="text-center py-20">
           <Droplets className="w-10 h-10 text-gray-200 mx-auto mb-4" strokeWidth={1.5} />
-          <p className="font-bold text-[#333d4b]">조건에 맞는 제품이 없어요</p>
-          <p className="text-gray-500 text-sm mt-1.5">필터를 조금 풀어보시겠어요?</p>
+          <p className="font-bold text-[#333d4b]">상품을 찾을 수 없습니다</p>
+          <p className="text-gray-500 text-sm mt-1.5 leading-relaxed whitespace-pre-line">
+            {emptyHint ?? '조건에 맞는 제품이 없어요. 필터를 조금 풀어보시겠어요?'}
+          </p>
           <button
             type="button"
             onClick={reset}
@@ -294,7 +317,7 @@ export default function ProductListFilter({
             {shown.map(({ product, fee, months }) => (
               <li key={product.id}>
                 <Link
-                  href={`/electronics/${categorySlug}/${product.slug}`}
+                  href={`/electronics/${categorySlug ?? product.category_slug}/${product.slug}`}
                   className="flex items-center gap-4 py-4 px-2 -mx-2 rounded-xl hover:bg-gray-50 transition-colors group"
                 >
                   <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-gradient-to-b from-[#f6f8fb] to-[#eef1f6] flex items-center justify-center shrink-0">
@@ -376,6 +399,27 @@ export default function ProductListFilter({
             </div>
 
             <div className="px-6 py-5 space-y-6">
+              {categories.length > 0 && (
+                <div>
+                  <p className="text-sm font-bold text-[#333d4b] mb-3">카테고리</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={() => setCategory(null)} className={chip(category === null)}>
+                      전체
+                    </button>
+                    {categories.map((c) => (
+                      <button
+                        key={c.slug}
+                        type="button"
+                        onClick={() => setCategory(category === c.slug ? null : c.slug)}
+                        className={chip(category === c.slug)}
+                      >
+                        {c.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div>
                 <p className="text-sm font-bold text-[#333d4b] mb-3">브랜드</p>
                 <div className="flex flex-wrap gap-2">
