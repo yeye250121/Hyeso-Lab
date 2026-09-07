@@ -117,31 +117,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
               )}
             </div>
 
-            {specRows.length > 0 && (
-              <div className="mt-8 hidden lg:block">
-                <h2 className="text-lg font-bold text-[#333d4b] mb-4">제품 정보</h2>
-                <dl className="rounded-2xl border border-gray-100 divide-y divide-gray-100">
-                  <div className="flex px-5 py-3.5 text-sm">
-                    <dt className="w-28 text-gray-500 shrink-0">브랜드</dt>
-                    <dd className="font-medium text-[#333d4b]">{product.brand}</dd>
-                  </div>
-                  <div className="flex px-5 py-3.5 text-sm">
-                    <dt className="w-28 text-gray-500 shrink-0">모델명</dt>
-                    <dd className="font-medium text-[#333d4b] break-all">{product.model_code}</dd>
-                  </div>
-                  {specRows.map(([label, value]) => (
-                    <div key={label} className="flex px-5 py-3.5 text-sm">
-                      <dt className="w-28 text-gray-500 shrink-0">{label}</dt>
-                      <dd className="font-medium text-[#333d4b]">{value}</dd>
-                    </div>
-                  ))}
-                  <div className="flex px-5 py-3.5 text-sm">
-                    <dt className="w-28 text-gray-500 shrink-0">선택 가능 조건</dt>
-                    <dd className="font-medium text-[#333d4b]">{product.plans.length}가지</dd>
-                  </div>
-                </dl>
-              </div>
-            )}
           </div>
 
           {/* 우: 요금제 선택 */}
@@ -186,21 +161,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
             <section id="detail" className="scroll-mt-20 pt-14">
               <h2 className="text-xl font-bold text-[#333d4b] mb-6">상세정보</h2>
-              <PlanBreakdown product={product} insights={insights} />
+              <PlanBreakdown product={product} insights={insights} specRows={specRows} />
 
-              {specRows.length > 0 && (
-                <div className="mt-10 lg:hidden">
-                  <h3 className="text-base font-bold text-[#333d4b] mb-4">제품 정보</h3>
-                  <dl className="rounded-2xl border border-gray-100 divide-y divide-gray-100">
-                    {specRows.map(([label, value]) => (
-                      <div key={label} className="flex px-5 py-3.5 text-sm">
-                        <dt className="w-28 text-gray-500 shrink-0">{label}</dt>
-                        <dd className="font-medium text-[#333d4b]">{value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </div>
-              )}
             </section>
 
             <section id="recommend" className="scroll-mt-20 pt-14">
