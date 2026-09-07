@@ -24,23 +24,45 @@ interface PageProps {
 }
 
 const SPEC_LABELS: Record<string, string> = {
+  // 공통
   productType: '제품 유형',
-  purifyFunction: '정수 기능',
-  waterType: '정수 타입',
-  filterType: '필터 종류',
-  sterilization: '살균 방식',
-  filterCount: '필터 개수',
   sizeWDH: '크기(WDH)',
   weightKg: '무게',
-  hotWaterTemp: '온수 온도',
-  features: '편의 기능',
   colors: '색상',
   channel: '판매 채널',
   businessUse: '업소용',
+  // 정수기
+  purifyFunction: '정수 기능',
+  waterType: '정수 타입',
+  filterType: '필터 종류',
+  filterCount: '필터 개수',
+  hotWaterTemp: '온수 온도',
+  features: '편의 기능',
+  sterilization: '살균 방식',
+  // 공기청정기
+  coverageArea: '사용 면적',
+  energyGrade: '에너지효율',
+  cleanFunctions: '청정 기능',
+  sensor: '센서',
+  petCare: '펫 케어',
+  humidify: '가습',
+  dehumidify: '제습',
+  heating: '온풍',
+  // 비데
+  nozzleMaterial: '노즐 소재',
+  hotWater: '온수',
+  drying: '건조',
+  // 매트리스
+  bedSize: '사이즈',
+  springType: '스프링',
+  firmness: '쿠션감',
+  zones: '존',
+  material: '소재',
 };
 
 // 라벨이 없는 키는 내부용(수집 출처 등)이라 화면에 내보내지 않는다.
-const HIDDEN_SPEC_KEYS = new Set(['sourceModel']);
+// coverageBucket 은 필터 전용이라 coverageArea 와 중복 노출된다.
+const HIDDEN_SPEC_KEYS = new Set(['sourceModel', 'coverageBucket']);
 
 // 숫자만 들어오는 값에 단위를 붙인다
 const SPEC_UNITS: Record<string, string> = { weightKg: 'kg', filterCount: '개' };

@@ -5,12 +5,40 @@ import type { ProductDetail, ProductInsights } from '@/lib/electronicsApi';
 //  2) 가격 위치 막대 — 읽을 숫자는 양 끝과 현재값 셋뿐
 //  3) 핵심 스펙 4칸
 
-const SPEC_SLOTS: { key: keyof ProductDetail['specs']; label: string }[] = [
-  { key: 'purifyFunction', label: '정수 기능' },
+// 요약 칸에 우선해서 넣을 스펙. 카테고리마다 중요한 축이 달라 순서를 따로 둔다.
+// 값이 있는 것만 앞에서부터 3개를 쓴다.
+const SPEC_SLOTS: Record<string, { key: keyof ProductDetail['specs']; label: string }[]> = {
+  'water-purifier': [
+    { key: 'purifyFunction', label: '정수 기능' },
+    { key: 'productType', label: '제품 유형' },
+    { key: 'waterType', label: '정수 타입' },
+    { key: 'filterType', label: '필터' },
+    { key: 'sterilization', label: '살균' },
+  ],
+  'air-purifier': [
+    { key: 'coverageArea', label: '사용 면적' },
+    { key: 'energyGrade', label: '에너지효율' },
+    { key: 'sensor', label: '센서' },
+    { key: 'sizeWDH', label: '크기' },
+  ],
+  bidet: [
+    { key: 'productType', label: '형태' },
+    { key: 'nozzleMaterial', label: '노즐 소재' },
+    { key: 'drying', label: '건조' },
+    { key: 'sterilization', label: '살균' },
+  ],
+  mattress: [
+    { key: 'bedSize', label: '사이즈' },
+    { key: 'springType', label: '스프링' },
+    { key: 'firmness', label: '쿠션감' },
+    { key: 'zones', label: '존' },
+  ],
+};
+
+const FALLBACK_SLOTS: { key: keyof ProductDetail['specs']; label: string }[] = [
   { key: 'productType', label: '제품 유형' },
-  { key: 'waterType', label: '정수 타입' },
-  { key: 'filterType', label: '필터' },
-  { key: 'sterilization', label: '살균' },
+  { key: 'sizeWDH', label: '크기' },
+  { key: 'weightKg', label: '무게' },
 ];
 
 export default function SpecSummary({
@@ -23,10 +51,12 @@ export default function SpecSummary({
   minFee: number;
 }) {
   // 값이 있는 스펙만 최대 3개 — 4칸 중 첫 칸은 가격이 차지한다
-  const specCells = SPEC_SLOTS.map((slot) => ({
+  const slots = SPEC_SLOTS[product.category.slug] ?? FALLBACK_SLOTS;
+  const specCells = slots.map((slot) => ({
     label: slot.label,
     value: product.specs[slot.key],
   }))
+    .map((c) => ({ label: c.label, value: typeof c.value === 'number' ? String(c.value) : c.value }))
     .filter((c): c is { label: string; value: string } => typeof c.value === 'string' && c.value !== '')
     .slice(0, 3);
 

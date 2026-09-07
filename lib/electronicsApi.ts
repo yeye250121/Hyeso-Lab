@@ -32,20 +32,49 @@ export type CategoryNode = {
 // 카테고리마다 축이 달라 DB 에서는 JSONB 다. 여기에는 실제로 채워지는 키만 적는다.
 // (정책표에서 오는 것 + .dev/etl/enrich.js 가 외부 소스로 보강하는 것)
 export type ProductSpecs = {
+  /** 공통 */
   productType?: string;
-  purifyFunction?: string;
-  waterType?: string;
-  filterType?: string;
-  sterilization?: string;
-  filterCount?: number;
   sizeWDH?: string;
   weightKg?: number;
-  hotWaterTemp?: string;
-  features?: string;
-  sourceModel?: string;
   colors?: string[];
   channel?: string;
   businessUse?: boolean;
+  /** 수집 출처 모델코드. 화면에는 내보내지 않는다 */
+  sourceModel?: string;
+
+  /** 정수기 */
+  purifyFunction?: string;
+  waterType?: string;
+  filterType?: string;
+  filterCount?: number;
+  hotWaterTemp?: string;
+  features?: string;
+
+  /** 공기청정기 */
+  coverageArea?: string;
+  /** 필터용 구간. coverageArea 를 10평 단위로 접은 값 */
+  coverageBucket?: string;
+  energyGrade?: string;
+  cleanFunctions?: string;
+  sensor?: string;
+  petCare?: boolean;
+  humidify?: boolean;
+  dehumidify?: boolean;
+  heating?: boolean;
+
+  /** 비데 */
+  nozzleMaterial?: string;
+  hotWater?: string;
+  drying?: string;
+  /** 정수기·비데 공용 */
+  sterilization?: string;
+
+  /** 매트리스 */
+  bedSize?: string;
+  springType?: string;
+  firmness?: string;
+  zones?: string;
+  material?: string;
 };
 
 // 목록용 요금제 요약. 키를 짧게 쓴 이유는 순전히 페이로드 크기 때문이다.
