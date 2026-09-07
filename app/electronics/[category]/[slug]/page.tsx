@@ -4,8 +4,18 @@ import { notFound } from 'next/navigation';
 import { ChevronRight, Droplets } from 'lucide-react';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
-import { getProductBySlug } from '@/lib/electronicsApi';
+import { getProductBySlug, getProductInsights } from '@/lib/electronicsApi';
 import PlanSelector from '@/components/electronics/PlanSelector';
+import ProductTabs from '@/components/electronics/ProductTabs';
+import SpecSummary from '@/components/electronics/SpecSummary';
+import PlanBreakdown from '@/components/electronics/PlanBreakdown';
+import Recommendations from '@/components/electronics/Recommendations';
+
+const TABS = [
+  { id: 'spec', label: '스펙분석' },
+  { id: 'detail', label: '상세정보' },
+  { id: 'recommend', label: '추천' },
+];
 
 export const revalidate = 3600;
 
@@ -17,10 +27,23 @@ const SPEC_LABELS: Record<string, string> = {
   productType: '제품 유형',
   purifyFunction: '정수 기능',
   waterType: '정수 타입',
+  filterType: '필터 종류',
+  sterilization: '살균 방식',
+  filterCount: '필터 개수',
+  sizeWDH: '크기(WDH)',
+  weightKg: '무게',
+  hotWaterTemp: '온수 온도',
+  features: '편의 기능',
   colors: '색상',
   channel: '판매 채널',
   businessUse: '업소용',
 };
+
+// 라벨이 없는 키는 내부용(수집 출처 등)이라 화면에 내보내지 않는다.
+const HIDDEN_SPEC_KEYS = new Set(['sourceModel']);
+
+// 숫자만 들어오는 값에 단위를 붙인다
+const SPEC_UNITS: Record<string, string> = { weightKg: 'kg', filterCount: '개' };
 
 export async function generateMetadata({ params }: PageProps) {
   const product = await getProductBySlug(params.slug);
@@ -36,12 +59,22 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const product = await getProductBySlug(params.slug);
   if (!product || product.plans.length === 0) notFound();
 
+  const insights = await getProductInsights(product);
+  const minFee = Math.min(...product.plans.map((p) => p.monthly_fee));
+
   const image = product.image_urls?.[0];
   const specRows = Object.entries(product.specs)
-    .filter(([, v]) => v != null && v !== '' && !(Array.isArray(v) && v.length === 0))
+    .filter(([k, v]) => v != null && v !== '' && !(Array.isArray(v) && v.length === 0))
+    .filter(([k]) => !HIDDEN_SPEC_KEYS.has(k) && SPEC_LABELS[k])
     .map(([k, v]) => [
-      SPEC_LABELS[k] ?? k,
-      Array.isArray(v) ? v.join(', ') : typeof v === 'boolean' ? (v ? '예' : '아니오') : String(v),
+      SPEC_LABELS[k],
+      Array.isArray(v)
+        ? v.join(', ')
+        : typeof v === 'boolean'
+          ? v
+            ? '예'
+            : '아니오'
+          : `${v}${SPEC_UNITS[k] ?? ''}`,
     ]);
 
   return (
@@ -85,7 +118,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
 
             {specRows.length > 0 && (
-              <div className="mt-8">
+              <div className="mt-8 hidden lg:block">
                 <h2 className="text-lg font-bold text-[#333d4b] mb-4">제품 정보</h2>
                 <dl className="rounded-2xl border border-gray-100 divide-y divide-gray-100">
                   <div className="flex px-5 py-3.5 text-sm">
@@ -141,6 +174,40 @@ export default async function ProductDetailPage({ params }: PageProps) {
               <PlanSelector plans={product.plans} productSlug={product.slug} />
             </div>
           </div>
+        </div>
+
+        {/* 하단 정보 제공 탭 */}
+        <div className="mt-16 lg:mt-24">
+          <ProductTabs tabs={TABS}>
+            <section id="spec" className="scroll-mt-20 pt-10">
+              <h2 className="text-xl font-bold text-[#333d4b] mb-6">스펙분석</h2>
+              <SpecSummary product={product} insights={insights} minFee={minFee} />
+            </section>
+
+            <section id="detail" className="scroll-mt-20 pt-14">
+              <h2 className="text-xl font-bold text-[#333d4b] mb-6">상세정보</h2>
+              <PlanBreakdown product={product} insights={insights} />
+
+              {specRows.length > 0 && (
+                <div className="mt-10 lg:hidden">
+                  <h3 className="text-base font-bold text-[#333d4b] mb-4">제품 정보</h3>
+                  <dl className="rounded-2xl border border-gray-100 divide-y divide-gray-100">
+                    {specRows.map(([label, value]) => (
+                      <div key={label} className="flex px-5 py-3.5 text-sm">
+                        <dt className="w-28 text-gray-500 shrink-0">{label}</dt>
+                        <dd className="font-medium text-[#333d4b]">{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              )}
+            </section>
+
+            <section id="recommend" className="scroll-mt-20 pt-14">
+              <h2 className="text-xl font-bold text-[#333d4b] mb-6">추천</h2>
+              <Recommendations insights={insights} />
+            </section>
+          </ProductTabs>
         </div>
       </main>
 

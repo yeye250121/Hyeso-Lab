@@ -29,11 +29,20 @@ export type CategoryNode = {
   productCount: number;
 };
 
+// 카테고리마다 축이 달라 DB 에서는 JSONB 다. 여기에는 실제로 채워지는 키만 적는다.
+// (정책표에서 오는 것 + .dev/etl/enrich.js 가 외부 소스로 보강하는 것)
 export type ProductSpecs = {
   productType?: string;
   purifyFunction?: string;
   waterType?: string;
-  waterTypeDetail?: string;
+  filterType?: string;
+  sterilization?: string;
+  filterCount?: number;
+  sizeWDH?: string;
+  weightKg?: number;
+  hotWaterTemp?: string;
+  features?: string;
+  sourceModel?: string;
   colors?: string[];
   channel?: string;
   businessUse?: boolean;
@@ -334,6 +343,122 @@ export const getProductBySlug = unstable_cache(
   ['electronics-product-detail'],
   { revalidate: 3600, tags: [ELECTRONICS_CACHE_TAG] }
 );
+
+/** 추천 카드용 경량 타입. plans 는 카드가 쓰지 않으므로 뺀다. */
+export type RecommendedProduct = Omit<ProductListItem, 'plans'>;
+
+export type ProductInsights = {
+  /** 카테고리 안에서 최저가 기준 순위(1이 가장 저렴) */
+  rank: number;
+  total: number;
+  /** 가격 위치 막대용 */
+  categoryMinFee: number;
+  categoryMaxFee: number;
+  categoryName: string;
+  /** 방문관리 -> 자가관리로 바꿀 때 아끼는 월 금액. 조건이 없으면 null */
+  selfCareSaving: number | null;
+  recommendations: {
+    set: RecommendedProduct[];
+    similar: RecommendedProduct[];
+    sameBrand: RecommendedProduct[];
+  };
+};
+
+// 세트로 묶이는 카테고리 쌍. 매트리스를 보면 프레임을, 프레임을 보면 매트리스를 권한다.
+const SET_PAIRS: Record<string, string> = {
+  mattress: 'bed-frame',
+  'bed-frame': 'mattress',
+};
+
+const strip = (p: ProductListItem): RecommendedProduct => {
+  const { plans: _plans, ...rest } = p;
+  return rest;
+};
+
+/** 표시명에서 의미 있는 토큰만 남긴다. 세트 추정에 쓴다. */
+function tokens(name: string): string[] {
+  return name
+    .replace(/[()[\]/,+]/g, ' ')
+    .split(/\s+/)
+    .map((t) => t.trim())
+    .filter((t) => t.length >= 2 && !/^(방문형|셀프형|일반|패키지)$/.test(t));
+}
+
+/**
+ * 상세페이지의 스펙분석·추천에 필요한 값을 계산한다.
+ *
+ * unstable_cache 로 감싸지 않는다. 안에서 호출하는 getProductsForCategory 가
+ * 이미 캐시돼 있고, 캐시를 중첩하면 결과가 비어 돌아오는 문제가 있었다.
+ */
+export async function getProductInsights(
+  product: ProductDetail
+): Promise<ProductInsights | undefined> {
+  const siblings = await getProductsForCategory(product.category.slug);
+  if (siblings.length === 0) return undefined;
+
+  const minFee = Math.min(...product.plans.map((p) => p.monthly_fee));
+  const fees = siblings.map((s) => s.minFee).sort((a, b) => a - b);
+  const rank = fees.filter((f) => f < minFee).length + 1;
+
+  // 같은 약정에서 방문관리 대비 자가관리가 얼마나 싼지
+  const visit = product.plans.filter((p) => p.care_type === '방문관리');
+  const self = product.plans.filter((p) => p.care_type === '자가관리');
+  let selfCareSaving: number | null = null;
+  if (visit.length > 0 && self.length > 0) {
+    const shared = [...new Set(visit.map((p) => p.contract_months))].filter((m) =>
+      self.some((p) => p.contract_months === m)
+    );
+    const diffs = shared.map(
+      (m) =>
+        Math.min(...visit.filter((p) => p.contract_months === m).map((p) => p.monthly_fee)) -
+        Math.min(...self.filter((p) => p.contract_months === m).map((p) => p.monthly_fee))
+    );
+    if (diffs.length > 0) {
+      const avg = Math.round(diffs.reduce((a, b) => a + b, 0) / diffs.length / 100) * 100;
+      if (avg > 0) selfCareSaving = avg;
+    }
+  }
+
+  const others = siblings.filter((s) => s.slug !== product.slug);
+
+  // 유사 가격대: 최저가가 ±20% 안이고 브랜드가 다른 것
+  const similar = others
+    .filter((s) => s.brand !== product.brand)
+    .filter((s) => Math.abs(s.minFee - minFee) <= minFee * 0.2)
+    .sort((a, b) => Math.abs(a.minFee - minFee) - Math.abs(b.minFee - minFee))
+    .slice(0, 4)
+    .map(strip);
+
+  const sameBrand = others
+    .filter((s) => s.brand === product.brand)
+    .sort((a, b) => Math.abs(a.minFee - minFee) - Math.abs(b.minFee - minFee))
+    .slice(0, 4)
+    .map(strip);
+
+  // 세트 추정: 짝 카테고리에서 같은 브랜드 + 표시명 토큰이 겹치는 것
+  let set: RecommendedProduct[] = [];
+  const pairSlug = SET_PAIRS[product.category.slug];
+  if (pairSlug) {
+    const pair = await getProductsForCategory(pairSlug);
+    const mine = new Set(tokens(product.display_name));
+    set = pair
+      .filter((s) => s.brand === product.brand)
+      .map((s) => ({ s, hits: tokens(s.display_name).filter((t) => mine.has(t)).length }))
+      .sort((a, b) => b.hits - a.hits || a.s.minFee - b.s.minFee)
+      .slice(0, 4)
+      .map(({ s }) => strip(s));
+  }
+
+  return {
+    rank,
+    total: siblings.length,
+    categoryMinFee: fees[0],
+    categoryMaxFee: fees[fees.length - 1],
+    categoryName: product.category.name,
+    selfCareSaving,
+    recommendations: { set, similar, sameBrand },
+  };
+}
 
 /** generateStaticParams 전용 — 슬러그만 필요하다. */
 export async function getAllProductSlugs(): Promise<{ category: string; slug: string }[]> {
