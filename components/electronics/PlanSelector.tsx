@@ -8,8 +8,12 @@ import type { ProductPlan } from '@/lib/electronicsApi';
 // 약정 -> 관리방법 -> 판매구분 순으로 좁혀가며 요금제를 고른다.
 // 앞 단계를 바꾸면 뒤 단계는 선택 가능한 값으로 자동 보정된다.
 
+// 칩에는 짧게("3년"), 가격 요약에는 길게("3년 약정") 쓴다
+function monthsShort(m: number) {
+  return m % 12 === 0 ? `${m / 12}년` : `${m}개월`;
+}
 function monthsLabel(m: number) {
-  return m % 12 === 0 ? `${m / 12}년 약정` : `${m}개월 약정`;
+  return `${monthsShort(m)} 약정`;
 }
 
 export default function PlanSelector({
@@ -65,10 +69,10 @@ export default function PlanSelector({
       : 0;
 
   const chip = (active: boolean) =>
-    `px-4 py-2.5 rounded-xl text-sm font-bold transition-all border text-center ${
+    `px-3.5 py-1.5 rounded-full text-[13px] font-bold transition-all border whitespace-nowrap ${
       active
         ? 'border-[var(--action-primary)] bg-[#fff1f5] text-[var(--action-primary)]'
-        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
     }`;
 
   const apply = () => {
@@ -78,15 +82,13 @@ export default function PlanSelector({
 
   return (
     <div className="w-full">
-      <div className="space-y-6">
+      <div className="space-y-3">
         <div>
-          <p className="text-sm font-bold text-[#333d4b] mb-3">
-            약정 기간 <span className="text-[var(--action-primary)]">*</span>
-          </p>
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+          <p className="text-[13px] font-bold text-[#333d4b] mb-1.5">약정</p>
+          <div className="flex flex-wrap gap-1.5">
             {contracts.map((c) => (
               <button key={c} type="button" onClick={() => setContract(c)} className={chip(contract === c)}>
-                {monthsLabel(c)}
+                {monthsShort(c)}
               </button>
             ))}
           </div>
@@ -94,10 +96,8 @@ export default function PlanSelector({
 
         {cares.length > 0 && (
           <div>
-            <p className="text-sm font-bold text-[#333d4b] mb-3">
-              관리 방법 <span className="text-[var(--action-primary)]">*</span>
-            </p>
-            <div className="grid grid-cols-3 gap-2">
+            <p className="text-[13px] font-bold text-[#333d4b] mb-1.5">관리방법</p>
+            <div className="flex flex-wrap gap-1.5">
               {cares.map((c) => (
                 <button
                   key={c ?? 'none'}
@@ -109,18 +109,13 @@ export default function PlanSelector({
                 </button>
               ))}
             </div>
-            {selected.care_cycle_months && (
-              <p className="mt-2 text-xs text-gray-400">
-                {selected.care_cycle_months}개월마다 방문 관리
-              </p>
-            )}
           </div>
         )}
 
         {effectiveVariants.length > 1 && (
           <div>
-            <p className="text-sm font-bold text-[#333d4b] mb-3">판매 조건</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <p className="text-[13px] font-bold text-[#333d4b] mb-1.5">판매조건</p>
+            <div className="flex flex-wrap gap-1.5">
               {effectiveVariants.map((v) => (
                 <button
                   key={v}
@@ -133,6 +128,12 @@ export default function PlanSelector({
               ))}
             </div>
           </div>
+        )}
+
+        {selected.care_cycle_months && (
+          <p className="text-xs text-gray-400">
+            {selected.care_cycle_months}개월마다 방문 관리
+          </p>
         )}
       </div>
 
@@ -163,7 +164,7 @@ export default function PlanSelector({
 
         <div className="mt-4 pt-4 border-t border-gray-200 space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-500">약정 기간</span>
+            <span className="text-gray-500">약정</span>
             <span className="font-medium text-[#333d4b]">{monthsLabel(contract)}</span>
           </div>
           <div className="flex items-center justify-between text-sm">

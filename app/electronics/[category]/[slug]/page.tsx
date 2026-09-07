@@ -205,7 +205,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
             <section id="recommend" className="scroll-mt-20 pt-14">
               <h2 className="text-xl font-bold text-[#333d4b] mb-6">추천</h2>
-              <Recommendations insights={insights} />
+              <Recommendations
+                insights={insights}
+                categorySlug={product.category.slug || params.category}
+                categoryName={product.category.name || '전체'}
+              />
             </section>
           </ProductTabs>
         </div>

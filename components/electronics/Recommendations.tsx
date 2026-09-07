@@ -1,8 +1,21 @@
+import Link from 'next/link';
+import { ChevronRight } from 'lucide-react';
 import type { ProductInsights } from '@/lib/electronicsApi';
 import ProductCard from './ProductCard';
 
 // 추천. 세트 -> 유사 가격대 -> 동일 브랜드 순으로, 비어 있는 묶음은 통째로 생략한다.
-export default function Recommendations({ insights }: { insights: ProductInsights | undefined }) {
+//
+// 모바일에서는 좌우 스와이프로 한 줄을 유지한다. 격자로 두면 4개가 두 줄로
+// 접히면서 화면을 잡아먹는다. 데스크톱은 4열 격자.
+export default function Recommendations({
+  insights,
+  categorySlug,
+  categoryName,
+}: {
+  insights: ProductInsights | undefined;
+  categorySlug: string;
+  categoryName: string;
+}) {
   if (!insights) return null;
   const { set, similar, sameBrand } = insights.recommendations;
 
@@ -20,17 +33,32 @@ export default function Recommendations({ insights }: { insights: ProductInsight
         <div key={group.key}>
           <h3 className="text-base font-bold text-[#333d4b]">{group.title}</h3>
           {group.desc && <p className="text-sm text-gray-500 mt-1">{group.desc}</p>}
-          <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+          {/* 모바일: 가로 스와이프 / 데스크톱: 4열 격자 */}
+          <ul
+            className="mt-4 flex gap-3 overflow-x-auto snap-x snap-mandatory -mx-6 px-6 pb-1
+                       lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:mx-0 lg:px-0
+                       [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          >
             {group.items.map((p) => (
-              <ProductCard
-                key={p.id}
-                product={{ ...p, plans: [] }}
-                categorySlug={p.category_slug}
-              />
+              <li key={p.id} className="snap-start shrink-0 w-[46%] sm:w-[31%] lg:w-auto">
+                <ProductCard
+                  product={{ ...p, plans: [] }}
+                  categorySlug={p.category_slug}
+                />
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       ))}
+
+      <Link
+        href={`/electronics/${categorySlug}`}
+        className="flex items-center justify-center gap-1 w-full py-3.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-sm font-bold text-[#333d4b] transition-colors"
+      >
+        {categoryName} 추천 더보기
+        <ChevronRight className="w-4 h-4" />
+      </Link>
     </div>
   );
 }
