@@ -57,11 +57,16 @@ export default function ApplyForm({
   products,
   initialProductSlug,
   initialPlanId,
+  initialContractMonths,
+  initialCareType,
   initialCategory,
 }: {
   products: ProductListItem[];
   initialProductSlug?: string;
   initialPlanId?: string;
+  /** 상세에서 고른 약정/관리. 보정 이펙트가 유효한 값이면 그대로 유지한다 */
+  initialContractMonths?: number;
+  initialCareType?: string;
   initialCategory?: string;
 }) {
   const router = useRouter();
@@ -70,6 +75,8 @@ export default function ApplyForm({
     ...INITIAL_STATE,
     productSlug: initialProductSlug ?? null,
     planId: initialPlanId ?? null,
+    contractMonths: initialContractMonths ?? null,
+    careType: initialCareType ?? null,
   });
   const [touched, setTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);

@@ -33,6 +33,8 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           products={products}
           initialProductSlug={firstValue(searchParams?.product)}
           initialPlanId={firstValue(searchParams?.plan)}
+          initialContractMonths={Number(firstValue(searchParams?.months)) || undefined}
+          initialCareType={firstValue(searchParams?.care)}
           initialCategory={category}
         />
       </main>

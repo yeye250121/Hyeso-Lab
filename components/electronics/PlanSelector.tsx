@@ -77,7 +77,15 @@ export default function PlanSelector({
 
   const apply = () => {
     setSubmitting(true);
-    router.push(`/electronics/apply?product=${productSlug}&plan=${selected.id}`);
+    // planId 만 넘기면 신청 폼이 약정/관리를 기본값(최저 약정)으로 되돌린다.
+    // 화면에 보이는 선택과 저장되는 조건이 어긋나지 않도록 함께 넘긴다.
+    const params = new URLSearchParams({
+      product: productSlug,
+      plan: selected.id,
+      months: String(contract),
+    });
+    if (effectiveCare) params.set('care', effectiveCare);
+    router.push(`/electronics/apply?${params.toString()}`);
   };
 
   return (
@@ -87,7 +95,13 @@ export default function PlanSelector({
           <p className="text-[13px] font-bold text-[#333d4b] mb-1.5">약정</p>
           <div className="flex flex-wrap gap-1.5">
             {contracts.map((c) => (
-              <button key={c} type="button" onClick={() => setContract(c)} className={chip(contract === c)}>
+              <button
+                key={c}
+                type="button"
+                data-testid={`plan-contract-${c}`}
+                onClick={() => setContract(c)}
+                className={chip(contract === c)}
+              >
                 {monthsShort(c)}
               </button>
             ))}
@@ -102,6 +116,7 @@ export default function PlanSelector({
                 <button
                   key={c ?? 'none'}
                   type="button"
+                  data-testid={`plan-care-${c ?? 'none'}`}
                   onClick={() => setCare(c)}
                   className={chip(effectiveCare === c)}
                 >
@@ -197,6 +212,7 @@ export default function PlanSelector({
 
       <button
         type="button"
+        data-testid="plan-apply"
         onClick={apply}
         disabled={submitting}
         className="mt-5 w-full py-4 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] disabled:opacity-60 text-white font-bold text-[15px] transition-colors flex items-center justify-center gap-2"

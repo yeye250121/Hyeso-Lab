@@ -90,7 +90,7 @@ export default function CategoryDrawer({ groups }: { groups: CategoryNode[] }) {
                   <li key={cat.slug}>
                     <Link
                       href={`/electronics/${cat.slug}`}
-                      data-testid={`category-circle-${cat.slug}`}
+                      data-testid={`category-circle-${g.slug}-${cat.slug}`}
                       className="group flex flex-col items-center gap-2"
                     >
                       <span className="relative flex items-center justify-center w-[72px] h-[72px] rounded-full bg-[#f4f5f7] overflow-hidden transition-colors group-hover:bg-[#eceef1]">

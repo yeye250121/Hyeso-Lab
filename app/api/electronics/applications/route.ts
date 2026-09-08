@@ -112,7 +112,13 @@ export async function POST(request: NextRequest) {
         if (planError) throw planError
 
         const plan = plans?.[0]
-        if (plan) planId = plan.id
+        if (plan) {
+          planId = plan.id
+          // 클라이언트가 보낸 조건이 요금제와 어긋나면 요금제 쪽을 믿는다.
+          // plan_id 는 5년인데 contract_months 는 3년인 레코드를 만들지 않기 위해서다.
+          parsed.contractMonths = plan.contract_months
+          parsed.careType = plan.care_type
+        }
 
         // 정책표는 매달 바뀐다. 접수 시점의 조건을 그대로 남겨둬야 나중에 분쟁이 없다.
         snapshot = {
