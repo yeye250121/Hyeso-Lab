@@ -2,16 +2,13 @@ import { expect, test, type Page } from '@playwright/test';
 
 // 가전렌탈 탭 E2E. 시나리오 번호는 docs/electronics-toss-redesign-plan.md 6절과 같다.
 
-test.describe('1. GNB 탭', () => {
-  test('가로 스크롤이 가능하고 탭 클릭으로 이동한다', async ({ page }) => {
+test.describe('1. GNB 탭 · 카테고리 레일', () => {
+  test('탭 클릭 이동이 되고, 목록의 카테고리 레일은 가로 스크롤된다', async ({ page }) => {
     await page.goto('/electronics');
 
+    // 탭은 셋만 둔다(렌탈 홈·카테고리·정수기). 카테고리 나열은 목록의 레일이 담당한다
     const tabs = page.getByTestId('gnb-tabs');
     await expect(tabs).toBeVisible();
-
-    // 모바일 폭에서는 탭이 화면보다 길어 가로 스크롤이 생겨야 한다
-    const scrollable = await tabs.evaluate((el) => el.scrollWidth > el.clientWidth);
-    expect(scrollable).toBe(true);
 
     await page.getByTestId('gnb-tab-water-purifier').click();
     await expect(page).toHaveURL(/\/electronics\/water-purifier$/);
@@ -19,6 +16,11 @@ test.describe('1. GNB 탭', () => {
       'aria-current',
       'page'
     );
+
+    // 모바일 폭에서 카테고리 레일은 화면보다 길어 가로 스크롤이 생겨야 한다
+    const rail = page.getByTestId('subcategory-rail');
+    const scrollable = await rail.evaluate((el) => el.scrollWidth > el.clientWidth);
+    expect(scrollable).toBe(true);
   });
 });
 

@@ -18,10 +18,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // overflow-x-hidden 은 조상 요소를 스크롤 컨테이너로 만들어 하위 sticky 를
+  // 전부 죽인다. clip 은 같은 클리핑을 하되 스크롤 컨테이너를 만들지 않는다.
   return (
-    <html lang="ko" className="overflow-x-hidden">
-      <body className={`${notoSansKR.variable} font-sans antialiased bg-gray-50 overflow-x-hidden w-full`}>
-        <div className="max-w-[1100px] mx-auto w-full min-h-screen bg-gray-50 flex flex-col relative shadow-sm overflow-x-hidden">
+    <html lang="ko" className="overflow-x-clip">
+      <body className={`${notoSansKR.variable} font-sans antialiased bg-gray-50 overflow-x-clip w-full`}>
+        <div className="max-w-[1100px] mx-auto w-full min-h-screen bg-gray-50 flex flex-col relative shadow-sm overflow-x-clip">
           {children}
         </div>
       </body>

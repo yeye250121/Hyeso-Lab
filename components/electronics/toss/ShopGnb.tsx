@@ -17,7 +17,7 @@ export default function ShopGnb({ tabs }: { tabs: GnbTab[] }) {
     href === '/electronics' ? pathname === '/electronics' : pathname.startsWith(href);
 
   return (
-    <div className="sticky top-0 z-40 bg-white border-b border-gray-100">
+    <div className="sticky top-0 z-50 bg-white border-b border-gray-100">
       <div className="max-w-[1100px] mx-auto px-6">
         {/* 검색바 + 아이콘 */}
         <div className="flex items-center gap-4 pt-3 pb-2.5">

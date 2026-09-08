@@ -45,7 +45,7 @@ export default function CategoryDrawer({ groups }: { groups: CategoryNode[] }) {
     <div className="flex gap-5">
       {/* 좌측 사이드바 */}
       <nav className="w-[92px] shrink-0" data-testid="category-sidebar">
-        <ul className="sticky top-[140px] space-y-1">
+        <ul className="sticky top-[118px] space-y-1">
           {groups.map((g) => (
             <li key={g.slug}>
               <button
@@ -93,9 +93,9 @@ export default function CategoryDrawer({ groups }: { groups: CategoryNode[] }) {
                       data-testid={`category-circle-${g.slug}-${cat.slug}`}
                       className="group flex flex-col items-center gap-2"
                     >
-                      <span className="relative flex items-center justify-center w-[72px] h-[72px] rounded-full bg-[#f4f5f7] overflow-hidden transition-colors group-hover:bg-[#eceef1]">
+                      <span className="relative flex items-center justify-center w-14 h-14 rounded-full bg-[#f4f5f7] overflow-hidden transition-colors group-hover:bg-[#eceef1]">
                         {cat.icon_url ? (
-                          <Image src={cat.icon_url} alt="" fill sizes="72px" className="object-cover" />
+                          <Image src={cat.icon_url} alt="" fill sizes="56px" className="object-cover" />
                         ) : (
                           <Icon className="w-7 h-7 text-gray-400" strokeWidth={1.4} />
                         )}

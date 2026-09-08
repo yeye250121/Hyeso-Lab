@@ -45,7 +45,7 @@ const defaultLinkSections: FooterLinkSection[] = [
   {
     title: '문의',
     links: [
-      { text: '상담 신청', href: '/landing' },
+      { text: '상담 신청', href: '/electronics/apply' },
     ],
   },
 ];

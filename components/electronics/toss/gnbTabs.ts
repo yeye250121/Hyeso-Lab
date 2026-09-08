@@ -1,21 +1,17 @@
 import { getCategoryTree } from '@/lib/electronicsApi';
-import { POPULAR_CATEGORY_SLUGS } from '@/components/electronics/popularCategories';
 import type { GnbTab } from './ShopGnb';
 
-// GNB 탭: 렌탈 홈 · 카테고리 + 인기 카테고리(상품 있는 것만) 순.
-// 상품이 없는 카테고리는 탭에 올리지 않는다.
+// GNB 탭은 셋만 둔다: 렌탈 홈 · 카테고리 · 대표 카테고리(정수기).
+// 카테고리 전체를 탭으로 늘어놓으면 목록 페이지의 원형 소분류 레일과 역할이 겹친다.
 export async function buildGnbTabs(): Promise<GnbTab[]> {
   const tree = await getCategoryTree();
-  const all = tree.flatMap((g) => g.children).filter((c) => c.productCount > 0);
-
-  const popular = POPULAR_CATEGORY_SLUGS.map((slug) => all.find((c) => c.slug === slug)).filter(
-    (c): c is NonNullable<typeof c> => Boolean(c)
-  );
-  const rest = all.filter((c) => !POPULAR_CATEGORY_SLUGS.includes(c.slug as never));
+  const flagship = tree
+    .flatMap((g) => g.children)
+    .find((c) => c.slug === 'water-purifier' && c.productCount > 0);
 
   return [
     { label: '렌탈 홈', href: '/electronics' },
     { label: '카테고리', href: '/electronics/category' },
-    ...[...popular, ...rest].map((c) => ({ label: c.name, href: `/electronics/${c.slug}` })),
+    ...(flagship ? [{ label: flagship.name, href: `/electronics/${flagship.slug}` }] : []),
   ];
 }
