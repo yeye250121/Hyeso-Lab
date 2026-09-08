@@ -1,10 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronRight, MessageCircle } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
 import { getCategoryBySlug, getCategoryTree, getProductsForCategory } from '@/lib/electronicsApi';
 import ProductListFilter from '@/components/electronics/ProductListFilter';
+import ShopGnb from '@/components/electronics/toss/ShopGnb';
+import { buildGnbTabs } from '@/components/electronics/toss/gnbTabs';
+import SubcategoryRail from '@/components/electronics/toss/SubcategoryRail';
 import { categoryIcon } from '@/components/electronics/categoryIcons';
 
 export const revalidate = 3600;
@@ -36,54 +39,45 @@ export default async function CategoryListPage({ params, searchParams }: PagePro
   const category = await getCategoryBySlug(params.category);
   if (!category) notFound();
 
-  const products = await getProductsForCategory(params.category);
+  const [tabs, tree, products] = await Promise.all([
+    buildGnbTabs(),
+    getCategoryTree(),
+    getProductsForCategory(params.category),
+  ]);
+
+  // 레일: 상품이 있는 카테고리 간 이동. 현재 카테고리는 상품이 없어도 표시한다.
+  const rail = tree
+    .flatMap((g) => g.children)
+    .filter((c) => c.productCount > 0 || c.slug === category.slug)
+    .map((c) => ({ slug: c.slug, name: c.name, icon_url: c.icon_url }));
+
   const Icon = categoryIcon(category.slug);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
+      <ShopGnb tabs={tabs} />
 
-      <main className="flex-1 w-full max-w-[1100px] mx-auto px-6 pt-8 pb-24">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-1.5 text-sm text-gray-400 mb-6">
-          <Link href="/electronics" className="hover:text-[#333d4b] transition-colors">
-            가전 렌탈
-          </Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-[#333d4b] font-medium">{category.name}</span>
-        </nav>
-
-        <div className="flex items-center gap-4 mb-8">
-          <span className="flex items-center justify-center w-14 h-14 rounded-2xl bg-[#fff1f5] text-[var(--action-primary)] shrink-0">
-            <Icon className="w-7 h-7" />
-          </span>
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-[#333d4b]">{category.name} 렌탈</h1>
-            <p className="text-gray-500 text-sm mt-1">
-              {products.length > 0
-                ? `${products.length}개 모델의 조건별 렌탈료를 비교합니다.`
-                : '아직 등록된 모델이 없어요.'}
-            </p>
-          </div>
-        </div>
+      <main className="flex-1 w-full max-w-[1100px] mx-auto px-6 pt-4 pb-24">
+        <SubcategoryRail items={rail} activeSlug={category.slug} />
 
         {products.length > 0 ? (
-          <ProductListFilter
-            products={products}
-            categorySlug={category.slug}
-            filterSchema={category.filter_schema}
-            initialQuery={firstValue(searchParams?.q)}
-            initialBrand={firstValue(searchParams?.brand)}
-          />
+          <div className="mt-5">
+            <ProductListFilter
+              products={products}
+              categorySlug={category.slug}
+              filterSchema={category.filter_schema}
+              initialQuery={firstValue(searchParams?.q)}
+              initialBrand={firstValue(searchParams?.brand)}
+            />
+          </div>
         ) : (
-          <div className="rounded-2xl border border-gray-100 bg-[#f8f9fb] px-6 py-16 text-center">
+          <div className="mt-5 rounded-2xl border border-gray-100 bg-[#f8f9fb] px-6 py-16 text-center">
             <span className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white text-gray-300 mb-5">
               <Icon className="w-8 h-8" />
             </span>
             <p className="text-lg font-bold text-[#333d4b]">{category.name} 준비 중이에요</p>
             <p className="mt-2 text-gray-500 text-sm leading-relaxed">
-              지금은 정수기부터 순서대로 열고 있어요.
-              <br />
               찾으시는 제품이 있다면 상담으로 먼저 알려드릴게요.
             </p>
             <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">

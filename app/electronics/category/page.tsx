@@ -1,12 +1,12 @@
-import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
 import { getCategoryTree } from '@/lib/electronicsApi';
-import CategoryGrid from '@/components/electronics/CategoryGrid';
+import ShopGnb from '@/components/electronics/toss/ShopGnb';
+import { buildGnbTabs } from '@/components/electronics/toss/gnbTabs';
+import CategoryDrawer from '@/components/electronics/toss/CategoryDrawer';
 import { POPULAR_CATEGORY_SLUGS } from '@/components/electronics/popularCategories';
 
-// 상품 카테고리 목차. 상품은 보여주지 않고, 누르면 /electronics/{슬러그} 로 간다.
+// 카테고리 목차(서랍). 좌측 대분류 사이드바 + 우측 원형 썸네일 그리드.
 //
 // 정적 세그먼트라 /electronics/[category] 보다 우선한다.
 // 'category' 라는 슬러그를 가진 카테고리는 만들지 말 것(영영 가려진다).
@@ -18,44 +18,28 @@ export const metadata = {
 };
 
 export default async function CategoryIndexPage() {
-  const tree = await getCategoryTree();
+  const [tabs, tree] = await Promise.all([buildGnbTabs(), getCategoryTree()]);
   const all = tree.flatMap((g) => g.children);
 
-  // "인기"는 허브 첫 줄과 같은 목록을 쓴다. 목차에서도 자주 찾는 것을 위에 둔다.
+  // "인기" 그룹은 허브 첫 줄과 같은 목록을 쓴다
   const popular = POPULAR_CATEGORY_SLUGS.map((slug) => all.find((c) => c.slug === slug)).filter(
     (c): c is NonNullable<typeof c> => Boolean(c)
   );
 
   const groups = [
-    ...(popular.length > 0 ? [{ slug: 'popular', name: '인기', children: popular }] : []),
+    ...(popular.length > 0
+      ? [{ ...tree[0], id: 'popular', slug: 'popular', name: '인기', children: popular }]
+      : []),
     ...tree.filter((g) => g.children.length > 0),
   ];
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
-
-      <main className="flex-1 w-full max-w-[1100px] mx-auto px-6 pt-8 pb-24">
-        <nav className="flex items-center gap-1.5 text-sm text-gray-400 mb-6">
-          <Link href="/electronics" className="hover:text-[#333d4b] transition-colors">
-            가전 렌탈
-          </Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-[#333d4b] font-medium">전체 카테고리</span>
-        </nav>
-
-        <h1 className="text-2xl lg:text-3xl font-bold text-[#333d4b] mb-10">전체 카테고리</h1>
-
-        <div className="space-y-12">
-          {groups.map((group) => (
-            <section key={group.slug}>
-              <h2 className="text-base font-bold text-[#333d4b] mb-5">{group.name}</h2>
-              <CategoryGrid categories={group.children} showAll={false} />
-            </section>
-          ))}
-        </div>
+      <ShopGnb tabs={tabs} />
+      <main className="flex-1 w-full max-w-[1100px] mx-auto px-6 pt-6 pb-16">
+        <CategoryDrawer groups={groups} />
       </main>
-
       <Footer />
     </div>
   );

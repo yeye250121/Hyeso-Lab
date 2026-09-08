@@ -229,14 +229,27 @@ async function attachPlanSummaries(rows: RawProductRow[]): Promise<ProductListIt
 
   // 요금제 원본 대신 조합 단위로 접어둔 뷰를 쓴다.
   // 원본을 그대로 조회하면 PostgREST 기본 1000행 제한에 걸린다.
-  const { data: plans, error } = await supabase
-    .from('electronics_plan_summary')
-    .select('product_id, contract_months, care_type, monthly_fee, list_price')
-    .in(
-      'product_id',
-      rows.map((r) => r.id)
-    );
-  if (error) console.error('Error fetching electronics plan summary:', error);
+  //
+  // .in() 은 id 들이 URL 쿼리스트링에 실리므로 한 번에 다 넣으면 안 된다.
+  // 전체 상품(536개)을 넣었더니 URL 이 20KB 를 넘겨 fetch 자체가 실패했다.
+  // 100개씩 끊으면 URL 도 안전하고, 청크당 요약 행수도 1000행 제한 아래다.
+  const CHUNK = 100;
+  const ids = rows.map((r) => r.id);
+  const chunks = Array.from({ length: Math.ceil(ids.length / CHUNK) }, (_, i) =>
+    ids.slice(i * CHUNK, (i + 1) * CHUNK)
+  );
+  const results = await Promise.all(
+    chunks.map((chunk) =>
+      supabase
+        .from('electronics_plan_summary')
+        .select('product_id, contract_months, care_type, monthly_fee, list_price')
+        .in('product_id', chunk)
+    )
+  );
+  const plans = results.flatMap((r) => {
+    if (r.error) console.error('Error fetching electronics plan summary:', r.error);
+    return r.data ?? [];
+  });
 
   const grouped = new Map<string, Map<string, { fee: number; list: number | null }>>();
   for (const p of (plans ?? []) as RawPlan[]) {

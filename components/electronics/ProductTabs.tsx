@@ -6,7 +6,11 @@ import { useEffect, useRef, useState } from 'react';
 // 활성화된다. 콘텐츠는 전부 렌더링된 상태라 서버 컴포넌트를 그대로 children 으로
 // 받을 수 있고 SEO 에도 유리하다.
 
-const NAV_OFFSET = 72; // 고정 탭바 높이만큼 스크롤 위치를 보정한다
+// 고정 탭바 높이만큼 스크롤 위치를 보정한다.
+// 모바일 PDP 에는 위에 고정 헤더(56px)가 하나 더 있다.
+function navOffset() {
+  return typeof window !== 'undefined' && window.innerWidth < 1024 ? 128 : 72;
+}
 
 export default function ProductTabs({
   tabs,
@@ -26,7 +30,7 @@ export default function ProductTabs({
       let current = tabs[0]?.id;
       for (const tab of tabs) {
         const el = document.getElementById(tab.id);
-        if (el && el.getBoundingClientRect().top <= NAV_OFFSET + 8) current = tab.id;
+        if (el && el.getBoundingClientRect().top <= navOffset() + 8) current = tab.id;
       }
       setActive(current);
     };
@@ -41,14 +45,14 @@ export default function ProductTabs({
     lockUntil.current = Date.now() + 700;
     setActive(id);
     window.scrollTo({
-      top: el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET,
+      top: el.getBoundingClientRect().top + window.scrollY - navOffset(),
       behavior: 'smooth',
     });
   };
 
   return (
     <>
-      <nav className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-100 -mx-6 px-6">
+      <nav className="sticky top-14 lg:top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-100 -mx-6 px-6">
         <ul className="flex gap-1 max-w-[1100px] mx-auto">
           {tabs.map((tab) => (
             <li key={tab.id}>

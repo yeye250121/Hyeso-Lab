@@ -132,7 +132,10 @@ export default function PlanSelector({
 
         {selected.care_cycle_months && (
           <p className="text-xs text-gray-400">
-            {selected.care_cycle_months}개월마다 방문 관리
+            {/* 자가관리는 방문이 아니라 필터/소모품을 스스로 교체하는 주기다 */}
+            {effectiveCare === '자가관리'
+              ? `관리 주기 ${selected.care_cycle_months}개월 (자가 교체)`
+              : `${selected.care_cycle_months}개월마다 방문 관리`}
           </p>
         )}
       </div>

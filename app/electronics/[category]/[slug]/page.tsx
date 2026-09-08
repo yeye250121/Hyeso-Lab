@@ -1,11 +1,13 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronRight, Droplets } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
 import { getProductBySlug, getProductInsights } from '@/lib/electronicsApi';
 import PlanSelector from '@/components/electronics/PlanSelector';
+import ImageSwiper from '@/components/electronics/toss/ImageSwiper';
+import PdpHeader from '@/components/electronics/toss/PdpHeader';
+import PdpPurchaseBar from '@/components/electronics/toss/PdpPurchaseBar';
 import ProductTabs from '@/components/electronics/ProductTabs';
 import SpecSummary from '@/components/electronics/SpecSummary';
 import PlanBreakdown from '@/components/electronics/PlanBreakdown';
@@ -84,7 +86,16 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const insights = await getProductInsights(product);
   const minFee = Math.min(...product.plans.map((p) => p.monthly_fee));
 
-  const image = product.image_urls?.[0];
+  const wishItem = {
+    slug: product.slug,
+    category: product.category.slug || params.category,
+    brand: product.brand,
+    name: product.display_name,
+    fee: minFee,
+    list: null,
+    img: product.image_urls?.[0] ?? null,
+  };
+
   const specRows = Object.entries(product.specs)
     .filter(([k, v]) => v != null && v !== '' && !(Array.isArray(v) && v.length === 0))
     .filter(([k]) => !HIDDEN_SPEC_KEYS.has(k) && SPEC_LABELS[k])
@@ -101,10 +112,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <Navbar />
+      {/* 모바일은 앱형 PDP 헤더(투명->흰색 트랜지션), 데스크톱은 사이트 Navbar */}
+      <div className="hidden lg:block">
+        <Navbar />
+      </div>
+      <PdpHeader title={product.display_name} />
 
-      <main className="flex-1 w-full max-w-[1100px] mx-auto px-6 pt-8 pb-24">
-        <nav className="flex items-center gap-1.5 text-sm text-gray-400 mb-6 flex-wrap">
+      <main className="flex-1 w-full max-w-[1100px] mx-auto px-6 pb-28 lg:pb-24 lg:pt-8">
+        <nav className="hidden lg:flex items-center gap-1.5 text-sm text-gray-400 mb-6 flex-wrap">
           <Link href="/electronics" className="hover:text-[#333d4b] transition-colors">
             가전 렌탈
           </Link>
@@ -122,23 +137,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14">
-          {/* 좌: 이미지 + 스펙 */}
-          <div>
-            <div className="relative aspect-square rounded-3xl bg-gradient-to-b from-[#f6f8fb] to-[#eef1f6] flex items-center justify-center overflow-hidden">
-              {image ? (
-                <Image
-                  src={image}
-                  alt={product.display_name}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-contain p-10"
-                  priority
-                />
-              ) : (
-                <Droplets className="w-20 h-20 text-gray-300" strokeWidth={1.2} />
-              )}
-            </div>
-
+          {/* 좌: 이미지 스와이퍼 (모바일은 풀블리드) */}
+          <div className="-mx-6 lg:mx-0">
+            <ImageSwiper images={product.image_urls ?? []} alt={product.display_name} />
           </div>
 
           {/* 우: 요금제 선택 */}
@@ -166,7 +167,16 @@ export default async function ProductDetailPage({ params }: PageProps) {
               <p className="mt-5 text-gray-600 leading-relaxed">{product.description}</p>
             )}
 
-            <div className="mt-8 pt-8 border-t border-gray-100">
+            {/* 모바일 가격 블록: 최저가 크게. 조건 선택은 하단 바 -> 시트에서 */}
+            <p className="lg:hidden mt-4 text-[#333d4b]">
+              <span className="text-[26px] font-bold">월 {minFee.toLocaleString()}원</span>
+              <span className="text-lg font-bold">~</span>
+              <span className="ml-2 text-[13px] text-gray-400 font-normal">
+                약정·관리 조건에 따라 달라져요
+              </span>
+            </p>
+
+            <div className="hidden lg:block mt-8 pt-8 border-t border-gray-100">
               <h2 className="text-lg font-bold text-[#333d4b] mb-5">가입 조건을 선택하세요</h2>
               <PlanSelector plans={product.plans} productSlug={product.slug} />
             </div>
@@ -199,7 +209,16 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </div>
       </main>
 
-      <Footer />
+      <div className="hidden lg:block">
+        <Footer />
+      </div>
+
+      <PdpPurchaseBar
+        plans={product.plans}
+        productSlug={product.slug}
+        minFee={minFee}
+        wishItem={wishItem}
+      />
     </div>
   );
 }

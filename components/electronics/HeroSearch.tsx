@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
+import { pushRecentSearch } from './toss/recentSearches';
 
 // 히어로에는 검색창 하나만 둔다. 입력하면 전체보기 페이지로 넘겨
 // 거기서 실제 검색 결과를 렌더링한다.
@@ -13,6 +14,7 @@ export default function HeroSearch({ defaultValue = '' }: { defaultValue?: strin
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const q = query.trim();
+    if (q) pushRecentSearch(q);
     router.push(q ? `/electronics/search?q=${encodeURIComponent(q)}` : '/electronics/search');
   };
 
@@ -20,6 +22,7 @@ export default function HeroSearch({ defaultValue = '' }: { defaultValue?: strin
     <form onSubmit={submit} role="search" className="relative w-full">
       <input
         type="search"
+        data-testid="search-input"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="어떤 가전을 찾으세요?"

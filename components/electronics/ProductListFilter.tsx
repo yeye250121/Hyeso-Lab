@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Droplets, RotateCcw, Search, SlidersHorizontal, X } from 'lucide-react';
 import type { FilterAxis, ProductListItem, ProductSpecs } from '@/lib/electronicsApi';
+import ProductCardV2 from './toss/ProductCardV2';
 
 // 서버에서 내려온 요약(약정 x 관리방법 -> 최저가)만으로 필터링과 가격 재계산을 한다.
 // 요금제 원본(정수기 2,897행)을 클라이언트로 보내지 않으려는 설계다.
@@ -186,6 +187,7 @@ export default function ProductListFilter({
             <button
               key={m}
               type="button"
+              data-testid={`chip-contract-${m}`}
               onClick={() => {
                 setContract(contract === m ? null : m);
                 setVisible(PAGE_SIZE);
@@ -206,6 +208,7 @@ export default function ProductListFilter({
             <button
               key={c}
               type="button"
+              data-testid={`chip-care-${c}`}
               onClick={() => {
                 setCare(care === c ? null : c);
                 setVisible(PAGE_SIZE);
@@ -313,52 +316,10 @@ export default function ProductListFilter({
         </div>
       ) : (
         <>
-          <ul className="divide-y divide-gray-100">
+          <ul className="grid grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-7">
             {shown.map(({ product, fee, months }) => (
               <li key={product.id}>
-                <Link
-                  href={`/electronics/${categorySlug ?? product.category_slug}/${product.slug}`}
-                  className="flex items-center gap-4 py-4 px-2 -mx-2 rounded-xl hover:bg-gray-50 transition-colors group"
-                >
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-gradient-to-b from-[#f6f8fb] to-[#eef1f6] flex items-center justify-center shrink-0">
-                    <Droplets className="w-7 h-7 text-gray-300" strokeWidth={1.5} />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-gray-400">{product.brand}</p>
-                    <h3 className="font-bold text-[#333d4b] leading-snug mt-0.5 line-clamp-2 group-hover:text-[var(--action-primary)] transition-colors">
-                      {product.display_name}
-                    </h3>
-                    <p className="text-xs text-gray-400 mt-0.5 truncate">{product.model_code}</p>
-
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {[product.specs.purifyFunction, product.specs.productType, product.specs.waterType]
-                        .filter(Boolean)
-                        .map((b) => (
-                          <span
-                            key={b as string}
-                            className="inline-block px-2 py-0.5 rounded-md bg-gray-50 text-gray-500 text-[11px] font-medium"
-                          >
-                            {b}
-                          </span>
-                        ))}
-                    </div>
-                  </div>
-
-                  <div className="text-right shrink-0">
-                    <p className="text-[#333d4b] whitespace-nowrap">
-                      <span className="text-xs text-gray-500">월 </span>
-                      <span className="text-lg sm:text-xl font-bold">{fee.toLocaleString()}</span>
-                      <span className="text-sm font-bold">원</span>
-                      {contract === null && <span className="text-sm font-bold">~</span>}
-                    </p>
-                    {months !== null && (
-                      <p className="text-[11px] text-gray-400 mt-0.5 whitespace-nowrap">
-                        총 {(fee * months).toLocaleString()}원
-                      </p>
-                    )}
-                  </div>
-                </Link>
+                <ProductCardV2 product={product} fee={fee} contractMonths={months} />
               </li>
             ))}
           </ul>

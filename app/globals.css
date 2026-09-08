@@ -421,3 +421,13 @@ body {
 .tiptap-editor .slides-fullscreen-btn {
   display: none;
 }
+
+/* 가전렌탈 바텀시트/토스트 등장 애니메이션 */
+@keyframes sheetUp {
+  from { transform: translateY(24px); opacity: 0.6; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadeInUp {
+  from { transform: translate(-50%, 8px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}

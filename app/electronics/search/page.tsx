@@ -6,6 +6,9 @@ import { getAllProducts, getCategoryTree } from '@/lib/electronicsApi';
 import ProductListFilter from '@/components/electronics/ProductListFilter';
 import CategoryGrid from '@/components/electronics/CategoryGrid';
 import HeroSearch from '@/components/electronics/HeroSearch';
+import ShopGnb from '@/components/electronics/toss/ShopGnb';
+import { buildGnbTabs } from '@/components/electronics/toss/gnbTabs';
+import RecentSearches from '@/components/electronics/toss/RecentSearches';
 
 // 정적 세그먼트라 /electronics/[category] 보다 우선한다.
 // 'search' 라는 슬러그를 가진 카테고리는 만들지 말 것.
@@ -25,26 +28,29 @@ function firstValue(v?: string | string[]): string | undefined {
 }
 
 export default async function ProductSearchPage({ searchParams }: PageProps) {
-  const [products, tree] = await Promise.all([getAllProducts(), getCategoryTree()]);
+  const [products, tree, tabs] = await Promise.all([
+    getAllProducts(),
+    getCategoryTree(),
+    buildGnbTabs(),
+  ]);
   const query = firstValue(searchParams?.q);
   const categories = tree.flatMap((g) => g.children);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
+      <ShopGnb tabs={tabs} />
 
-      <main className="flex-1 w-full max-w-[1100px] mx-auto px-6 pt-8 pb-24">
-        <nav className="flex items-center gap-1.5 text-sm text-gray-400 mb-6">
-          <Link href="/electronics" className="hover:text-[#333d4b] transition-colors">
-            가전 렌탈
-          </Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-[#333d4b] font-medium">상품 검색</span>
-        </nav>
-
-        <div className="max-w-[640px] mb-10">
+      <main className="flex-1 w-full max-w-[1100px] mx-auto px-6 pt-6 pb-24">
+        <div className="max-w-[640px] mb-6">
           <HeroSearch defaultValue={query ?? ''} />
         </div>
+
+        {!query && (
+          <div className="mb-10">
+            <RecentSearches />
+          </div>
+        )}
 
         {products.length > 0 ? (
           <ProductListFilter
