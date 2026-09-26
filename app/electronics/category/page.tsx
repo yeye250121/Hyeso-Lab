@@ -40,7 +40,10 @@ export default async function CategoryIndexPage() {
       <main className="flex-1 w-full max-w-[1100px] mx-auto px-6 pt-6 pb-16">
         <CategoryDrawer groups={groups} />
       </main>
-      <Footer />
+      {/* 목차 화면은 사이드바 스크롤 스파이가 끝까지 이어져야 해서 푸터를 두지 않는다 */}
+      <div className="hidden lg:block">
+        <Footer />
+      </div>
     </div>
   );
 }

@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Check, ChevronDown, CircleCheck, Loader2, X } from 'lucide-react';
+import { Check, ChevronDown, Loader2, X } from 'lucide-react';
+import SuccessOverlay from '@/components/shared/SuccessOverlay';
+import { pushMyLead } from '@/components/shared/localActivity';
 
 // 명세서(리드) 폼. 카드·인터넷·가전렌탈 공통 입구(/apply).
 // 협력업체가 전화하는 데 꼭 필요한 건 전화번호 하나라 필수는 전화번호와 동의뿐이다.
@@ -117,6 +119,13 @@ export default function LeadForm({
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json?.error ?? '신청 처리 중 문제가 발생했습니다.');
+      if (json.id && service) {
+        pushMyLead({
+          id: json.id,
+          service,
+          productName: withProduct ? `${product.brand} ${product.display_name}` : null,
+        });
+      }
       setDoneId(json.id ?? '');
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : '신청 처리 중 문제가 발생했습니다.');
@@ -125,44 +134,55 @@ export default function LeadForm({
     }
   };
 
-  if (doneId !== null) {
-    const showApplication = service === 'electronics' && doneId;
-    return (
-      <div className="px-6 py-14 text-center" data-testid="lead-done">
-        <CircleCheck className="w-14 h-14 text-[var(--action-primary)] mx-auto mb-5" strokeWidth={1.5} />
-        <h2 className="text-[22px] font-semibold text-[#333d4b]">전문가가 오늘 중 연락드려요</h2>
-        <p className="mt-3 text-[15px] text-gray-500 leading-relaxed">
-          <span className="font-semibold text-[#333d4b]">{phone}</span> 로 전화드릴게요.
-          {showApplication && (
-            <>
-              <br />
-              카카오톡으로 신청서 링크도 보내드려요.
-            </>
-          )}
-        </p>
-        <div className="mt-8 flex flex-col gap-2.5">
-          {showApplication && (
-            <Link
-              href={`/electronics/application?lead=${doneId}`}
-              data-testid="lead-done-application"
-              className="inline-flex items-center justify-center h-12 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white font-semibold transition-colors"
-            >
-              지금 바로 신청서 작성하기
-            </Link>
-          )}
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center h-12 rounded-xl bg-[#f2f4f6] hover:bg-[#eceef1] text-[#333d4b] font-medium transition-colors"
-          >
-            홈으로
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  const done = doneId !== null;
+  const showApplication = service === 'electronics' && doneId;
 
   return (
     <div className="px-5 py-6 sm:px-7 sm:py-8" data-testid="lead-form">
+      {/* 제출이 시작되면 폼 위를 뿌옇게 덮고 로딩 → 체크 애니메이션을 보여준다 */}
+      {(submitting || done) && (
+        <SuccessOverlay
+          done={done}
+          testId="lead-done"
+          caption="상담 신청 완료"
+          title="전문가가 오늘 중 연락드려요"
+          description={
+            <p>
+              <span className="font-semibold text-[#333d4b]">{phone}</span> 로 전화드릴게요.
+              {showApplication && (
+                <>
+                  <br />
+                  카카오톡으로 신청서 링크도 보내드려요.
+                </>
+              )}
+            </p>
+          }
+          actions={
+            <>
+              {showApplication && (
+                <Link
+                  href={`/electronics/application?lead=${doneId}`}
+                  data-testid="lead-done-application"
+                  className="inline-flex items-center justify-center h-[52px] rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white font-semibold transition-colors"
+                >
+                  지금 바로 신청서 작성하기
+                </Link>
+              )}
+              <Link
+                href="/"
+                className={`inline-flex items-center justify-center h-[52px] rounded-xl font-semibold transition-colors ${
+                  showApplication
+                    ? 'bg-[#f2f4f6] hover:bg-[#eceef1] text-[#333d4b]'
+                    : 'bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white'
+                }`}
+              >
+                완료
+              </Link>
+            </>
+          }
+        />
+      )}
+
       {/* 서비스 선택 */}
       <div className="grid grid-cols-3 gap-2.5">
         {LEAD_SERVICES.map((s) => {

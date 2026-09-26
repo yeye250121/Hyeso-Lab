@@ -7,6 +7,7 @@ import { getProductBySlug, getProductInsights } from '@/lib/electronicsApi';
 import PlanSelector from '@/components/electronics/PlanSelector';
 import ImageSwiper from '@/components/electronics/toss/ImageSwiper';
 import PdpHeader from '@/components/electronics/toss/PdpHeader';
+import RecordRecentProduct from '@/components/electronics/toss/RecordRecentProduct';
 import PdpPurchaseBar from '@/components/electronics/toss/PdpPurchaseBar';
 import ProductTabs from '@/components/electronics/ProductTabs';
 import SpecSummary from '@/components/electronics/SpecSummary';
@@ -117,6 +118,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <Navbar />
       </div>
       <PdpHeader title={product.display_name} />
+      <RecordRecentProduct product={wishItem} />
 
       <main className="flex-1 w-full max-w-[1100px] mx-auto px-6 pb-28 lg:pb-24 lg:pt-8">
         <nav className="hidden lg:flex items-center gap-1.5 text-sm text-gray-400 mb-6 flex-wrap">

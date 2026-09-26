@@ -10,7 +10,6 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
-  CircleCheck,
   Info,
   Loader2,
   Plus,
@@ -18,6 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import type { ProductListItem } from '@/lib/electronicsApi';
+import SuccessOverlay from '@/components/shared/SuccessOverlay';
 import {
   AGREEMENTS,
   BANKS,
@@ -272,38 +272,42 @@ export default function ApplyForm({
   };
 
   /* ── 완료 화면 ── */
-  if (done) {
-    return (
-      <div className="max-w-[560px] mx-auto px-6 py-20 text-center">
-        <CircleCheck className="w-16 h-16 text-[var(--action-primary)] mx-auto mb-6" strokeWidth={1.5} />
-        <h1 className="text-2xl font-semibold text-[#333d4b]">신청이 접수되었어요</h1>
-        <p className="mt-3 text-gray-500 leading-relaxed">
-          담당 상담원이 확인 후 <span className="font-semibold text-[#333d4b]">{form.phoneNumber}</span> 로
-          <br />
-          순차적으로 연락드릴 예정입니다.
-        </p>
-        <div className="mt-9 flex flex-col sm:flex-row gap-3 justify-center">
-          <Link
-            href="/electronics"
-            className="inline-flex items-center justify-center h-12 px-6 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white font-semibold transition-colors"
-          >
-            가전 렌탈 더 보기
-          </Link>
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center h-12 px-6 rounded-xl bg-[#f2f4f6] hover:bg-[#eceef1] text-[#333d4b] font-semibold transition-colors"
-          >
-            홈으로
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   const err = (key: string) => (touched ? errors[key] : undefined);
 
   return (
     <div className="max-w-[560px] mx-auto px-6 pb-32 lg:pb-16" ref={topRef}>
+      {/* 제출이 시작되면 폼 위를 뿌옇게 덮고 로딩 → 체크 애니메이션을 보여준다 */}
+      {(submitting || done) && (
+        <SuccessOverlay
+          done={done}
+          testId="apply-done"
+          caption="신청서 접수 완료"
+          title="신청이 접수되었어요"
+          description={
+            <p>
+              담당 상담원이 확인 후 <span className="font-semibold text-[#333d4b]">{form.phoneNumber}</span> 로
+              <br />
+              순차적으로 연락드릴 예정입니다.
+            </p>
+          }
+          actions={
+            <>
+              <Link
+                href="/electronics"
+                className="inline-flex items-center justify-center h-[52px] rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white font-semibold transition-colors"
+              >
+                완료
+              </Link>
+              <Link
+                href="/"
+                className="inline-flex items-center justify-center h-[52px] rounded-xl bg-[#f2f4f6] hover:bg-[#eceef1] text-[#333d4b] font-semibold transition-colors"
+              >
+                홈으로
+              </Link>
+            </>
+          }
+        />
+      )}
       <Script
         src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
         strategy="lazyOnload"

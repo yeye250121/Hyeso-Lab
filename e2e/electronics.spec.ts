@@ -229,6 +229,28 @@ test.describe('7. 카테고리 서랍', () => {
   });
 });
 
+test.describe('8. 마이페이지 서랍', () => {
+  test('햄버거 → 우측 서랍, 찜 개수 반영, 딤 클릭으로 닫힌다', async ({ page }) => {
+    await page.goto('/electronics/water-purifier/kyowon-wells-wp610nwa');
+    await page.getByTestId('wish-toggle').first().click();
+
+    // 상세는 모바일에서 앱형 헤더라 서랍은 목록 화면의 GNB 가 아닌 사이트 Navbar 에 있다
+    await page.goto('/');
+    await expect(page.getByTestId('mypage-drawer')).toHaveCount(0);
+    await page.getByTestId('open-drawer').click();
+
+    const drawer = page.getByTestId('mypage-drawer');
+    await expect(drawer).toHaveAttribute('data-state', 'open');
+    await expect(drawer.getByRole('dialog')).toBeVisible();
+    await expect(drawer.getByTestId('mypage-wish-count')).toHaveText('1');
+    // 상세를 봤으니 최근 본 상품에도 남는다
+    await expect(drawer.getByText('미미 정수기').first()).toBeVisible();
+
+    await drawer.getByTestId('mypage-dim').click({ position: { x: 10, y: 400 } });
+    await expect(page.getByTestId('mypage-drawer')).toHaveCount(0);
+  });
+});
+
 /* ── 헬퍼 ── */
 
 async function next(page: Page) {
