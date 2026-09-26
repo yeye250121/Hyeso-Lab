@@ -85,7 +85,7 @@ export default function PlanSelector({
       months: String(contract),
     });
     if (effectiveCare) params.set('care', effectiveCare);
-    router.push(`/electronics/apply?${params.toString()}`);
+    router.push(`/apply?${params.toString()}`);
   };
 
   return (

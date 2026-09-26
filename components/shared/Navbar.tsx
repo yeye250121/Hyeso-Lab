@@ -32,18 +32,15 @@ export default function Navbar() {
         </Link>
         
         {/* Center Navigation */}
-        <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+        <div className="hidden md:flex items-center gap-8 ml-auto mr-2">
           <Link href="/card" className="text-gray-700 hover:text-[var(--action-primary)] text-[15px] font-semibold transition-colors">
-            카드 혜택
-          </Link>
-          <Link href="/phone" className="text-gray-700 hover:text-[var(--action-primary)] text-[15px] font-semibold transition-colors">
-            휴대폰 혜택
+            카드
           </Link>
           <Link href="/internet" className="text-gray-700 hover:text-[var(--action-primary)] text-[15px] font-semibold transition-colors">
-            인터넷 혜택
+            인터넷
           </Link>
           <Link href="/electronics" className="text-gray-700 hover:text-[var(--action-primary)] text-[15px] font-semibold transition-colors">
-            가전렌탈 혜택
+            가전렌탈
           </Link>
         </div>
 
@@ -66,28 +63,21 @@ export default function Navbar() {
             className="block w-full text-left text-gray-700 hover:text-[var(--action-primary)] text-base font-semibold px-4 py-2 transition-colors"
             onClick={() => setMobileMenuOpen(false)}
           >
-            카드 혜택
-          </Link>
-          <Link
-            href="/phone"
-            className="block w-full text-left text-gray-700 hover:text-[var(--action-primary)] text-base font-semibold px-4 py-2 transition-colors"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            휴대폰 혜택
+            카드
           </Link>
           <Link
             href="/internet"
             className="block w-full text-left text-gray-700 hover:text-[var(--action-primary)] text-base font-semibold px-4 py-2 transition-colors"
             onClick={() => setMobileMenuOpen(false)}
           >
-            인터넷 혜택
+            인터넷
           </Link>
           <Link
             href="/electronics"
             className="block w-full text-left text-gray-700 hover:text-[var(--action-primary)] text-base font-semibold px-4 py-2 transition-colors"
             onClick={() => setMobileMenuOpen(false)}
           >
-            가전렌탈 혜택
+            가전렌탈
           </Link>
 
         </div>

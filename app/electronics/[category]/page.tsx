@@ -82,7 +82,7 @@ export default async function CategoryListPage({ params, searchParams }: PagePro
             </p>
             <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
-                href={`/electronics/apply?category=${category.slug}`}
+                href={`/apply?category=${category.slug}`}
                 className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white font-bold transition-colors w-full sm:w-auto"
               >
                 <MessageCircle className="w-4 h-4" />

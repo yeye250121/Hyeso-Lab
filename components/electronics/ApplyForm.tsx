@@ -1,15 +1,16 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Script from 'next/script';
 import { useRouter } from 'next/navigation';
 import {
-  Check,
   ChevronLeft,
+  Check,
+  ChevronDown,
   ChevronRight,
   CircleCheck,
-  Droplets,
   Info,
   Loader2,
   Plus,
@@ -60,6 +61,9 @@ export default function ApplyForm({
   initialContractMonths,
   initialCareType,
   initialCategory,
+  initialApplicantName,
+  initialPhoneNumber,
+  leadId,
 }: {
   products: ProductListItem[];
   initialProductSlug?: string;
@@ -68,6 +72,10 @@ export default function ApplyForm({
   initialContractMonths?: number;
   initialCareType?: string;
   initialCategory?: string;
+  /** 명세서(상담 신청)에서 넘어온 값. 알림톡 링크로 들어오면 미리 채워진다 */
+  initialApplicantName?: string;
+  initialPhoneNumber?: string;
+  leadId?: string;
 }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -77,6 +85,8 @@ export default function ApplyForm({
     planId: initialPlanId ?? null,
     contractMonths: initialContractMonths ?? null,
     careType: initialCareType ?? null,
+    applicantName: initialApplicantName ?? '',
+    phoneNumber: initialPhoneNumber ?? '',
   });
   const [touched, setTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -137,14 +147,28 @@ export default function ApplyForm({
     });
   }, [selectedProduct]);
 
+  // 2단계는 한 칸을 채우면 다음 항목이 나타난다. 한 번 나온 항목은 값을 지워도 남긴다.
+  const infoLevel = useMemo(() => {
+    let level = 0;
+    if (form.applicantName.trim()) level = 1;
+    if (level === 1 && isValidBirth(form.birthDate)) level = 2;
+    if (level === 2 && form.gender) level = 3;
+    if (level === 3 && form.carrier) level = 4;
+    if (level === 4 && isValidPhone(form.phoneNumber)) level = 5;
+    return level;
+  }, [form.applicantName, form.birthDate, form.gender, form.carrier, form.phoneNumber]);
+  const [revealed, setRevealed] = useState(0);
+  useEffect(() => {
+    setRevealed((r) => Math.max(r, infoLevel));
+  }, [infoLevel]);
+
   const filteredProducts = useMemo(() => {
     const q = pickerQuery.trim().toLowerCase();
-    const base = q
-      ? products.filter((p) =>
-          `${p.display_name} ${p.brand} ${p.model_code}`.toLowerCase().includes(q)
-        )
-      : products;
-    return base.slice(0, 30);
+    // 목록을 먼저 펼치지 않는다. 검색어를 넣어야 후보가 보인다.
+    if (!q) return [];
+    return products
+      .filter((p) => `${p.display_name} ${p.brand} ${p.model_code}`.toLowerCase().includes(q))
+      .slice(0, 8);
   }, [products, pickerQuery]);
 
   /* ── 단계별 유효성 ── */
@@ -164,11 +188,10 @@ export default function ApplyForm({
       if (!isValidPhone(form.phoneNumber)) e.phoneNumber = '휴대폰 번호를 정확히 입력해주세요.';
       if (form.useAgentPhone && !isValidPhone(form.agentPhoneNumber))
         e.agentPhoneNumber = '대리인 연락처를 정확히 입력해주세요.';
-      if (!isValidEmail(form.email)) e.email = '이메일을 정확히 입력해주세요.';
+      if (form.email && !isValidEmail(form.email)) e.email = '이메일을 정확히 입력해주세요.';
     }
     if (step === 2) {
       if (!form.address.trim()) e.address = '설치 주소를 검색해주세요.';
-      if (!form.addressDetail.trim()) e.addressDetail = '상세주소를 입력해주세요.';
     }
     if (step === 3) {
       if (!form.giftReceiver) e.giftReceiver = '수령자를 선택해주세요.';
@@ -232,6 +255,7 @@ export default function ApplyForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
+          leadId: leadId ?? null,
           categorySlug: initialCategory ?? null,
           referrerUrl: typeof window !== 'undefined' ? window.location.href : null,
         }),
@@ -252,22 +276,22 @@ export default function ApplyForm({
     return (
       <div className="max-w-[560px] mx-auto px-6 py-20 text-center">
         <CircleCheck className="w-16 h-16 text-[var(--action-primary)] mx-auto mb-6" strokeWidth={1.5} />
-        <h1 className="text-2xl font-bold text-[#333d4b]">신청이 접수되었어요</h1>
+        <h1 className="text-2xl font-semibold text-[#333d4b]">신청이 접수되었어요</h1>
         <p className="mt-3 text-gray-500 leading-relaxed">
-          담당 상담원이 확인 후 <span className="font-bold text-[#333d4b]">{form.phoneNumber}</span> 로
+          담당 상담원이 확인 후 <span className="font-semibold text-[#333d4b]">{form.phoneNumber}</span> 로
           <br />
           순차적으로 연락드릴 예정입니다.
         </p>
         <div className="mt-9 flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/electronics"
-            className="inline-flex items-center justify-center h-12 px-6 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white font-bold transition-colors"
+            className="inline-flex items-center justify-center h-12 px-6 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white font-semibold transition-colors"
           >
             가전 렌탈 더 보기
           </Link>
           <Link
             href="/"
-            className="inline-flex items-center justify-center h-12 px-6 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-[#333d4b] font-bold transition-colors"
+            className="inline-flex items-center justify-center h-12 px-6 rounded-xl bg-[#f2f4f6] hover:bg-[#eceef1] text-[#333d4b] font-semibold transition-colors"
           >
             홈으로
           </Link>
@@ -279,7 +303,7 @@ export default function ApplyForm({
   const err = (key: string) => (touched ? errors[key] : undefined);
 
   return (
-    <div className="max-w-[560px] mx-auto px-6 pb-32" ref={topRef}>
+    <div className="max-w-[560px] mx-auto px-6 pb-32 lg:pb-16" ref={topRef}>
       <Script
         src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
         strategy="lazyOnload"
@@ -291,7 +315,7 @@ export default function ApplyForm({
         {STEPS.map((label, i) => (
           <div key={label} className="flex items-center gap-2">
             <span
-              className={`flex items-center justify-center rounded-full text-xs font-bold transition-all ${
+              className={`flex items-center justify-center rounded-full text-xs font-semibold transition-all ${
                 i === step
                   ? 'w-6 h-6 bg-[var(--action-primary)] text-white'
                   : i < step
@@ -340,50 +364,79 @@ export default function ApplyForm({
               <Label>상품 선택</Label>
               <p className="text-xs text-gray-400 mb-3">선택하신 상품 기준으로 맞춤 상담을 해드려요.</p>
 
-              <div className="relative mb-3">
-                <input
-                  type="text"
-                  value={pickerQuery}
-                  onChange={(e) => setPickerQuery(e.target.value)}
-                  placeholder="브랜드나 모델명 검색"
-                  className="w-full py-3 pl-10 pr-4 rounded-xl border border-gray-200 focus:outline-none focus:border-[var(--action-primary)] text-sm bg-white"
-                />
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              </div>
-
-              <div className="max-h-[280px] overflow-y-auto rounded-xl border border-gray-100 divide-y divide-gray-100">
-                {filteredProducts.length === 0 ? (
-                  <p className="py-10 text-center text-sm text-gray-400">검색 결과가 없어요.</p>
-                ) : (
-                  filteredProducts.map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => set('productSlug', p.slug)}
-                      className={`w-full flex items-center gap-3 p-3 text-left transition-colors ${
-                        form.productSlug === p.slug ? 'bg-[#fff1f5]' : 'hover:bg-gray-50'
-                      }`}
+              {selectedProduct ? (
+                <div
+                  data-testid="apply-product-selected"
+                  className="flex items-start gap-3 rounded-xl bg-[#fff1f5] px-4 py-3.5"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] font-semibold text-gray-400">{selectedProduct.brand}</p>
+                    <p className="text-sm font-semibold text-[#333d4b] truncate">
+                      {selectedProduct.display_name}
+                    </p>
+                    <p className="mt-0.5 text-xs text-gray-500">
+                      {selectedProduct.model_code} · 월 {selectedProduct.minFee.toLocaleString()}원~
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      set('productSlug', null);
+                      set('planId', null);
+                      setPickerQuery('');
+                    }}
+                    aria-label="상품 선택 해제"
+                    className="shrink-0 p-1 -m-1 text-gray-400 hover:text-[#333d4b] transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={pickerQuery}
+                    onChange={(e) => setPickerQuery(e.target.value)}
+                    placeholder="브랜드나 모델명 검색"
+                    data-testid="apply-product-search"
+                    className="w-full py-3.5 pl-11 pr-4 rounded-xl bg-[#f2f4f6] border-0 focus:outline-none focus:ring-2 focus:ring-[#ffc2d2] text-[15px] placeholder-gray-400"
+                  />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  {pickerQuery.trim() && (
+                    <div
+                      data-testid="apply-product-results"
+                      className="mt-2 max-h-[320px] overflow-y-auto rounded-xl bg-white shadow-[0_8px_24px_rgba(51,61,75,0.12)] divide-y divide-gray-100"
                     >
-                      <span className="w-12 h-12 rounded-lg bg-gradient-to-b from-[#f6f8fb] to-[#eef1f6] flex items-center justify-center shrink-0">
-                        <Droplets className="w-5 h-5 text-gray-300" strokeWidth={1.5} />
-                      </span>
-                      <span className="flex-1 min-w-0">
-                        <span className="block text-[11px] font-bold text-gray-400">{p.brand}</span>
-                        <span className="block text-sm font-bold text-[#333d4b] truncate">
-                          {p.display_name}
-                        </span>
-                        <span className="block text-[11px] text-gray-400 truncate">{p.model_code}</span>
-                      </span>
-                      <span className="text-sm font-bold text-[#333d4b] shrink-0 whitespace-nowrap">
-                        월 {p.minFee.toLocaleString()}원~
-                      </span>
-                      {form.productSlug === p.slug && (
-                        <Check className="w-4 h-4 text-[var(--action-primary)] shrink-0" />
+                      {filteredProducts.length === 0 ? (
+                        <p className="py-8 text-center text-sm text-gray-400">검색 결과가 없어요.</p>
+                      ) : (
+                        filteredProducts.map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => {
+                              set('productSlug', p.slug);
+                              setPickerQuery('');
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                          >
+                            <span className="flex-1 min-w-0">
+                              <span className="block text-[11px] font-semibold text-gray-400">{p.brand}</span>
+                              <span className="block text-sm font-medium text-[#333d4b] truncate">
+                                {p.display_name}
+                              </span>
+                              <span className="block text-[11px] text-gray-400 truncate">{p.model_code}</span>
+                            </span>
+                            <span className="text-sm text-gray-500 shrink-0 whitespace-nowrap">
+                              월 {p.minFee.toLocaleString()}원~
+                            </span>
+                          </button>
+                        ))
                       )}
-                    </button>
-                  ))
-                )}
-              </div>
+                    </div>
+                  )}
+                </div>
+              )}
               {err('product') && <ErrorText>{err('product')}</ErrorText>}
 
               {selectedProduct && (
@@ -432,8 +485,8 @@ export default function ApplyForm({
                         )}
                       </div>
                       <p className="text-[#333d4b]">
-                        <span className="text-2xl font-bold">{currentFee.toLocaleString()}</span>
-                        <span className="font-bold">원</span>
+                        <span className="text-2xl font-semibold">{currentFee.toLocaleString()}</span>
+                        <span className="font-semibold">원</span>
                       </p>
                     </div>
                   )}
@@ -471,83 +524,106 @@ export default function ApplyForm({
             />
           </Field>
 
-          <Field label="생년월일" required error={err('birthDate')}>
-            <Input
-              value={form.birthDate}
-              onChange={(v) => set('birthDate', formatBirth(v))}
-              placeholder="YYYY-MM-DD"
-              inputMode="numeric"
-            />
-          </Field>
-
-          <Field label="성별" required error={err('gender')}>
-            <div className="grid grid-cols-2 gap-2">
-              {GENDERS.map((g) => (
-                <Choice key={g} active={form.gender === g} onClick={() => set('gender', g)} label={g} />
-              ))}
-            </div>
-          </Field>
-
-          <Field label="가입자 명의 연락처" required error={err('carrier') ?? err('phoneNumber')}>
-            <div className="space-y-2">
-              <Select
-                value={form.carrier}
-                onChange={(v) => set('carrier', v)}
-                placeholder="통신사 선택"
-                options={[...CARRIERS]}
-              />
-              <Input
-                value={form.phoneNumber}
-                onChange={(v) => set('phoneNumber', formatPhone(v))}
-                placeholder="010-0000-0000"
-                inputMode="numeric"
-                autoComplete="tel"
-              />
-            </div>
-          </Field>
-
-          {form.useAgentPhone ? (
-            <Field label="대리인 연락처" error={err('agentPhoneNumber')}>
-              <div className="flex gap-2">
+          {revealed >= 1 && (
+            <Reveal>
+              <Field label="생년월일" required error={err('birthDate')}>
                 <Input
-                  value={form.agentPhoneNumber}
-                  onChange={(v) => set('agentPhoneNumber', formatPhone(v))}
-                  placeholder="010-0000-0000"
+                  value={form.birthDate}
+                  onChange={(v) => set('birthDate', formatBirth(v))}
+                  placeholder="YYYY-MM-DD"
                   inputMode="numeric"
                 />
-                <button
-                  type="button"
-                  onClick={() => {
-                    set('useAgentPhone', false);
-                    set('agentPhoneNumber', '');
-                  }}
-                  aria-label="대리인 연락처 삭제"
-                  className="shrink-0 px-3 rounded-xl border border-gray-200 text-gray-400 hover:bg-gray-50 transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </Field>
-          ) : (
-            <button
-              type="button"
-              onClick={() => set('useAgentPhone', true)}
-              className="w-full flex items-center justify-center gap-1.5 py-3.5 mb-5 rounded-xl bg-gray-50 hover:bg-gray-100 text-sm font-medium text-gray-600 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              대리인 연락처 추가
-            </button>
+              </Field>
+            </Reveal>
           )}
 
-          <Field label="이메일" required error={err('email')}>
-            <Input
-              value={form.email}
-              onChange={(v) => set('email', v)}
-              placeholder="이메일을 입력하세요"
-              type="email"
-              autoComplete="email"
-            />
-          </Field>
+          {revealed >= 2 && (
+            <Reveal>
+              <Field label="성별" required error={err('gender')}>
+                <div className="grid grid-cols-2 gap-2">
+                  {GENDERS.map((g) => (
+                    <Choice key={g} active={form.gender === g} onClick={() => set('gender', g)} label={g} />
+                  ))}
+                </div>
+              </Field>
+            </Reveal>
+          )}
+
+          {revealed >= 3 && (
+            <Reveal>
+              <Field label="통신사" required error={err('carrier')}>
+                <SheetSelect
+                  name="carrier"
+                  title="통신사를 선택해주세요"
+                  value={form.carrier}
+                  onChange={(v) => set('carrier', v)}
+                  placeholder="통신사 선택"
+                  options={[...CARRIERS]}
+                />
+              </Field>
+            </Reveal>
+          )}
+
+          {revealed >= 4 && (
+            <Reveal>
+              <Field label="가입자 명의 연락처" required error={err('phoneNumber')}>
+                <Input
+                  value={form.phoneNumber}
+                  onChange={(v) => set('phoneNumber', formatPhone(v))}
+                  placeholder="010-0000-0000"
+                  inputMode="numeric"
+                  autoComplete="tel"
+                />
+              </Field>
+            </Reveal>
+          )}
+
+          {revealed >= 5 && (
+            <Reveal>
+              {form.useAgentPhone ? (
+                <Field label="대리인 연락처" error={err('agentPhoneNumber')}>
+                  <div className="flex gap-2">
+                    <Input
+                      value={form.agentPhoneNumber}
+                      onChange={(v) => set('agentPhoneNumber', formatPhone(v))}
+                      placeholder="010-0000-0000"
+                      inputMode="numeric"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        set('useAgentPhone', false);
+                        set('agentPhoneNumber', '');
+                      }}
+                      aria-label="대리인 연락처 삭제"
+                      className="shrink-0 px-3 rounded-xl bg-[#f2f4f6] text-gray-400 hover:bg-[#eceef1] transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </Field>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => set('useAgentPhone', true)}
+                  className="w-full flex items-center justify-center gap-1.5 py-3.5 mb-5 rounded-xl bg-gray-50 hover:bg-gray-100 text-sm font-medium text-gray-600 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  대리인 연락처 추가
+                </button>
+              )}
+
+              <Field label="이메일 (선택)" error={err('email')}>
+                <Input
+                  value={form.email}
+                  onChange={(v) => set('email', v)}
+                  placeholder="이메일을 입력하세요"
+                  type="email"
+                  autoComplete="email"
+                />
+              </Field>
+            </Reveal>
+          )}
         </Section>
       )}
 
@@ -562,13 +638,13 @@ export default function ApplyForm({
                 readOnly
                 placeholder="주소 찾기를 눌러주세요"
                 onClick={openPostcode}
-                className="flex-1 min-w-0 py-3.5 px-4 rounded-xl border border-gray-200 bg-white text-[15px] placeholder-gray-400 cursor-pointer focus:outline-none focus:border-[var(--action-primary)]"
+                className="flex-1 min-w-0 py-3.5 px-4 rounded-xl bg-[#f2f4f6] border-0 text-[15px] placeholder-gray-400 cursor-pointer focus:outline-none"
               />
               <button
                 type="button"
                 onClick={openPostcode}
                 disabled={!postcodeReady}
-                className="shrink-0 px-4 rounded-xl bg-[#333d4b] hover:bg-[#2b3440] disabled:opacity-50 text-white text-sm font-bold transition-colors"
+                className="shrink-0 px-4 rounded-xl bg-[#333d4b] hover:bg-[#2b3440] disabled:opacity-50 text-white text-sm font-semibold transition-colors"
               >
                 {postcodeReady ? '주소 찾기' : '준비 중'}
               </button>
@@ -576,11 +652,11 @@ export default function ApplyForm({
             {form.zonecode && <p className="mt-1.5 text-xs text-gray-400">우편번호 {form.zonecode}</p>}
           </Field>
 
-          <Field label="상세주소" required error={err('addressDetail')}>
+          <Field label="상세주소 (선택)" error={err('addressDetail')}>
             <Input
               value={form.addressDetail}
               onChange={(v) => set('addressDetail', v)}
-              placeholder="동/호수 등 상세주소"
+              placeholder="동/호수 (주택이면 비워두셔도 돼요)"
             />
           </Field>
 
@@ -595,7 +671,9 @@ export default function ApplyForm({
       {step === 3 && (
         <Section title="사은품 받으실 정보를 알려주세요">
           <Field label="수령자" required error={err('giftReceiver')}>
-            <Select
+            <SheetSelect
+              name="giftReceiver"
+              title="수령자를 선택해주세요"
               value={form.giftReceiver}
               onChange={(v) => set('giftReceiver', v)}
               placeholder="수령자 선택"
@@ -605,7 +683,9 @@ export default function ApplyForm({
 
           <Field label="계좌 정보" required error={err('giftBank') ?? err('giftAccountNumber')}>
             <div className="space-y-2">
-              <Select
+              <SheetSelect
+                name="giftBank"
+                title="은행을 선택해주세요"
                 value={form.giftBank}
                 onChange={(v) => set('giftBank', v)}
                 placeholder="은행 선택"
@@ -621,7 +701,7 @@ export default function ApplyForm({
           </Field>
 
           <div className="rounded-xl bg-[#f8f9fb] px-4 py-3.5">
-            <p className="text-sm font-bold text-[#333d4b] mb-2">확인해주세요!</p>
+            <p className="text-sm font-semibold text-[#333d4b] mb-2">확인해주세요!</p>
             <ul className="space-y-1.5 text-xs text-gray-500 leading-relaxed list-disc pl-4">
               <li>현금과 달리 상품권은 본사에서 발송되므로 3~5일 정도 소요될 수 있어요.</li>
               <li>예금주가 가입자 본인과 다를 경우 지급이 지연될 수 있습니다.</li>
@@ -663,7 +743,9 @@ export default function ApplyForm({
 
               {!form.paymentSameAsGift && (
                 <div className="space-y-2">
-                  <Select
+                  <SheetSelect
+                    name="paymentBank"
+                    title="은행을 선택해주세요"
                     value={form.paymentBank}
                     onChange={(v) => set('paymentBank', v)}
                     placeholder="은행 선택"
@@ -700,7 +782,7 @@ export default function ApplyForm({
       {step === 5 && (
         <Section title="약관 내용을 확인해주세요">
           <div className="rounded-2xl bg-[#f8f9fb] p-4">
-            <label className="flex items-center gap-3 cursor-pointer pb-4 border-b border-gray-200">
+            <label className="flex items-center gap-3 cursor-pointer pb-4 border-b border-white">
               <input
                 type="checkbox"
                 checked={AGREEMENTS.every((a) => form.agreements[a.key])}
@@ -711,7 +793,7 @@ export default function ApplyForm({
                 }}
                 className="w-5 h-5 accent-[var(--action-primary)]"
               />
-              <span className="font-bold text-[#333d4b]">전체 동의</span>
+              <span className="font-semibold text-[#333d4b]">전체 동의</span>
             </label>
 
             <ul className="pt-2">
@@ -746,7 +828,7 @@ export default function ApplyForm({
               onChange={(e) => set('customerNote', e.target.value)}
               rows={4}
               placeholder="요청사항을 입력해주세요"
-              className="w-full py-3.5 px-4 rounded-xl border border-gray-200 focus:outline-none focus:border-[var(--action-primary)] text-[15px] placeholder-gray-400 resize-none"
+              className="w-full py-3.5 px-4 rounded-xl bg-[#f2f4f6] border-0 focus:outline-none focus:ring-2 focus:ring-[#ffc2d2] text-[15px] placeholder-gray-400 transition-shadow resize-none"
             />
           </div>
 
@@ -757,14 +839,15 @@ export default function ApplyForm({
       )}
 
       {/* 하단 고정 버튼 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-4">
+      {/* 모바일은 하단 고정, 데스크톱은 폼 흐름 끝에 둔다(고정하면 푸터와 겹친다) */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-4 lg:static lg:border-0 lg:px-0 lg:pt-8 lg:pb-0">
         <div className="max-w-[560px] mx-auto">
           {step === TOTAL - 1 ? (
             <button
               type="button"
               onClick={submit}
               disabled={submitting}
-              className="w-full py-4 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] disabled:opacity-60 text-white font-bold transition-colors flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] disabled:opacity-60 text-white font-semibold transition-colors flex items-center justify-center gap-2"
             >
               {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
               {submitting ? '제출 중…' : '제출하기'}
@@ -774,7 +857,7 @@ export default function ApplyForm({
               <button
                 type="button"
                 onClick={goNext}
-                className={`w-full py-4 rounded-xl font-bold transition-colors flex items-center justify-center gap-1.5 ${
+                className={`w-full py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-1.5 ${
                   canProceed
                     ? 'bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white'
                     : 'bg-gray-100 text-gray-400'
@@ -791,7 +874,7 @@ export default function ApplyForm({
                     setTouched(false);
                     setStep(5);
                   }}
-                  className="w-full mt-2 py-2 text-sm font-bold text-gray-400 hover:text-[#333d4b] transition-colors"
+                  className="w-full mt-2 py-2 text-sm font-semibold text-gray-400 hover:text-[#333d4b] transition-colors"
                 >
                   나중에
                 </button>
@@ -809,7 +892,7 @@ export default function ApplyForm({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h1 className="text-[26px] font-bold text-[#333d4b] leading-snug mb-8 whitespace-pre-line">
+      <h1 className="text-[26px] font-semibold text-[#333d4b] leading-snug mb-8 whitespace-pre-line">
         {title}
       </h1>
       {children}
@@ -819,7 +902,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <p className="text-sm font-bold text-[#333d4b] mb-2.5">
+    <p className="text-sm font-semibold text-[#333d4b] mb-2.5">
       {children}
       {required && <span className="text-[var(--action-primary)] ml-0.5">*</span>}
     </p>
@@ -873,37 +956,119 @@ function Input({
       placeholder={placeholder}
       inputMode={inputMode}
       autoComplete={autoComplete}
-      className="w-full py-3.5 px-4 rounded-xl border border-gray-200 focus:outline-none focus:border-[var(--action-primary)] focus:ring-1 focus:ring-[var(--action-primary)] text-[15px] placeholder-gray-400 bg-white transition-all"
+      className="w-full py-3.5 px-4 rounded-xl bg-[#f2f4f6] border-0 focus:outline-none focus:ring-2 focus:ring-[#ffc2d2] text-[15px] placeholder-gray-400 transition-shadow"
     />
   );
 }
 
-function Select({
+/** 2단계에서 새로 나타나는 항목. 살짝 올라오며 등장한다 */
+function Reveal({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  // 새 항목이 하단 고정 버튼 밑에 가려지지 않도록 보이는 곳까지 끌어올린다
+  useEffect(() => {
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, []);
+  return (
+    <div ref={ref} className="scroll-mb-28 animate-[sheetUp_.25s_ease-out]">
+      {children}
+    </div>
+  );
+}
+
+/** 네이티브 select 대신 바텀시트로 고른다. 모바일에서 OS 피커가 뜨는 걸 피한다 */
+function SheetSelect({
+  name,
+  title,
   value,
   onChange,
   options,
   placeholder,
 }: {
+  name: string;
+  title: string;
   value: string;
   onChange: (v: string) => void;
   options: string[];
   placeholder: string;
 }) {
+  const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const pick = (v: string) => {
+    onChange(v);
+    setOpen(false);
+  };
+
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className={`w-full py-3.5 px-4 rounded-xl border border-gray-200 focus:outline-none focus:border-[var(--action-primary)] text-[15px] bg-white cursor-pointer transition-all ${
-        value ? 'text-[#333d4b]' : 'text-gray-400'
-      }`}
-    >
-      <option value="">{placeholder}</option>
-      {options.map((o) => (
-        <option key={o} value={o} className="text-[#333d4b]">
-          {o}
-        </option>
-      ))}
-    </select>
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        data-testid={`sheet-select-${name}`}
+        className={`w-full flex items-center justify-between py-3.5 px-4 rounded-xl bg-[#f2f4f6] hover:bg-[#eceef1] text-[15px] text-left transition-colors ${
+          value ? 'text-[#333d4b]' : 'text-gray-400'
+        }`}
+      >
+        <span>{value || placeholder}</span>
+        <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+      </button>
+
+      {open &&
+        mounted &&
+        createPortal(
+          <div className="fixed inset-0 z-[60] flex items-end justify-center">
+            <button
+              type="button"
+              aria-label="닫기"
+              onClick={() => setOpen(false)}
+              data-testid={`sheet-dim-${name}`}
+              className="absolute inset-0 bg-black/40"
+            />
+            <div
+              role="dialog"
+              aria-label={title}
+              data-testid={`sheet-${name}`}
+              className="relative w-full max-w-[560px] max-h-[70vh] flex flex-col rounded-t-3xl bg-white pt-5 pb-[max(env(safe-area-inset-bottom),16px)] animate-[sheetUp_.25s_ease-out]"
+            >
+              <div className="flex items-center justify-between px-5 pb-3">
+                <p className="text-lg font-semibold text-[#333d4b]">{title}</p>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label="닫기"
+                  className="p-1 -m-1 text-gray-400 hover:text-[#333d4b]"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <ul className="overflow-y-auto px-2">
+                {options.map((o) => {
+                  const active = o === value;
+                  return (
+                    <li key={o}>
+                      <button
+                        type="button"
+                        onClick={() => pick(o)}
+                        data-testid={`sheet-option-${o}`}
+                        className={`w-full flex items-center justify-between px-3 py-3.5 rounded-xl text-[15px] text-left transition-colors ${
+                          active
+                            ? 'text-[var(--action-primary)] font-semibold bg-[#fff1f5]'
+                            : 'text-[#333d4b] hover:bg-gray-50'
+                        }`}
+                      >
+                        {o}
+                        {active && <Check className="w-4 h-4" />}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>,
+          document.body
+        )}
+    </>
   );
 }
 
@@ -922,12 +1087,12 @@ function Choice({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-xl border font-bold transition-all text-center ${
+      className={`rounded-xl font-semibold transition-colors text-center ${
         compact ? 'py-2.5 px-2 text-sm' : 'py-4 px-3 text-[15px]'
       } ${
         active
-          ? 'border-[var(--action-primary)] bg-[#fff1f5] text-[var(--action-primary)]'
-          : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+          ? 'bg-[#fff1f5] text-[var(--action-primary)] ring-2 ring-[#ff9ebb]'
+          : 'bg-[#f2f4f6] text-gray-600 hover:bg-[#eceef1]'
       }`}
     >
       {label}

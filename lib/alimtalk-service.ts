@@ -13,6 +13,7 @@ import {
   getPartnerNewInquiryVariables,
   getPartnerContractSuccessVariables,
   getPartnerInquiryCancelledVariables,
+  getApplicationUrl,
   AlimtalkVariables,
 } from './alimtalk-templates'
 
@@ -204,5 +205,28 @@ export async function sendCustomerInquiryAlimtalks(
   return {
     inquiry: inquiryResult,
     reservation: reservationResult,
+  }
+}
+
+/**
+ * 고객 신청서 작성 안내 알림톡 발송
+ * - 상담 신청(명세서)을 남긴 고객에게 발송
+ * - [*1*] = 셀프 가입 신청서 링크 (/electronics/application?lead=...)
+ * - 템플릿 코드가 없으면(심사 전) 보내지 않고 skipped 로 돌려준다
+ */
+export async function sendCustomerApplicationLinkAlimtalk(
+  phoneNumber: string,
+  leadId: string
+): Promise<SendResult & { skipped?: boolean }> {
+  const templateCode = ALIMTALK_TEMPLATES.CUSTOMER_APPLICATION_LINK
+  if (!templateCode) return { success: false, skipped: true, error: 'template not configured' }
+
+  try {
+    const variables: AlimtalkVariables = { var1: getApplicationUrl(leadId) }
+    const result = await sendAlimtalkToOne(templateCode, phoneNumber, variables)
+    return { success: true, messageKey: result.messageKey }
+  } catch (error: any) {
+    console.error('[Alimtalk] 고객 신청서 안내 알림톡 발송 실패:', error.message)
+    return { success: false, error: error.message }
   }
 }

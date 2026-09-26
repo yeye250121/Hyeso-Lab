@@ -57,14 +57,11 @@ test.describe('3. 스티키바 → 옵션 바텀시트', () => {
   });
 });
 
-test.describe('4. 옵션 선택 → 기존 신청 백엔드 연결', () => {
-  test('시트에서 고른 조건이 신청 폼과 제출 요청까지 이어진다', async ({ page }) => {
-    // 주소 검색은 외부(다음 우편번호) 스크립트라 E2E 에서는 흉내낸다
-    await mockDaumPostcode(page);
-
+test.describe('4. 옵션 선택 → 상담 신청(명세서) → 신청서', () => {
+  test('시트에서 고른 조건이 /apply 명세서에 담겨 제출된다', async ({ page }) => {
     // 운영 DB 에 테스트 신청서를 남기지 않도록 제출만 가로챈다
     let submitted: Record<string, unknown> | null = null;
-    await page.route('**/api/electronics/applications', async (route) => {
+    await page.route('**/api/leads', async (route) => {
       submitted = route.request().postDataJSON();
       await route.fulfill({
         status: 201,
@@ -79,8 +76,76 @@ test.describe('4. 옵션 선택 → 기존 신청 백엔드 연결', () => {
     await sheet.getByTestId('plan-contract-60').click();
     await sheet.getByTestId('plan-apply').click();
 
-    // 시트에서 고른 상품·요금제가 쿼리로 넘어와 1단계에 미리 선택돼 있다
-    await expect(page).toHaveURL(/\/electronics\/apply\?product=kyowon-wells-wp610nwa&plan=/);
+    // 사이트 공통 /apply 로 넘어오고, 서비스는 가전렌탈로 미리 골라져 있다
+    await expect(page).toHaveURL(/\/apply\?product=kyowon-wells-wp610nwa&plan=/);
+    await expect(page.getByTestId('lead-service-electronics')).toHaveAttribute('aria-pressed', 'true');
+    const selected = page.getByTestId('lead-product-selected');
+    await expect(selected).toContainText('미미 정수기');
+    await expect(selected).toContainText('5년 약정');
+
+    // 명세서에는 계좌번호 입력란이 없다
+    await expect(page.getByPlaceholder(/계좌번호/)).toHaveCount(0);
+
+    await page.getByTestId('lead-name').fill('E2E테스트');
+    await page.getByTestId('lead-phone').fill('01012345678');
+    await page.getByText('전체 동의').click();
+    await page.getByTestId('lead-submit').click();
+
+    await expect(page.getByRole('heading', { name: '전문가가 오늘 중 연락드려요' })).toBeVisible();
+    // 가전렌탈이면 완료 화면에서 셀프 가입 신청서로 이어진다
+    await expect(page.getByTestId('lead-done-application')).toHaveAttribute(
+      'href',
+      '/electronics/application?lead=e2e-mock-id'
+    );
+    expect(submitted).not.toBeNull();
+    expect(submitted!.service).toBe('electronics');
+    expect(submitted!.phoneNumber).toBe('010-1234-5678');
+    expect(submitted!.productSlug).toBe('kyowon-wells-wp610nwa');
+    expect(submitted!.contractMonths).toBe(60);
+  });
+
+  test('서비스를 고르지 않으면 제출되지 않고, 카드를 고르면 상품 없이 제출된다', async ({ page }) => {
+    let submitted: Record<string, unknown> | null = null;
+    await page.route('**/api/leads', async (route) => {
+      submitted = route.request().postDataJSON();
+      await route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        body: JSON.stringify({ id: 'e2e-mock-id' }),
+      });
+    });
+
+    await page.goto('/apply');
+    await page.getByTestId('lead-phone').fill('01012345678');
+    await page.getByText('전체 동의').click();
+    await page.getByTestId('lead-submit').click();
+    await expect(page.getByText('어떤 혜택을 알아볼지 골라주세요.')).toBeVisible();
+    expect(submitted).toBeNull();
+
+    await page.getByTestId('lead-service-card').click();
+    await page.getByTestId('lead-submit').click();
+    await expect(page.getByRole('heading', { name: '전문가가 오늘 중 연락드려요' })).toBeVisible();
+    expect(submitted!.service).toBe('card');
+    expect(submitted!.productSlug).toBeNull();
+    // 카드는 셀프 가입 신청서가 없다
+    await expect(page.getByTestId('lead-done-application')).toHaveCount(0);
+  });
+
+  test('셀프 가입 신청서(6단계)는 /electronics/application 에서 끝까지 제출된다', async ({ page }) => {
+    // 주소 검색은 외부(다음 우편번호) 스크립트라 E2E 에서는 흉내낸다
+    await mockDaumPostcode(page);
+
+    let submitted: Record<string, unknown> | null = null;
+    await page.route('**/api/electronics/applications', async (route) => {
+      submitted = route.request().postDataJSON();
+      await route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        body: JSON.stringify({ id: 'e2e-mock-id' }),
+      });
+    });
+
+    await page.goto('/electronics/application?product=kyowon-wells-wp610nwa&months=60');
     await expect(page.getByText('미미 정수기').first()).toBeVisible();
     await next(page);
 
@@ -88,7 +153,8 @@ test.describe('4. 옵션 선택 → 기존 신청 백엔드 연결', () => {
     await page.getByPlaceholder('가입자명').fill('E2E테스트');
     await page.getByPlaceholder('YYYY-MM-DD').fill('19900101');
     await page.getByRole('button', { name: '남성', exact: true }).click();
-    await page.locator('select').first().selectOption('KT');
+    await page.getByTestId('sheet-select-carrier').click();
+    await page.getByTestId('sheet-option-KT').click();
     await page.getByPlaceholder('010-0000-0000').first().fill('01012345678');
     await page.getByPlaceholder('이메일을 입력하세요').fill('e2e@example.com');
     await next(page);
@@ -96,12 +162,14 @@ test.describe('4. 옵션 선택 → 기존 신청 백엔드 연결', () => {
     // 3단계: 설치 주소 (다음 우편번호 목)
     await page.getByRole('button', { name: '주소 찾기' }).click();
     await expect(page.getByPlaceholder('주소 찾기를 눌러주세요')).toHaveValue(/창원시/);
-    await page.getByPlaceholder('동/호수 등 상세주소').fill('101동 101호');
+    await page.getByPlaceholder(/동\/호수/).fill('101동 101호');
     await next(page);
 
     // 4단계: 사은품 수령
-    await page.locator('select').first().selectOption('본인');
-    await page.locator('select').nth(1).selectOption('국민은행');
+    await page.getByTestId('sheet-select-giftReceiver').click();
+    await page.getByTestId('sheet-option-본인').click();
+    await page.getByTestId('sheet-select-giftBank').click();
+    await page.getByTestId('sheet-option-국민은행').click();
     await page.getByPlaceholder(/계좌번호 입력/).fill('12345678901');
     await next(page);
 

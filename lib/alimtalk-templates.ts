@@ -35,6 +35,10 @@ export const ALIMTALK_TEMPLATES = {
   // 고객 예약 안내 - 고객에게 발송 (바로 예약하기 버튼 포함)
   // (변수 없음, 버튼 URL: https://benefit-lab.kr/book)
   CUSTOMER_RESERVATION_GUIDE: 'ppur_2025123018083720835716306',
+
+  // 고객 신청서 작성 안내 - 상담 신청(명세서) 접수 직후 고객에게 발송
+  // [*1*] = 신청서 링크. 템플릿 심사 전이라 코드는 환경변수로 받는다.
+  CUSTOMER_APPLICATION_LINK: process.env.ALIMTALK_TEMPLATE_APPLICATION_LINK || '',
 } as const
 
 export type AlimtalkTemplateType = keyof typeof ALIMTALK_TEMPLATES
@@ -113,4 +117,13 @@ export function getReservationUrl(inquiryId?: string): string {
     return `${baseUrl}/book/${inquiryId}`
   }
   return `${baseUrl}/book`
+}
+
+/**
+ * 셀프 가입 신청서 URL 생성
+ * @param leadId - 상담 신청(명세서) UUID. 신청서에 이름·전화번호·상품이 미리 채워진다
+ */
+export function getApplicationUrl(leadId: string): string {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.hyeso.kr'
+  return `${baseUrl}/electronics/application?lead=${leadId}`
 }

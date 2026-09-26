@@ -18,7 +18,7 @@ export const metadata = {
 };
 
 const SHORTCUTS = [
-  { label: '상담 신청', href: '/electronics/apply', icon: Headset },
+  { label: '상담 신청', href: '/apply', icon: Headset },
   { label: '전체 카테고리', href: '/electronics/category', icon: LayoutGrid },
   { label: '찜 목록', href: '/electronics/wishlist', icon: Heart },
   { label: '인기 정수기', href: '/electronics/water-purifier', icon: Sparkles },

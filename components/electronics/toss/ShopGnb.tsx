@@ -31,7 +31,7 @@ export default function ShopGnb({ tabs }: { tabs: GnbTab[] }) {
           </Link>
 
           <div className="flex items-center gap-4 shrink-0">
-            <Link href="/electronics/apply" aria-label="상담 신청" className="text-[#333d4b]">
+            <Link href="/apply" aria-label="상담 신청" className="text-[#333d4b]">
               <Headset className="w-6 h-6" strokeWidth={1.7} />
             </Link>
             <Link

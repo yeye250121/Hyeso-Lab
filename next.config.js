@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 상담 신청은 사이트 공통 /apply 로 옮겼다. 예전 링크(랜딩·공유 URL)는 쿼리까지 그대로 넘긴다.
+  async redirects() {
+    return [{ source: '/electronics/apply', destination: '/apply', permanent: false }];
+  },
   images: {
     // 최적화 이미지의 캐시 수명. Next 기본값은 60초이고, 실제 TTL은
     // minimumCacheTTL 과 원본 응답의 Cache-Control 중 "더 큰 값"이 쓰인다.

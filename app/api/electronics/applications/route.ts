@@ -30,12 +30,12 @@ const bodySchema = z.object({
   phoneNumber: phone,
   useAgentPhone: z.boolean().default(false),
   agentPhoneNumber: z.union([phone, z.literal('')]).optional(),
-  email: z.string().trim().email('이메일 형식이 올바르지 않습니다.').max(120),
+  email: z.union([z.string().trim().email('이메일 형식이 올바르지 않습니다.').max(120), z.literal('')]).optional(),
 
   // 3
   zonecode: z.string().trim().max(10).optional(),
   address: z.string().trim().min(1, '설치 주소를 입력해주세요.').max(200),
-  addressDetail: z.string().trim().min(1, '상세주소를 입력해주세요.').max(200),
+  addressDetail: z.string().trim().max(200).optional().default(''),
 
   // 4
   giftReceiver: z.string().trim().min(1).max(20),
@@ -55,6 +55,8 @@ const bodySchema = z.object({
 
   referrerUrl: z.string().trim().max(500).nullable().optional(),
   marketerCode: z.string().trim().max(40).optional(),
+  /** 명세서(상담 신청)를 타고 들어온 경우 */
+  leadId: z.string().uuid().nullable().optional(),
 })
 
 const REQUIRED_AGREEMENTS = ['must_read', 'terms', 'unique_id', 'privacy', 'third_party', 'age14']
@@ -156,11 +158,11 @@ export async function POST(request: NextRequest) {
         carrier: parsed.carrier,
         phone_number: parsed.phoneNumber,
         agent_phone_number: parsed.useAgentPhone ? parsed.agentPhoneNumber || null : null,
-        email: parsed.email,
+        email: parsed.email || null,
 
         zonecode: parsed.zonecode || null,
         address: parsed.address,
-        address_detail: parsed.addressDetail,
+        address_detail: parsed.addressDetail || null,
 
         gift_receiver: parsed.giftReceiver,
         gift_bank: parsed.giftBank,
@@ -185,11 +187,21 @@ export async function POST(request: NextRequest) {
 
         referrer_url: parsed.referrerUrl || null,
         marketer_code: parsed.marketerCode || '',
+        lead_id: parsed.leadId ?? null,
       })
       .select('id')
       .single()
 
     if (error) throw error
+
+    // 명세서에서 이어진 신청이면 리드 쪽에도 연결해 둔다. 실패해도 접수는 유효하다.
+    if (parsed.leadId) {
+      const { error: leadError } = await supabaseAdmin
+        .from('leads')
+        .update({ application_id: data.id, status: 'applied' })
+        .eq('id', parsed.leadId)
+      if (leadError) console.error('[applications] lead link failed:', leadError.message)
+    }
 
     return NextResponse.json({ id: data.id }, { status: 201 })
   } catch (error) {

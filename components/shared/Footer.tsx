@@ -38,14 +38,13 @@ const defaultLinkSections: FooterLinkSection[] = [
     links: [
       { text: '카드 혜택', href: '/card' },
       { text: '인터넷 혜택', href: '/internet' },
-      { text: '휴대폰 혜택', href: '/phone' },
       { text: '가전렌탈 혜택', href: '/electronics' },
     ],
   },
   {
     title: '문의',
     links: [
-      { text: '상담 신청', href: '/electronics/apply' },
+      { text: '상담 신청', href: '/apply' },
     ],
   },
 ];
