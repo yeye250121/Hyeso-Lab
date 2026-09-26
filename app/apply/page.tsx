@@ -49,12 +49,12 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <div className="max-w-[1100px] mx-auto px-6 py-8 lg:py-16 grid lg:grid-cols-[1fr_440px] gap-8 lg:gap-16 items-center">
           <section className="text-center lg:text-left">
             <h1 className="text-[28px] leading-[1.3] lg:text-[44px] lg:leading-[1.25] font-semibold text-[#333d4b] tracking-[-0.02em]">
-              놓치고 있던 혜택,
+              놓치고 있던 혜택
               <br />
-              30초 상담 신청
+              간단하게 알아보기
             </h1>
             <p className="mt-4 text-[15px] lg:text-lg text-[#6b7684] leading-relaxed">
-              전화번호만 남기면 전문가가 오늘 중 연락드려요.
+              전문가가 오늘 중 연락드려요.
             </p>
           </section>
 
