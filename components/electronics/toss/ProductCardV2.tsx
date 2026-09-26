@@ -49,14 +49,15 @@ export default function ProductCardV2({
       data-slug={product.slug}
       className="group block"
     >
-      <div className="relative aspect-[5/6] rounded-2xl overflow-hidden bg-[#f4f5f7]">
+      {/* 상품 사진은 흰 배경 누끼가 대부분이라 흰 바탕에 여백을 두고 통째로 보여준다 */}
+      <div className={`relative aspect-[5/6] rounded-2xl overflow-hidden ${image ? 'bg-white border border-gray-100' : 'bg-[#f4f5f7]'}`}>
         {image ? (
           <Image
             src={image}
             alt={product.display_name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            className="object-contain p-4 transition-transform duration-300 group-hover:scale-[1.03]"
             priority={priority}
           />
         ) : (

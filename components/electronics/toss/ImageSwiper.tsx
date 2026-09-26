@@ -27,14 +27,14 @@ export default function ImageSwiper({ images, alt }: { images: string[]; alt: st
           images.map((src, i) => (
             <div
               key={src}
-              className="relative snap-start shrink-0 w-full aspect-square bg-[#f4f5f7]"
+              className="relative snap-start shrink-0 w-full aspect-square bg-white"
             >
               <Image
                 src={src}
                 alt={i === 0 ? alt : `${alt} 이미지 ${i + 1}`}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
+                className="object-contain p-6"
                 priority={i === 0}
               />
             </div>
