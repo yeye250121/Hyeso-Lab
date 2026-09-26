@@ -14,17 +14,17 @@ const START_HREF = '/apply'
 const PRODUCTS = [
   {
     id: 'card',
-    title: '카드 연구',
+    title: '카드',
     icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/icons/card_icon.png',
   },
   {
     id: 'electronics',
-    title: '가전 렌탈',
+    title: '가전렌탈',
     icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/icons/electronics_icon.png',
   },
   {
     id: 'internet',
-    title: '인터넷 연구',
+    title: '인터넷',
     icon: 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/icons/internet_icon.png',
   },
 ]
@@ -196,23 +196,23 @@ export default function HomePage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 lg:gap-6 max-w-[360px] md:max-w-[480px] mx-auto">
+          <div className="grid grid-cols-3 gap-4 lg:gap-6 max-w-[300px] md:max-w-[360px] mx-auto">
             {PRODUCTS.map((product) => (
               <Link
                 href={`/${product.id}`}
                 key={product.id}
-                className="group flex flex-col items-center justify-center gap-4 hover:-translate-y-2 transition-all duration-300 cursor-pointer animate-on-scroll opacity-0 translate-y-12"
+                className="group flex flex-col items-center justify-center gap-2.5 hover:-translate-y-1 transition-all duration-300 cursor-pointer animate-on-scroll opacity-0 translate-y-12"
               >
-                <div className="w-20 h-20 lg:w-24 lg:h-24 flex items-center justify-center mb-1 transition-transform duration-300 group-hover:scale-105">
+                <div className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
                   <Image
                     src={product.icon}
                     alt={product.title}
-                    width={96}
-                    height={96}
+                    width={48}
+                    height={48}
                     className="object-contain w-full h-full"
                   />
                 </div>
-                <h3 className="text-lg lg:text-xl font-medium text-[#6b7684] whitespace-nowrap">
+                <h3 className="text-[15px] lg:text-base font-medium text-[#6b7684] whitespace-nowrap">
                   {product.title}
                 </h3>
               </Link>
