@@ -91,9 +91,9 @@ export default function Best4({ tabs }: { tabs: Best4Tab[] }) {
         })}
       </div>
 
-      {/* 특징 칩 */}
+      {/* 특징 칩. 가로 스크롤 영역은 세로로 넘친 부분도 잘라서, 선택 테두리가 들어갈 위아래 여백(py-1)을 둔다 */}
       {tab.chips.length > 0 && (
-        <div className="mt-4 flex gap-2 overflow-x-auto -mx-6 px-6 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+        <div className="mt-3 flex gap-2 overflow-x-auto -mx-6 px-6 py-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
           {[{ key: '', label: '전체' }, ...tab.chips].map((c) => {
             const active = (chip ?? '') === c.key;
             return (
