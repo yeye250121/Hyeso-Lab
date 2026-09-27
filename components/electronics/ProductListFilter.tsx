@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Package, RotateCcw, SlidersHorizontal, X } from 'lucide-react';
 import type { FilterAxis, ProductListItem, ProductSpecs } from '@/lib/electronicsApi';
 import ProductCardV2 from './toss/ProductCardV2';
+import SearchParamSync from '@/components/electronics/toss/SearchParamSync';
 
 // 목록 필터. 화면 위에는 "총 N개 + 상세 필터 버튼"만 두고, 약정·관리·정렬을
 // 포함한 모든 조건은 바텀시트 안에 모은다. 시트 안 각 필터는 줄바꿈 없이
@@ -45,6 +46,7 @@ export default function ProductListFilter({
   emptyHint?: string;
 }) {
   // 검색어는 검색 페이지의 검색창(?q=)에서만 들어온다. 목록 안 검색창은 없앴다.
+  // URL 쿼리는 서버가 아니라 SearchParamSync 가 하이드레이션 뒤에 넣어준다(정적 생성 유지).
   const [query, setQuery] = useState(initialQuery ?? '');
   const [brand, setBrand] = useState<string | null>(initialBrand ?? null);
   const [contract, setContract] = useState<number | null>(null);
@@ -163,6 +165,14 @@ export default function ProductListFilter({
 
   return (
     <div className="w-full">
+      <SearchParamSync
+        keys={['q', 'brand']}
+        onChange={(v) => {
+          setQuery(v.q ?? '');
+          setBrand(v.brand ?? null);
+          setVisible(PAGE_SIZE);
+        }}
+      />
       {/* 결과 수 + 상세 필터 버튼. 나머지 조건은 전부 시트 안에 있다 */}
       <div className="flex items-center justify-between gap-3 py-3 border-y border-gray-100">
         <p className="text-sm text-gray-500 shrink-0">

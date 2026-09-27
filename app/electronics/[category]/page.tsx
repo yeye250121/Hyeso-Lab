@@ -14,11 +14,6 @@ export const revalidate = 3600;
 
 interface PageProps {
   params: { category: string };
-  searchParams?: Record<string, string | string[] | undefined>;
-}
-
-function firstValue(v?: string | string[]): string | undefined {
-  return Array.isArray(v) ? v[0] : v;
 }
 
 export async function generateStaticParams() {
@@ -35,7 +30,7 @@ export async function generateMetadata({ params }: PageProps) {
   };
 }
 
-export default async function CategoryListPage({ params, searchParams }: PageProps) {
+export default async function CategoryListPage({ params }: PageProps) {
   const category = await getCategoryBySlug(params.category);
   if (!category) notFound();
 
@@ -67,8 +62,6 @@ export default async function CategoryListPage({ params, searchParams }: PagePro
               products={products}
               categorySlug={category.slug}
               filterSchema={category.filter_schema}
-              initialQuery={firstValue(searchParams?.q)}
-              initialBrand={firstValue(searchParams?.brand)}
             />
           </div>
         ) : (

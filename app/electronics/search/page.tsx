@@ -19,21 +19,14 @@ export const metadata = {
   description: '등록된 모든 가전 렌탈 상품을 한 곳에서 검색하고 비교해 보세요.',
 };
 
-interface PageProps {
-  searchParams?: Record<string, string | string[] | undefined>;
-}
-
-function firstValue(v?: string | string[]): string | undefined {
-  return Array.isArray(v) ? v[0] : v;
-}
-
-export default async function ProductSearchPage({ searchParams }: PageProps) {
+// 검색어(?q=)는 서버에서 읽지 않는다. 읽으면 정적 생성이 풀려 요청마다 서버가 돈다.
+// HeroSearch·ProductListFilter·RecentSearches 가 하이드레이션 뒤에 URL 에서 직접 읽는다.
+export default async function ProductSearchPage() {
   const [products, tree, tabs] = await Promise.all([
     getAllProducts(),
     getCategoryTree(),
     buildGnbTabs(),
   ]);
-  const query = firstValue(searchParams?.q);
   const categories = tree.flatMap((g) => g.children);
 
   return (
@@ -43,20 +36,15 @@ export default async function ProductSearchPage({ searchParams }: PageProps) {
 
       <main className="flex-1 w-full max-w-[1100px] mx-auto px-6 pt-6 pb-24">
         <div className="max-w-[640px] mb-6">
-          <HeroSearch defaultValue={query ?? ''} />
+          <HeroSearch />
         </div>
 
-        {!query && (
-          <div className="mb-10">
-            <RecentSearches />
-          </div>
-        )}
+        <RecentSearches hideWhenQuery className="mb-10" />
 
         {products.length > 0 ? (
           <ProductListFilter
             products={products}
             filterSchema={[]}
-            initialQuery={query}
             emptyHint={
               '아직 등록되지 않은 상품일 수 있어요.\n지금은 정수기부터 순서대로 열고 있습니다.'
             }

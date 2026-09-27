@@ -4,19 +4,33 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Clock3, X } from 'lucide-react';
 import { readRecentSearches, removeRecentSearch } from './recentSearches';
+import SearchParamSync from './SearchParamSync';
 
-export default function RecentSearches() {
+export default function RecentSearches({
+  hideWhenQuery,
+  className,
+}: {
+  /** 검색 결과 화면(?q=)에서는 숨긴다. URL 은 하이드레이션 뒤에 읽는다 */
+  hideWhenQuery?: boolean;
+  className?: string;
+}) {
   const router = useRouter();
   const [items, setItems] = useState<string[]>([]);
+  const [hasQuery, setHasQuery] = useState(false);
 
   useEffect(() => {
     setItems(readRecentSearches());
   }, []);
 
-  if (items.length === 0) return null;
+  const sync = hideWhenQuery ? (
+    <SearchParamSync keys={['q']} onChange={(v) => setHasQuery(!!v.q)} />
+  ) : null;
+
+  if (items.length === 0 || hasQuery) return sync;
 
   return (
-    <section data-testid="recent-searches">
+    <section data-testid="recent-searches" className={className}>
+      {sync}
       <h2 className="text-[15px] font-bold text-[#333d4b] mb-3">최근 검색어</h2>
       <ul className="flex flex-wrap gap-2">
         {items.map((q) => (

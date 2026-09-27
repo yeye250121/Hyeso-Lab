@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { pushRecentSearch } from './toss/recentSearches';
+import SearchParamSync from './toss/SearchParamSync';
 
 // 히어로에는 검색창 하나만 둔다. 입력하면 전체보기 페이지로 넘겨
 // 거기서 실제 검색 결과를 렌더링한다.
@@ -20,6 +21,7 @@ export default function HeroSearch({ defaultValue = '' }: { defaultValue?: strin
 
   return (
     <form onSubmit={submit} role="search" className="relative w-full">
+      <SearchParamSync keys={['q']} onChange={(v) => setQuery(v.q ?? '')} />
       <input
         type="search"
         data-testid="search-input"
