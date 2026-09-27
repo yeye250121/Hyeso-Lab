@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ChevronRight, Headset, Heart, LayoutGrid, Sparkles } from 'lucide-react';
+import { Headset, Heart, LayoutGrid, Sparkles } from 'lucide-react';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
 import { getAllProducts, getCategoryTree } from '@/lib/electronicsApi';
@@ -7,7 +7,8 @@ import ShopGnb from '@/components/electronics/toss/ShopGnb';
 import { buildGnbTabs } from '@/components/electronics/toss/gnbTabs';
 import BannerCarousel, { type BannerSlide } from '@/components/electronics/toss/BannerCarousel';
 import CircleShortcuts from '@/components/electronics/toss/CircleShortcuts';
-import ProductCardV2 from '@/components/electronics/toss/ProductCardV2';
+import Best4, { type Best4Tab } from '@/components/electronics/toss/Best4';
+import { POPULAR_CATEGORY_SLUGS } from '@/components/electronics/popularCategories';
 
 // 카탈로그는 실시간성이 필요 없다. 관리자 수정 시 revalidateTag 로 즉시 갱신한다.
 export const revalidate = 3600;
@@ -63,14 +64,47 @@ export default async function ElectronicsHubPage() {
     },
   ];
 
-  // "지금 할인 큰 렌탈": 실제 할인율(정가 대비) 순. 허수 지표를 만들지 않는다.
-  const discountRate = (p: (typeof products)[number]) =>
-    p.listPrice ? 1 - p.minFee / p.listPrice : 0;
-  const discounted = [...products]
-    .filter((p) => p.listPrice && p.listPrice > p.minFee)
-    .sort((a, b) => discountRate(b) - discountRate(a))
-    .slice(0, 8);
-  const cheapestByFee = [...products].sort((a, b) => a.minFee - b.minFee).slice(0, 8);
+  // BEST4 탭: 인기 카테고리 중 상품이 있는 것만. 칩은 스펙·상품명으로 판별한다.
+  const CHIPS: Record<string, { key: string; label: string; test: (p: (typeof products)[number]) => boolean }[]> = {
+    'water-purifier': [
+      { key: 'hot', label: '냉/온수', test: (p) => /온/.test(p.specs.purifyFunction ?? '') },
+      { key: 'ice', label: '얼음', test: (p) => /얼음/.test(p.specs.purifyFunction ?? '') },
+      { key: 'direct', label: '직수', test: (p) => p.specs.waterType === '직수형' },
+      { key: 'stand', label: '스탠드', test: (p) => p.specs.productType === '스탠드형' },
+    ],
+    'air-conditioner': [
+      { key: 'wall', label: '벽걸이', test: (p) => /벽걸이/.test(p.display_name) },
+      { key: 'stand', label: '스탠드', test: (p) => /스탠드/.test(p.display_name) },
+    ],
+    'air-purifier': [
+      { key: 'small', label: '20평 이하', test: (p) => ['10평 이하', '10~20평'].includes(p.specs.coverageBucket ?? '') },
+      { key: 'mid', label: '20~30평', test: (p) => p.specs.coverageBucket === '20~30평' },
+      { key: 'large', label: '30평 이상', test: (p) => p.specs.coverageBucket === '30평 이상' },
+    ],
+  };
+  const best4Tabs: Best4Tab[] = POPULAR_CATEGORY_SLUGS.flatMap((slug) => {
+    const cat = categories.find((c) => c.slug === slug);
+    if (!cat) return [];
+    const pool = products.filter((p) => p.category_slug === slug && p.image_urls?.[0]);
+    const chipDefs = (CHIPS[slug] ?? []).filter((c) => pool.some(c.test));
+    return [
+      {
+        slug,
+        name: cat.name,
+        chips: chipDefs.length >= 2 ? chipDefs.map(({ key, label }) => ({ key, label })) : [],
+        products: pool.map((p) => ({
+          slug: p.slug,
+          category_slug: p.category_slug,
+          brand: p.brand,
+          display_name: p.display_name,
+          image: p.image_urls[0],
+          minFee: p.minFee,
+          listPrice: p.listPrice,
+          tags: chipDefs.filter((c) => c.test(p)).map((c) => c.key),
+        })),
+      },
+    ];
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -86,41 +120,11 @@ export default async function ElectronicsHubPage() {
           <CircleShortcuts items={SHORTCUTS} />
         </section>
 
-        <section className="pt-12">
-          <div className="flex items-end justify-between mb-5">
-            <h2 className="text-xl font-bold text-[#333d4b]">지금 할인 큰 렌탈</h2>
-            <Link
-              href="/electronics/search"
-              className="inline-flex items-center gap-0.5 text-sm font-medium text-gray-500 hover:text-[#333d4b] transition-colors"
-            >
-              더보기
-              <ChevronRight className="w-4 h-4" />
-            </Link>
+        {best4Tabs.length > 0 && (
+          <div className="pt-12">
+            <Best4 tabs={best4Tabs} />
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-7">
-            {discounted.map((p, i) => (
-              <ProductCardV2 key={p.id} product={p} priority={i < 2} />
-            ))}
-          </div>
-        </section>
-
-        <section className="pt-14">
-          <div className="flex items-end justify-between mb-5">
-            <h2 className="text-xl font-bold text-[#333d4b]">월 렌탈료 낮은 순</h2>
-            <Link
-              href="/electronics/water-purifier"
-              className="inline-flex items-center gap-0.5 text-sm font-medium text-gray-500 hover:text-[#333d4b] transition-colors"
-            >
-              더보기
-              <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-7">
-            {cheapestByFee.map((p) => (
-              <ProductCardV2 key={p.id} product={p} />
-            ))}
-          </div>
-        </section>
+        )}
 
         <section className="pt-14">
           <h2 className="text-xl font-bold text-[#333d4b] mb-5">카테고리</h2>

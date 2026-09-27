@@ -30,7 +30,7 @@ export default function CategoryGrid({
                     alt={cat.name}
                     fill
                     sizes="(max-width: 640px) 25vw, (max-width: 1024px) 16vw, 12vw"
-                    className="object-contain p-3 transition-transform duration-300 group-hover:scale-105"
+                    className="object-contain p-3 mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : (
                   <span className="absolute inset-0 flex items-center justify-center">

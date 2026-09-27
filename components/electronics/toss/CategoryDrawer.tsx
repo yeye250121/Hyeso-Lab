@@ -95,7 +95,7 @@ export default function CategoryDrawer({ groups }: { groups: CategoryNode[] }) {
                     >
                       <span className="relative flex items-center justify-center w-14 h-14 rounded-full bg-[#f4f5f7] overflow-hidden transition-colors group-hover:bg-[#eceef1]">
                         {cat.icon_url ? (
-                          <Image src={cat.icon_url} alt="" fill sizes="56px" className="object-cover" />
+                          <Image src={cat.icon_url} alt="" fill sizes="56px" className="object-contain p-2 mix-blend-multiply" />
                         ) : (
                           <Icon className="w-7 h-7 text-gray-400" strokeWidth={1.4} />
                         )}

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { categoryIcon } from '@/components/electronics/categoryIcons';
 
 // 목록 페이지 상단의 원형 카테고리 선택자. 활성 = 브랜드 컬러 링 + 라벨 강조.
+// 가로 스크롤 컨테이너는 세로로 넘친 부분도 잘라서, 링(2px + 오프셋 2px)이 들어갈 위아래 여백(py-1.5)을 둔다.
 export type RailItem = {
   slug: string;
   name: string;
@@ -21,7 +22,7 @@ export default function SubcategoryRail({
   return (
     <ul
       data-testid="subcategory-rail"
-      className="flex gap-4 overflow-x-auto -mx-6 px-6 pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      className="flex gap-4 overflow-x-auto -mx-6 px-6 py-1.5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
     >
       {items.map((item) => {
         const Icon = categoryIcon(item.slug);
@@ -40,7 +41,7 @@ export default function SubcategoryRail({
                 }`}
               >
                 {item.icon_url ? (
-                  <Image src={item.icon_url} alt="" fill sizes="56px" className="object-cover" />
+                  <Image src={item.icon_url} alt="" fill sizes="56px" className="object-contain p-2 mix-blend-multiply" />
                 ) : (
                   <Icon
                     className={`w-6 h-6 ${active ? 'text-[var(--action-primary)]' : 'text-gray-400'}`}
