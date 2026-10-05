@@ -35,11 +35,22 @@ export default function MyPageDrawer({ open, onClose }: { open: boolean; onClose
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  // shown: 실제로 열림 위치에 있는지. 마운트 직후엔 닫힌 위치로 한 번 그린 뒤 열림으로 바꿔야
+  // 들어오는 슬라이드가 보인다(같은 프레임에 주면 전환 없이 바로 나타난다).
+  const [shown, setShown] = useState(false);
   useEffect(() => {
     if (open) {
       setRendered(true);
-      return;
+      let r2 = 0;
+      const r1 = requestAnimationFrame(() => {
+        r2 = requestAnimationFrame(() => setShown(true));
+      });
+      return () => {
+        cancelAnimationFrame(r1);
+        cancelAnimationFrame(r2);
+      };
     }
+    setShown(false);
     const t = setTimeout(() => setRendered(false), CLOSE_MS);
     return () => clearTimeout(t);
   }, [open]);
@@ -60,19 +71,19 @@ export default function MyPageDrawer({ open, onClose }: { open: boolean; onClose
   if (!mounted || !rendered) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[70]" data-testid="mypage-drawer" data-state={open ? 'open' : 'closed'}>
+    <div className="fixed inset-0 z-[70]" data-testid="mypage-drawer" data-state={shown ? 'open' : 'closed'}>
       <button
         type="button"
         aria-label="닫기"
         onClick={onClose}
         data-testid="mypage-dim"
-        className={`absolute inset-0 bg-black/40 transition-opacity duration-200 ${open ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 bg-black/40 transition-opacity duration-200 ${shown ? 'opacity-100' : 'opacity-0'}`}
       />
       <aside
         role="dialog"
         aria-label="전체 보기"
         className={`absolute top-0 right-0 h-full w-[85vw] max-w-[360px] lg:max-w-[400px] bg-white shadow-2xl flex flex-col transition-transform duration-[250ms] ease-out ${
-          open ? 'translate-x-0' : 'translate-x-full'
+          shown ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         <header className="flex items-center justify-between h-14 px-5 shrink-0">

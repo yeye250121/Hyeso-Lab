@@ -21,9 +21,16 @@ export default function ApplyDrawer({ src, onClose }: { src: string | null; onCl
     if (open) {
       setLastSrc(src);
       setRendered(true);
-      // 다음 프레임에 열림 상태로 바꿔야 슬라이드 전환이 걸린다
-      const r = requestAnimationFrame(() => setShown(true));
-      return () => cancelAnimationFrame(r);
+      // 닫힌 위치가 화면에 한 번 그려진 뒤에 열림으로 바꿔야 들어오는 전환이 걸린다.
+      // 한 프레임만 기다리면 마운트와 같은 페인트에 묶여 전환 없이 바로 나타난다.
+      let r2 = 0;
+      const r1 = requestAnimationFrame(() => {
+        r2 = requestAnimationFrame(() => setShown(true));
+      });
+      return () => {
+        cancelAnimationFrame(r1);
+        cancelAnimationFrame(r2);
+      };
     }
     setShown(false);
     const t = setTimeout(() => setRendered(false), CLOSE_MS);
