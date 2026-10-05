@@ -41,63 +41,66 @@ function productLines(snap: Record<string, unknown>, contractMonths: number | nu
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Row = Record<string, any>
 
-/** 신청서(6단계) 기준 명세서 */
+/** 우리가 받지 않는 항목. 담당자가 해피콜에서 확인한다 */
+const ASK = '(해피콜 확인)'
+
+/**
+ * 신청서(6단계) 기준 명세서.
+ * 항목 이름과 순서는 상위 업체의 접수 양식(성함 → 주민번호 → 설치주소 → … → 해피콜가능시간)을
+ * 그대로 따른다 — 담당자가 자기 양식에 옮겨 적지 않고 바로 쓸 수 있게 하려는 것이다.
+ * 양식에는 있지만 우리가 받지 않는 값(납부일·색상·설치희망일 등)은 "(해피콜 확인)" 으로 둔다.
+ */
 export function buildApplicationStatement(a: Row): string {
   const snap = (a.product_snapshot ?? {}) as Record<string, unknown>
+  const hasProduct = !a.decide_after_consult && !!snap.displayName
   const rental =
     a.rental_status === '기존'
       ? `기존 사용 중${a.existing_rental_note ? ` — ${a.existing_rental_note}` : ''}`
       : a.rental_status === '신규'
         ? '신규'
-        : '미확인 (해피콜에서 확인 필요)'
+        : ASK
 
-  const sameAccount = a.payment_same_as_gift && a.payment_method === '은행 자동이체'
+  const account = (bank: unknown, no: unknown) => (bank || no ? [bank, no].filter(Boolean).join(' ') : null)
+  const payment = a.payment_method
+    ? [account(a.payment_bank, a.payment_account_number), `(${a.payment_method})`].filter(Boolean).join(' ')
+    : ASK
+  const giftAccount = account(a.gift_bank, a.gift_account_number)
+  const isWaterPurifier = snap.categorySlug === 'water-purifier'
+
+  const rows: [string, unknown][] = [
+    ['성함', a.applicant_name],
+    ['주민번호', a.birth_date ? `${a.birth_date}${a.gender ? ` (${a.gender})` : ''} ※ 생년월일만 받음` : ASK],
+    ['설치주소', [a.zonecode && `(${a.zonecode})`, a.address, a.address_detail].filter(Boolean).join(' ') || ASK],
+    ['납부계좌', payment],
+    ['납부일', ASK],
+    ['연락처', [a.phone_number, a.agent_phone_number && `대리인 ${a.agent_phone_number}`].filter(Boolean).join(' / ')],
+    ['이메일', a.email || '없음'],
+    ['상품', hasProduct ? `${snap.brand ?? ''} ${snap.displayName}`.trim() : '상담 후 결정'],
+    ['모델명', hasProduct ? snap.modelCode : ASK],
+    ['색상', ASK],
+    ['프로모션', hasProduct ? snap.planVariant || ASK : ASK],
+    ['월요금', hasProduct && snap.monthlyFee ? `${Number(snap.monthlyFee).toLocaleString()}원 (접수 시점 정책표 기준)` : ASK],
+    ['약정기간', months(a.contract_months) ?? ASK],
+    ['관리주기', a.care_type || ASK],
+    ...(isWaterPurifier || !hasProduct ? ([['조리수설치유/무', ASK]] as [string, unknown][]) : []),
+    ['사은품', '(협의 후 안내)'],
+    ['사은품 받을 계좌', giftAccount ? `${giftAccount}${a.gift_receiver ? ` (${a.gift_receiver})` : ''}` : ASK],
+    ['설치희망일자', ASK],
+    ['해피콜가능시간', ASK],
+  ]
 
   return [
-    `[${CONTACT_BRAND} 렌탈 명세서]`,
+    `[${CONTACT_BRAND} 렌탈 접수 명세서]`,
     lines([
       ['접수번호', `A-${String(a.id).slice(0, 8).toUpperCase()}`],
       ['접수일시', kst(a.submitted_at)],
+      ['고객 구분', a.customer_type],
+      ['렌탈 이용', rental],
     ]),
     `※ 고객 연락 시 "${CONTACT_BRAND}" 상호로 안내 부탁드립니다.`,
     '',
-    '■ 렌탈 이용 여부',
-    rental,
-    '',
-    '■ 고객',
-    lines([
-      ['고객 구분', a.customer_type],
-      ['가입자명', a.applicant_name],
-      ['생년월일', a.birth_date],
-      ['성별', a.gender],
-      ['연락처', a.phone_number],
-      ['대리인 연락처', a.agent_phone_number],
-      ['이메일', a.email],
-    ]),
-    '',
-    '■ 희망 상품',
-    a.decide_after_consult ? '상담 후 결정 (희망 상품 미정)' : productLines(snap, a.contract_months, a.care_type),
-    '',
-    '■ 설치 주소',
-    [a.zonecode && `(${a.zonecode})`, a.address, a.address_detail].filter(Boolean).join(' ') || '미입력',
-    '',
-    '■ 사은품 수령',
-    lines([
-      ['수령자', a.gift_receiver],
-      ['은행', a.gift_bank],
-      ['계좌번호', a.gift_account_number],
-    ]) || '미입력',
-    '',
-    '■ 납부',
-    a.payment_method
-      ? lines([
-          ['방식', a.payment_method],
-          ['은행', a.payment_bank],
-          ['계좌번호', a.payment_account_number],
-          ['비고', sameAccount ? '사은품 수령 계좌와 동일' : null],
-        ])
-      : '나중에 결정 (해피콜에서 확인 필요)',
-    ...(a.customer_note ? ['', '■ 고객 요청사항', a.customer_note] : []),
+    rows.map(([k, v]) => `${k} : ${v ?? ''}`).join('\n'),
+    ...(a.customer_note ? ['', `고객 요청사항 : ${a.customer_note}`] : []),
   ].join('\n')
 }
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import Image from 'next/image';
 import Link from 'next/link';
 import Script from 'next/script';
 import { useRouter } from 'next/navigation';
@@ -12,6 +13,7 @@ import {
   ChevronRight,
   Info,
   Loader2,
+  MapPin,
   Plus,
   Search,
   X,
@@ -21,7 +23,6 @@ import SuccessOverlay from '@/components/shared/SuccessOverlay';
 import {
   AGREEMENTS,
   BANKS,
-  CARRIERS,
   CUSTOMER_TYPES,
   GENDERS,
   GIFT_RECEIVERS,
@@ -43,7 +44,10 @@ declare global {
       Postcode: new (options: {
         oncomplete: (data: { zonecode: string; roadAddress: string; jibunAddress: string }) => void;
         onclose?: () => void;
-      }) => { open: () => void };
+        width?: string | number;
+        height?: string | number;
+        theme?: Record<string, string>;
+      }) => { open: () => void; embed: (el: HTMLElement) => void };
     };
   }
 }
@@ -88,6 +92,11 @@ export default function ApplyForm({
     applicantName: initialApplicantName ?? '',
     phoneNumber: initialPhoneNumber ?? '',
   });
+  // 상품 상세에서 골라 넘어온 경우에만 확인 화면(브릿지)을 먼저 보여준다
+  const [intro, setIntro] = useState(
+    () => !!initialProductSlug && products.some((p) => p.slug === initialProductSlug)
+  );
+  const [introDetail, setIntroDetail] = useState(false);
   const [touched, setTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -153,10 +162,9 @@ export default function ApplyForm({
     if (form.applicantName.trim()) level = 1;
     if (level === 1 && isValidBirth(form.birthDate)) level = 2;
     if (level === 2 && form.gender) level = 3;
-    if (level === 3 && form.carrier) level = 4;
-    if (level === 4 && isValidPhone(form.phoneNumber)) level = 5;
+    if (level === 3 && isValidPhone(form.phoneNumber)) level = 4;
     return level;
-  }, [form.applicantName, form.birthDate, form.gender, form.carrier, form.phoneNumber]);
+  }, [form.applicantName, form.birthDate, form.gender, form.phoneNumber]);
   const [revealed, setRevealed] = useState(0);
   useEffect(() => {
     setRevealed((r) => Math.max(r, infoLevel));
@@ -185,7 +193,6 @@ export default function ApplyForm({
       if (!form.applicantName.trim()) e.applicantName = '가입자명을 입력해주세요.';
       if (!isValidBirth(form.birthDate)) e.birthDate = '생년월일을 YYYY-MM-DD 형식으로 입력해주세요.';
       if (!form.gender) e.gender = '성별을 선택해주세요.';
-      if (!form.carrier) e.carrier = '통신사를 선택해주세요.';
       if (!isValidPhone(form.phoneNumber)) e.phoneNumber = '휴대폰 번호를 정확히 입력해주세요.';
       if (form.useAgentPhone && !isValidPhone(form.agentPhoneNumber))
         e.agentPhoneNumber = '대리인 연락처를 정확히 입력해주세요.';
@@ -235,15 +242,45 @@ export default function ApplyForm({
     }
   };
 
+  // 주소 찾기는 새 창 팝업 대신 화면 안 모달에 끼워 넣는다(모바일에서 창이 튀지 않고 톤도 맞출 수 있다).
+  const [postcodeOpen, setPostcodeOpen] = useState(false);
+  const postcodeBoxRef = useRef<HTMLDivElement>(null);
   const openPostcode = () => {
     if (!window.daum?.Postcode) return;
+    setPostcodeOpen(true);
+  };
+  useEffect(() => {
+    if (!postcodeOpen || !postcodeBoxRef.current || !window.daum?.Postcode) return;
+    const box = postcodeBoxRef.current;
+    box.innerHTML = '';
     new window.daum.Postcode({
       oncomplete: (data) => {
         set('zonecode', data.zonecode);
         set('address', data.roadAddress || data.jibunAddress);
+        setPostcodeOpen(false);
       },
-    }).open();
-  };
+      width: '100%',
+      height: '100%',
+      theme: {
+        bgColor: '#FFFFFF',
+        searchBgColor: '#F2F4F6',
+        contentBgColor: '#FFFFFF',
+        pageBgColor: '#FFFFFF',
+        textColor: '#333D4B',
+        queryTextColor: '#333D4B',
+        postcodeTextColor: '#8B95A1',
+        emphTextColor: '#FF7096',
+        outlineColor: '#E5E8EB',
+      },
+    }).embed(box);
+    // 열려 있는 동안 뒤 화면 스크롤 잠금
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postcodeOpen]);
 
   const submit = async () => {
     setTouched(true);
@@ -274,6 +311,72 @@ export default function ApplyForm({
 
   /* ── 완료 화면 ── */
   const err = (key: string) => (touched ? errors[key] : undefined);
+
+  if (intro && selectedProduct) {
+    return (
+      <div className="max-w-[560px] mx-auto px-6 pt-8 pb-44 lg:pb-16" data-testid="apply-bridge">
+        <h1 className="text-[26px] font-semibold text-[#333d4b] leading-snug mb-7">아래 상품으로 신청할게요</h1>
+
+        <div className="rounded-2xl bg-[#f2f4f6] px-5 py-5">
+          <div className="flex items-center gap-3">
+            <span className="relative w-12 h-12 rounded-xl bg-white overflow-hidden shrink-0">
+              {selectedProduct.image_urls?.[0] && (
+                <Image src={selectedProduct.image_urls[0]} alt="" fill sizes="48px" className="object-contain p-1" />
+              )}
+            </span>
+            <p className="text-[17px] font-semibold text-[#333d4b]">가전렌탈 · {selectedProduct.category_name}</p>
+          </div>
+
+          <dl className="mt-4 space-y-2.5 text-[15px]">
+            <BridgeRow k="상품명" v={`${selectedProduct.brand} ${selectedProduct.display_name}`} />
+            {introDetail && (
+              <>
+                <BridgeRow k="모델코드" v={selectedProduct.model_code} />
+                <BridgeRow k="약정 기간" v={form.contractMonths ? monthsLabel(form.contractMonths) : '상담 시 결정'} />
+                <BridgeRow k="관리 방법" v={form.careType ?? '상담 시 결정'} />
+              </>
+            )}
+          </dl>
+
+          <button
+            type="button"
+            onClick={() => setIntroDetail((v) => !v)}
+            aria-expanded={introDetail}
+            className="mt-4 pt-4 w-full flex items-center justify-center gap-1 border-t border-dashed border-gray-300 text-sm font-medium text-[#333d4b]"
+          >
+            {introDetail ? '접기' : '상세보기'}
+            <ChevronDown className={`w-4 h-4 transition-transform ${introDetail ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 pt-4 pb-4 lg:static lg:border-0 lg:px-0 lg:pt-8 lg:pb-0">
+          <div className="max-w-[560px] mx-auto">
+            {currentFee !== null && (
+              <div className="flex items-center justify-between">
+                <p className="text-[17px] font-medium text-[#333d4b]">예상 요금</p>
+                <p className="text-[19px] font-semibold text-[#333d4b]">월 {currentFee.toLocaleString()}원</p>
+              </div>
+            )}
+            <p className="mt-1.5 mb-3 flex items-center gap-1 text-xs text-gray-400">
+              <Info className="w-3.5 h-3.5" />
+              최종 요금은 상담에서 프로모션·할인 조건에 따라 달라져요
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setIntro(false);
+                topRef.current?.scrollIntoView({ block: 'start' });
+              }}
+              data-testid="apply-bridge-next"
+              className="w-full py-4 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white font-semibold transition-colors"
+            >
+              다음
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-[560px] mx-auto px-6 pb-32 lg:pb-16" ref={topRef}>
@@ -314,6 +417,21 @@ export default function ApplyForm({
         strategy="lazyOnload"
         onLoad={() => setPostcodeReady(true)}
       />
+
+      {postcodeOpen && (
+        <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center" data-testid="postcode-modal">
+          <button type="button" aria-label="닫기" className="absolute inset-0 bg-black/40" onClick={() => setPostcodeOpen(false)} />
+          <div className="relative w-full sm:max-w-[480px] h-[78vh] sm:h-[600px] flex flex-col rounded-t-3xl sm:rounded-3xl bg-white overflow-hidden animate-[sheetUp_.25s_ease-out]">
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0">
+              <p className="text-xl font-semibold text-[#333d4b]">주소 찾기</p>
+              <button type="button" onClick={() => setPostcodeOpen(false)} aria-label="닫기" className="p-1 -m-1 text-gray-400 hover:text-[#333d4b]">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div ref={postcodeBoxRef} className="flex-1 min-h-0 px-2 pb-2" />
+          </div>
+        </div>
+      )}
 
       {/* 진행 표시 */}
       <div className="flex items-center gap-2 pt-8 pb-6">
@@ -586,21 +704,6 @@ export default function ApplyForm({
 
           {revealed >= 3 && (
             <Reveal>
-              <Field label="통신사" required error={err('carrier')}>
-                <SheetSelect
-                  name="carrier"
-                  title="통신사를 선택해주세요"
-                  value={form.carrier}
-                  onChange={(v) => set('carrier', v)}
-                  placeholder="통신사 선택"
-                  options={[...CARRIERS]}
-                />
-              </Field>
-            </Reveal>
-          )}
-
-          {revealed >= 4 && (
-            <Reveal>
               <Field label="가입자 명의 연락처" required error={err('phoneNumber')}>
                 <Input
                   value={form.phoneNumber}
@@ -613,7 +716,7 @@ export default function ApplyForm({
             </Reveal>
           )}
 
-          {revealed >= 5 && (
+          {revealed >= 4 && (
             <Reveal>
               {form.useAgentPhone ? (
                 <Field label="대리인 연락처" error={err('agentPhoneNumber')}>
@@ -666,24 +769,18 @@ export default function ApplyForm({
       {step === 2 && (
         <Section title="설치하실 주소를 알려주세요">
           <Field label="설치 주소" required error={err('address')}>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={form.address}
-                readOnly
-                placeholder="주소 찾기를 눌러주세요"
-                onClick={openPostcode}
-                className="flex-1 min-w-0 py-3.5 px-4 rounded-xl bg-[#f2f4f6] border-0 text-[15px] placeholder-gray-400 cursor-pointer focus:outline-none"
-              />
-              <button
-                type="button"
-                onClick={openPostcode}
-                disabled={!postcodeReady}
-                className="shrink-0 px-4 rounded-xl bg-[#333d4b] hover:bg-[#2b3440] disabled:opacity-50 text-white text-sm font-semibold transition-colors"
-              >
-                {postcodeReady ? '주소 찾기' : '준비 중'}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={openPostcode}
+              disabled={!postcodeReady}
+              data-testid="address-search"
+              className="w-full flex items-center gap-2 py-3.5 px-4 rounded-xl bg-[#f2f4f6] hover:bg-[#eceef1] text-left text-[15px] transition-colors disabled:opacity-60"
+            >
+              <span className={`flex-1 min-w-0 truncate ${form.address ? 'text-[#333d4b]' : 'text-gray-400'}`}>
+                {form.address || (postcodeReady ? '건물, 지번 또는 도로명 검색' : '주소 검색을 준비하고 있어요')}
+              </span>
+              <MapPin className="w-5 h-5 text-gray-400 shrink-0" />
+            </button>
             {form.zonecode && <p className="mt-1.5 text-xs text-gray-400">우편번호 {form.zonecode}</p>}
           </Field>
 
@@ -923,6 +1020,15 @@ export default function ApplyForm({
 }
 
 /* ── 작은 UI 조각들 ── */
+
+function BridgeRow({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex gap-4">
+      <dt className="w-20 shrink-0 text-gray-500">{k}</dt>
+      <dd className="flex-1 min-w-0 font-medium text-[#333d4b]">{v}</dd>
+    </div>
+  );
+}
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

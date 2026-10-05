@@ -55,7 +55,7 @@ export default function StatementPanel({
   return (
     <section data-testid="statement-panel">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-small font-semibold text-text-primary">명세서 (상위 업체 전달용)</p>
+        <p className="text-small font-semibold text-text-primary">명세서</p>
         {sentAt && (
           <span className="inline-flex items-center gap-1 text-xs text-green-600">
             <Check className="w-3.5 h-3.5" /> {formatDateTime(sentAt)} 전달

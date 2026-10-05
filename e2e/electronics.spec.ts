@@ -58,7 +58,26 @@ test.describe('3. 스티키바 → 옵션 바텀시트', () => {
 });
 
 test.describe('4. 옵션 선택 → 상담 신청(명세서) → 신청서', () => {
-  test('시트에서 고른 조건이 /apply 명세서에 담겨 제출된다', async ({ page }) => {
+  test('상세에서 신청하면 신청서로 가고, 고른 상품을 확인하는 화면이 먼저 나온다', async ({ page }) => {
+    await page.goto('/electronics/water-purifier/kyowon-wells-wp610nwa');
+    await page.getByTestId('pdp-sticky-buy').click();
+    const sheet = page.getByTestId('option-sheet');
+    await sheet.getByTestId('plan-contract-60').click();
+    await sheet.getByTestId('plan-apply').click();
+
+    await expect(page).toHaveURL(/\/electronics\/application\?product=kyowon-wells-wp610nwa&plan=/);
+    const bridge = page.getByTestId('apply-bridge');
+    await expect(bridge).toContainText('아래 상품으로 신청할게요');
+    await expect(bridge).toContainText('미미 정수기');
+    await bridge.getByRole('button', { name: '상세보기' }).click();
+    await expect(bridge).toContainText('5년 약정');
+
+    await page.getByTestId('apply-bridge-next').click();
+    await expect(page.getByTestId('apply-bridge')).toHaveCount(0);
+    await expect(page.getByText('원하는 상품을 선택해주세요')).toBeVisible();
+  });
+
+  test('간편 신청(/apply)은 상품 정보를 받아 명세서에 담아 제출한다', async ({ page }) => {
     // 운영 DB 에 테스트 신청서를 남기지 않도록 제출만 가로챈다
     let submitted: Record<string, unknown> | null = null;
     await page.route('**/api/leads', async (route) => {
@@ -70,20 +89,11 @@ test.describe('4. 옵션 선택 → 상담 신청(명세서) → 신청서', () 
       });
     });
 
-    await page.goto('/electronics/water-purifier/kyowon-wells-wp610nwa');
-    await page.getByTestId('pdp-sticky-buy').click();
-    const sheet = page.getByTestId('option-sheet');
-    await sheet.getByTestId('plan-contract-60').click();
-    await sheet.getByTestId('plan-apply').click();
-
-    // 사이트 공통 /apply 로 넘어오고, 서비스는 가전렌탈로 미리 골라져 있다
-    await expect(page).toHaveURL(/\/apply\?product=kyowon-wells-wp610nwa&plan=/);
+    await page.goto('/apply?product=kyowon-wells-wp610nwa&months=60');
     await expect(page.getByTestId('lead-service-electronics')).toHaveAttribute('aria-pressed', 'true');
     const selected = page.getByTestId('lead-product-selected');
     await expect(selected).toContainText('미미 정수기');
     await expect(selected).toContainText('5년 약정');
-
-    // 명세서에는 계좌번호 입력란이 없다
     await expect(page.getByPlaceholder(/계좌번호/)).toHaveCount(0);
 
     await page.getByTestId('lead-name').fill('E2E테스트');
@@ -92,7 +102,6 @@ test.describe('4. 옵션 선택 → 상담 신청(명세서) → 신청서', () 
     await page.getByTestId('lead-submit').click();
 
     await expect(page.getByRole('heading', { name: '전문가가 오늘 중 연락드려요' })).toBeVisible();
-    // 가전렌탈이면 완료 화면에서 셀프 가입 신청서로 이어진다
     await expect(page.getByTestId('lead-done-application')).toHaveAttribute(
       'href',
       '/electronics/application?lead=e2e-mock-id'
@@ -146,6 +155,7 @@ test.describe('4. 옵션 선택 → 상담 신청(명세서) → 신청서', () 
     });
 
     await page.goto('/electronics/application?product=kyowon-wells-wp610nwa&months=60');
+    await page.getByTestId('apply-bridge-next').click();
     await expect(page.getByText('미미 정수기').first()).toBeVisible();
     await page.getByRole('button', { name: '사용 중인 제품이 있어요' }).click();
     await page.getByPlaceholder(/사용 중인 브랜드/).fill('코웨이 정수기');
@@ -155,15 +165,14 @@ test.describe('4. 옵션 선택 → 상담 신청(명세서) → 신청서', () 
     await page.getByPlaceholder('가입자명').fill('E2E테스트');
     await page.getByPlaceholder('YYYY-MM-DD').fill('19900101');
     await page.getByRole('button', { name: '남성', exact: true }).click();
-    await page.getByTestId('sheet-select-carrier').click();
-    await page.getByTestId('sheet-option-KT').click();
     await page.getByPlaceholder('010-0000-0000').first().fill('01012345678');
     await page.getByPlaceholder('이메일을 입력하세요').fill('e2e@example.com');
     await next(page);
 
     // 3단계: 설치 주소 (다음 우편번호 목)
-    await page.getByRole('button', { name: '주소 찾기' }).click();
-    await expect(page.getByPlaceholder('주소 찾기를 눌러주세요')).toHaveValue(/창원시/);
+    await page.getByTestId('address-search').click();
+    await expect(page.getByTestId('address-search')).toContainText('창원시');
+    await expect(page.getByTestId('postcode-modal')).toHaveCount(0);
     await page.getByPlaceholder(/동\/호수/).fill('101동 101호');
     await next(page);
 
@@ -272,13 +281,16 @@ async function mockDaumPostcode(page: Page) {
       contentType: 'application/javascript',
       body: `window.daum = window.daum || {};
 window.daum.Postcode = function (options) {
-  this.open = function () {
+  var pick = function () {
     options.oncomplete({
       zonecode: '51234',
       roadAddress: '경상남도 창원시 테스트로 1',
       jibunAddress: '경상남도 창원시 테스트동 1',
     });
   };
+  this.open = pick;
+  // 폼은 팝업 대신 모달 안에 끼워 넣는다(embed). 목에서는 곧바로 주소를 고른 것으로 친다.
+  this.embed = function () { setTimeout(pick, 50); };
 };`,
     })
   );

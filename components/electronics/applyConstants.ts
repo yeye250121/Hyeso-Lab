@@ -1,6 +1,5 @@
 export const CUSTOMER_TYPES = ['개인', '개인사업자', '법인사업자', '외국인'] as const;
 export const GENDERS = ['남성', '여성'] as const;
-export const CARRIERS = ['SKT', 'KT', 'LG U+', '알뜰폰'] as const;
 export const PAYMENT_METHODS = ['은행 자동이체', '카드 결제'] as const;
 export const GIFT_RECEIVERS = ['본인', '가족', '기타'] as const;
 
@@ -64,7 +63,6 @@ export type ApplyFormState = {
   applicantName: string;
   birthDate: string;
   gender: (typeof GENDERS)[number] | null;
-  carrier: string;
   phoneNumber: string;
   agentPhoneNumber: string;
   useAgentPhone: boolean;
@@ -100,7 +98,6 @@ export const INITIAL_STATE: ApplyFormState = {
   applicantName: '',
   birthDate: '',
   gender: null,
-  carrier: '',
   phoneNumber: '',
   agentPhoneNumber: '',
   useAgentPhone: false,
