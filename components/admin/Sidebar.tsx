@@ -15,7 +15,6 @@ import {
 import { useEffect, useState } from 'react'
 import api from '@/lib/admin/api'
 import Avatar from '@/components/admin/Avatar'
-import { CHAT_READ_EVENT, getLastRead } from '@/lib/admin/chatRead'
 import { useAuthStore } from '@/lib/admin/store'
 import { useRouter } from 'next/navigation'
 import ThemeToggle from '@/components/shared/ThemeToggle'
@@ -61,16 +60,16 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
     const check = () => {
       if (document.visibilityState !== 'visible') return
       api
-        .get(`/admin/chat?count=1&after=${getLastRead()}`)
+        .get('/admin/chat?count=1')
         .then((res) => setUnread(res.data.count))
         .catch(() => {})
     }
     check()
     const timer = setInterval(check, 20000)
-    window.addEventListener(CHAT_READ_EVENT, check)
+    window.addEventListener('admin-chat-read', check)
     return () => {
       clearInterval(timer)
-      window.removeEventListener(CHAT_READ_EVENT, check)
+      window.removeEventListener('admin-chat-read', check)
     }
   }, [])
 

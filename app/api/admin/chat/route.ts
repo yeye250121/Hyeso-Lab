@@ -1,35 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin, routeError, unauthorizedResponse } from '@/lib/admin/route'
 
 export const dynamic = 'force-dynamic'
 
-// 관리자 내부 채팅(전체 한 방). 실시간 연결 대신 화면이 몇 초마다 ?after=<마지막 id> 로 새 글만 받아 간다.
-const PAGE = 100
+// 채팅 첫 화면에 필요한 것: 구성원 목록과 내 방 목록(마지막 글·안 읽은 수).
+// ?count=1 이면 안 읽은 글의 합계만 준다(사이드바 뱃지).
 
-type Row = {
-  id: number
-  body: string
+type OverviewRow = {
+  room_id: string
+  type: 'notice' | 'direct' | 'group'
+  name: string | null
+  member_ids: string[]
+  last_body: string | null
+  last_at: string | null
+  last_author: string | null
+  unread: number
   created_at: string
-  admin_id: string
-  admin_users: { nickname: string | null; login_id: string; avatar_url: string | null } | null
 }
-
-function toMessage(r: Row) {
-  return {
-    id: r.id,
-    body: r.body,
-    createdAt: r.created_at,
-    author: {
-      id: r.admin_id,
-      name: r.admin_users?.nickname || r.admin_users?.login_id || '알 수 없음',
-      avatarUrl: r.admin_users?.avatar_url ?? null,
-    },
-  }
-}
-
-const SELECT = 'id, body, created_at, admin_id, admin_users(nickname, login_id, avatar_url)'
 
 export async function GET(request: NextRequest) {
   const admin = requireAdmin(request)
@@ -37,52 +25,51 @@ export async function GET(request: NextRequest) {
 
   try {
     const supabase = getSupabaseAdmin()
-    const after = Number(request.nextUrl.searchParams.get('after') ?? 0)
+    const { data: overview, error } = await supabase.rpc('admin_chat_overview', { p_admin: admin.id })
+    if (error) throw error
+    const rows = (overview ?? []) as OverviewRow[]
 
-    // 안 읽은 개수만 필요할 때(사이드바 뱃지)
     if (request.nextUrl.searchParams.get('count') === '1') {
-      const { count, error } = await supabase
-        .from('admin_chat_messages')
-        .select('id', { count: 'exact', head: true })
-        .gt('id', after)
-        .neq('admin_id', admin.id)
-      if (error) throw error
-      return NextResponse.json({ count: count ?? 0 })
+      return NextResponse.json({ count: rows.reduce((sum, r) => sum + Number(r.unread), 0) })
     }
 
-    let query = supabase.from('admin_chat_messages').select(SELECT)
-    if (after > 0) query = query.gt('id', after).order('id', { ascending: true }).limit(PAGE)
-    else query = query.order('id', { ascending: false }).limit(PAGE)
-    const { data, error } = await query
-    if (error) throw error
+    const { data: users, error: e2 } = await supabase
+      .from('admin_users')
+      .select('id, login_id, nickname, avatar_url')
+      .order('created_at', { ascending: true })
+    if (e2) throw e2
+    const members = (users ?? []).map((u) => ({
+      id: u.id as string,
+      name: (u.nickname || u.login_id) as string,
+      avatarUrl: (u.avatar_url ?? null) as string | null,
+    }))
+    const byId = new Map(members.map((m) => [m.id, m]))
 
-    const rows = (data ?? []) as unknown as Row[]
-    if (after <= 0) rows.reverse()
-    return NextResponse.json({ messages: rows.map(toMessage), me: admin.id })
+    const rooms = rows
+      .map((r) => {
+        const peer = r.type === 'direct' ? byId.get(r.member_ids.find((id) => id !== admin.id) ?? '') : undefined
+        const others = r.member_ids.filter((id) => id !== admin.id).map((id) => byId.get(id)?.name).filter(Boolean)
+        return {
+          id: r.room_id,
+          type: r.type,
+          title:
+            r.type === 'notice' ? '공지' : r.type === 'direct' ? peer?.name ?? '알 수 없음' : r.name || others.join(', ') || '그룹',
+          avatarUrl: peer?.avatarUrl ?? null,
+          memberIds: r.type === 'notice' ? members.map((m) => m.id) : r.member_ids,
+          lastMessage: r.last_body
+            ? { body: r.last_body, createdAt: r.last_at, authorName: byId.get(r.last_author ?? '')?.name ?? '' }
+            : null,
+          unread: Number(r.unread),
+          sortAt: r.last_at ?? r.created_at,
+        }
+      })
+      // 공지는 항상 맨 위, 나머지는 최근 대화 순
+      .sort((a, b) =>
+        a.type === 'notice' ? -1 : b.type === 'notice' ? 1 : new Date(b.sortAt).getTime() - new Date(a.sortAt).getTime()
+      )
+
+    return NextResponse.json({ me: admin.id, members, rooms })
   } catch (error) {
     return routeError('Admin Chat', error, '채팅을 불러오지 못했습니다.')
-  }
-}
-
-const postSchema = z.object({ body: z.string().trim().min(1).max(2000) })
-
-export async function POST(request: NextRequest) {
-  const admin = requireAdmin(request)
-  if (!admin) return unauthorizedResponse()
-
-  try {
-    const parsed = postSchema.safeParse(await request.json())
-    if (!parsed.success) {
-      return NextResponse.json({ error: '메시지는 1~2000자로 입력해주세요.' }, { status: 400 })
-    }
-    const { data, error } = await getSupabaseAdmin()
-      .from('admin_chat_messages')
-      .insert({ admin_id: admin.id, body: parsed.data.body })
-      .select(SELECT)
-      .single()
-    if (error) throw error
-    return NextResponse.json({ message: toMessage(data as unknown as Row) }, { status: 201 })
-  } catch (error) {
-    return routeError('Admin Chat', error, '메시지를 보내지 못했습니다.')
   }
 }
