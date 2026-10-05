@@ -314,7 +314,7 @@ export default function ApplyForm({
 
   if (intro && selectedProduct) {
     return (
-      <div className="max-w-[560px] mx-auto px-6 pt-8 pb-44 lg:pb-16" data-testid="apply-bridge">
+      <div className="max-w-[560px] mx-auto px-6 pt-8 pb-44" data-testid="apply-bridge">
         <h1 className="text-[26px] font-semibold text-[#333d4b] leading-snug mb-7">아래 상품으로 신청할게요</h1>
 
         <div className="rounded-2xl bg-[#f2f4f6] px-5 py-5">
@@ -349,7 +349,7 @@ export default function ApplyForm({
           </button>
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 pt-4 pb-4 lg:static lg:border-0 lg:px-0 lg:pt-8 lg:pb-0">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 pt-4 pb-4">
           <div className="max-w-[560px] mx-auto">
             {currentFee !== null && (
               <div className="flex items-center justify-between">
@@ -379,7 +379,7 @@ export default function ApplyForm({
   }
 
   return (
-    <div className="max-w-[560px] mx-auto px-6 pb-32 lg:pb-16" ref={topRef}>
+    <div className="max-w-[560px] mx-auto px-6 pb-32" ref={topRef}>
       {/* 제출이 시작되면 폼 위를 뿌옇게 덮고 로딩 → 체크 애니메이션을 보여준다 */}
       {(submitting || done) && (
         <SuccessOverlay
@@ -971,8 +971,8 @@ export default function ApplyForm({
       )}
 
       {/* 하단 고정 버튼 */}
-      {/* 모바일은 하단 고정, 데스크톱은 폼 흐름 끝에 둔다(고정하면 푸터와 겹친다) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-4 lg:static lg:border-0 lg:px-0 lg:pt-8 lg:pb-0">
+      {/* 하단 고정. 데스크톱에서는 페이지가 폼을 모바일 크기 틀에 넣어서, 틀의 바닥에 붙는다 */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-4">
         <div className="max-w-[560px] mx-auto">
           {step === TOTAL - 1 ? (
             <button

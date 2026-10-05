@@ -1,5 +1,4 @@
 import Navbar from '@/components/shared/Navbar';
-import Footer from '@/components/shared/Footer';
 import ApplyForm from '@/components/electronics/ApplyForm';
 import { getProductsForCategory } from '@/lib/electronicsApi';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
@@ -55,27 +54,30 @@ export default async function ApplicationPage({ searchParams }: PageProps) {
   const products = await getProductsForCategory(category);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-white lg:bg-[#f2f4f6]">
       <Navbar />
-      <main className="flex-1 w-full">
-        <ApplyForm
-          products={products}
-          initialProductSlug={productSlug}
-          initialPlanId={firstValue(searchParams?.plan) ?? lead?.plan_id ?? undefined}
-          initialContractMonths={
-            Number(firstValue(searchParams?.months)) || lead?.contract_months || undefined
-          }
-          initialCareType={firstValue(searchParams?.care) ?? lead?.care_type ?? undefined}
-          initialCategory={category}
-          initialApplicantName={lead?.applicant_name ?? undefined}
-          initialPhoneNumber={lead?.phone_number}
-          leadId={lead?.id}
-        />
+      {/* 데스크톱에서도 폼은 모바일 화면 크기의 틀 안에서 쓴다.
+          틀에 transform 을 걸면 폼 안의 position: fixed(하단 버튼·주소 모달)가
+          뷰포트가 아니라 이 틀을 기준으로 잡혀서, 모바일과 똑같이 동작한다. */}
+      <main className="flex-1 w-full lg:flex lg:items-start lg:justify-center lg:py-6">
+        <div className="lg:w-[430px] lg:h-[min(880px,calc(100vh-7rem))] lg:rounded-[28px] lg:bg-white lg:shadow-[0_12px_40px_rgba(51,61,75,0.12)] lg:overflow-hidden lg:[transform:translateZ(0)]">
+          <div className="lg:h-full lg:overflow-y-auto">
+            <ApplyForm
+              products={products}
+              initialProductSlug={productSlug}
+              initialPlanId={firstValue(searchParams?.plan) ?? lead?.plan_id ?? undefined}
+              initialContractMonths={
+                Number(firstValue(searchParams?.months)) || lead?.contract_months || undefined
+              }
+              initialCareType={firstValue(searchParams?.care) ?? lead?.care_type ?? undefined}
+              initialCategory={category}
+              initialApplicantName={lead?.applicant_name ?? undefined}
+              initialPhoneNumber={lead?.phone_number}
+              leadId={lead?.id}
+            />
+          </div>
+        </div>
       </main>
-      {/* 모바일은 하단 고정 버튼이 푸터를 가리므로 숨긴다 */}
-      <div className="hidden lg:block">
-        <Footer />
-      </div>
     </div>
   );
 }
