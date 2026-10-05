@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, Info } from 'lucide-react';
 import type { ProductPlan } from '@/lib/electronicsApi';
@@ -35,6 +35,10 @@ export default function PlanSelector({
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [drawerSrc, setDrawerSrc] = useState<string | null>(null);
+  // 조건을 고르면 요금이 바뀐 것과 신청 버튼이 보이도록 버튼까지 내려 준다
+  const applyRef = useRef<HTMLButtonElement>(null);
+  const revealApply = () =>
+    requestAnimationFrame(() => applyRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
 
   const contracts = useMemo(
     () => [...new Set(plans.map((p) => p.contract_months))].sort((a, b) => a - b),
@@ -116,7 +120,10 @@ export default function PlanSelector({
                 key={c}
                 type="button"
                 data-testid={`plan-contract-${c}`}
-                onClick={() => setContract(c)}
+                onClick={() => {
+                  setContract(c);
+                  revealApply();
+                }}
                 className={chip(contract === c)}
               >
                 {monthsShort(c)}
@@ -134,7 +141,10 @@ export default function PlanSelector({
                   key={c ?? 'none'}
                   type="button"
                   data-testid={`plan-care-${c ?? 'none'}`}
-                  onClick={() => setCare(c)}
+                  onClick={() => {
+                    setCare(c);
+                    revealApply();
+                  }}
                   className={chip(effectiveCare === c)}
                 >
                   {c ?? '관리 정보 없음'}
@@ -152,7 +162,10 @@ export default function PlanSelector({
                 <button
                   key={v}
                   type="button"
-                  onClick={() => setVariant(v)}
+                  onClick={() => {
+                    setVariant(v);
+                    revealApply();
+                  }}
                   className={chip(effectiveVariant === v)}
                 >
                   {v}
@@ -237,9 +250,10 @@ export default function PlanSelector({
       <button
         type="button"
         data-testid="plan-apply"
+        ref={applyRef}
         onClick={apply}
         disabled={submitting}
-        className="mt-5 w-full py-4 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] disabled:opacity-60 text-white font-bold text-[15px] transition-colors flex items-center justify-center gap-2"
+        className="mt-5 scroll-mb-4 w-full py-4 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] disabled:opacity-60 text-white font-bold text-[15px] transition-colors flex items-center justify-center gap-2"
       >
         <Check className="w-4 h-4" />
         {submitting ? '이동 중…' : '이 조건으로 신청하기'}

@@ -257,8 +257,15 @@ export default function ApplyForm({
   const canProceed = Object.keys(errors).length === 0;
 
   const goNext = () => {
-    setTouched(true);
-    if (!canProceed) return;
+    if (!canProceed) {
+      // 빠진 칸으로 데려간다: 오류 문구가 붙은 첫 항목을 화면 가운데로 올리고, 입력 칸이면 포커스까지 준다
+      flushSync(() => setTouched(true));
+      const first = topRef.current?.querySelector<HTMLElement>('[data-field-error]');
+      const target = first?.parentElement ?? first;
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target?.querySelector<HTMLElement>('input, textarea')?.focus({ preventScroll: true });
+      return;
+    }
     setTouched(false);
     if (step < TOTAL - 1) {
       setStep(step + 1);
@@ -272,7 +279,23 @@ export default function ApplyForm({
     const key = !form.applicantName.trim() ? 'applicantName' : !isValidBirth(form.birthDate) ? 'birthDate' : null;
     if (!key) return;
     const t = setTimeout(() => {
+      // 그 사이 사용자가 이미 다른 칸을 잡았으면 건드리지 않는다
+      const active = document.activeElement;
+      if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) return;
       topRef.current?.querySelector<HTMLElement>(`[data-af="${key}"]`)?.focus({ preventScroll: true });
+    }, 350);
+    return () => clearTimeout(t);
+    // 단계에 들어올 때 한 번만 본다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, intro]);
+
+  // 상품을 이미 고르고 들어왔으면 첫 단계에서 남은 질문(렌탈 이용 여부)으로 바로 내려간다
+  useEffect(() => {
+    if (step !== 0 || intro || !form.productSlug || form.rentalStatus) return;
+    const t = setTimeout(() => {
+      topRef.current
+        ?.querySelector<HTMLElement>('[data-af="rentalStatus"]')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 350);
     return () => clearTimeout(t);
     // 단계에 들어올 때 한 번만 본다
@@ -481,8 +504,10 @@ export default function ApplyForm({
       )}
       <Script
         src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
-        strategy="lazyOnload"
-        onLoad={() => setPostcodeReady(true)}
+        strategy="afterInteractive"
+        // onLoad 는 스크립트를 처음 받을 때만 불린다. 신청서를 다시 열면(이미 받은 상태) 불리지 않아
+        // 주소 찾기 버튼이 계속 잠겨 있었다. onReady 는 화면에 붙을 때마다 불린다.
+        onReady={() => setPostcodeReady(true)}
       />
 
       {postcodeOpen && (
@@ -686,7 +711,7 @@ export default function ApplyForm({
           )}
 
           {/* 신규/기존: 기존 사용 중이면 타사보상·결합 할인이 적용될 수 있어 상담원이 먼저 확인한다 */}
-          <div className="mt-8">
+          <div className="mt-8" data-af="rentalStatus">
             <Label required>렌탈 이용 여부</Label>
             <div className="grid grid-cols-2 gap-3">
               <Choice
@@ -1153,7 +1178,11 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
 }
 
 function ErrorText({ children }: { children: React.ReactNode }) {
-  return <p className="mt-1.5 text-xs text-red-500">{children}</p>;
+  return (
+    <p data-field-error className="mt-1.5 text-xs text-red-500">
+      {children}
+    </p>
+  );
 }
 
 function Field({
