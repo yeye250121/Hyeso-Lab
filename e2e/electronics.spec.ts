@@ -165,6 +165,8 @@ test.describe('4. 옵션 선택 → 상담 신청(명세서) → 신청서', () 
     await page.getByPlaceholder('가입자명').fill('E2E테스트');
     await page.getByPlaceholder('YYYY-MM-DD').fill('19900101');
     await page.getByRole('button', { name: '남성', exact: true }).click();
+    // 성별을 고르면 연락처 칸으로 넘어간다
+    await expect(page.getByPlaceholder('010-0000-0000').first()).toBeFocused();
     await page.getByPlaceholder('010-0000-0000').first().fill('01012345678');
     await page.getByPlaceholder('이메일을 입력하세요').fill('e2e@example.com');
     await next(page);
@@ -173,14 +175,16 @@ test.describe('4. 옵션 선택 → 상담 신청(명세서) → 신청서', () 
     await page.getByTestId('address-search').click();
     await expect(page.getByTestId('address-search')).toContainText('창원시');
     await expect(page.getByTestId('postcode-modal')).toHaveCount(0);
+    await expect(page.getByPlaceholder(/동\/호수/)).toBeFocused();
     await page.getByPlaceholder(/동\/호수/).fill('101동 101호');
     await next(page);
 
     // 4단계: 사은품 수령
     await page.getByTestId('sheet-select-giftReceiver').click();
     await page.getByTestId('sheet-option-본인').click();
-    await page.getByTestId('sheet-select-giftBank').click();
+    // 수령자를 고르면 은행 시트가 바로 열리고, 은행을 고르면 계좌번호 칸으로 넘어간다
     await page.getByTestId('sheet-option-국민은행').click();
+    await expect(page.getByPlaceholder(/계좌번호 입력/)).toBeFocused();
     await page.getByPlaceholder(/계좌번호 입력/).fill('12345678901');
     await next(page);
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { createPortal, flushSync } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
 import Script from 'next/script';
@@ -168,10 +168,40 @@ export default function ApplyForm({
     if (level === 3 && isValidPhone(form.phoneNumber)) level = 4;
     return level;
   }, [form.applicantName, form.birthDate, form.gender, form.phoneNumber]);
-  const [revealed, setRevealed] = useState(0);
-  useEffect(() => {
-    setRevealed((r) => Math.max(r, infoLevel));
-  }, [infoLevel]);
+  const revealedRef = useRef(0);
+  revealedRef.current = Math.max(revealedRef.current, infoLevel);
+  const revealed = revealedRef.current;
+
+  /* ── 자동 넘김 ──
+     한 칸을 다 채우면 다음 칸으로 포커스를 옮긴다(선택 시트는 바로 연다).
+     모바일 사파리는 사용자 동작(탭·입력) 처리 중에 준 포커스에만 키보드를 띄우므로,
+     값을 flushSync 로 먼저 반영해 다음 칸을 화면에 올린 뒤 같은 흐름에서 포커스를 준다. */
+  const focusField = (key: string) => {
+    const el = topRef.current?.querySelector<HTMLElement>(`[data-af="${key}"]`);
+    if (!el) return;
+    if (el.dataset.afOpen !== undefined) {
+      (document.activeElement as HTMLElement | null)?.blur?.();
+      el.click();
+      return;
+    }
+    if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+      el.focus({ preventScroll: true });
+    } else {
+      // 버튼 묶음(성별 등)은 포커스 대신 키보드를 내리고 보이는 곳으로 끌어온다
+      (document.activeElement as HTMLElement | null)?.blur?.();
+    }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+  /** 값을 넣고, 그 값으로 "작성 완료"가 되면 다음 칸으로 넘긴다 */
+  const setAndAdvance = <K extends keyof ApplyFormState>(
+    key: K,
+    value: ApplyFormState[K],
+    nextKey: string | null
+  ) => {
+    if (!nextKey) return set(key, value);
+    flushSync(() => set(key, value));
+    focusField(nextKey);
+  };
 
   const filteredProducts = useMemo(() => {
     const q = pickerQuery.trim().toLowerCase();
@@ -236,6 +266,19 @@ export default function ApplyForm({
     }
   };
 
+  // 가입자 정보 단계에 들어오면 아직 비어 있는 첫 칸에 포커스를 준다
+  useEffect(() => {
+    if (step !== 1 || intro) return;
+    const key = !form.applicantName.trim() ? 'applicantName' : !isValidBirth(form.birthDate) ? 'birthDate' : null;
+    if (!key) return;
+    const t = setTimeout(() => {
+      topRef.current?.querySelector<HTMLElement>(`[data-af="${key}"]`)?.focus({ preventScroll: true });
+    }, 350);
+    return () => clearTimeout(t);
+    // 단계에 들어올 때 한 번만 본다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, intro]);
+
   const goPrev = () => {
     setTouched(false);
     if (step === 0) {
@@ -274,9 +317,12 @@ export default function ApplyForm({
     box.innerHTML = '';
     new window.daum.Postcode({
       oncomplete: (data) => {
-        set('zonecode', data.zonecode);
-        set('address', data.roadAddress || data.jibunAddress);
-        setPostcodeOpen(false);
+        flushSync(() => {
+          set('zonecode', data.zonecode);
+          set('address', data.roadAddress || data.jibunAddress);
+          setPostcodeOpen(false);
+        });
+        focusField('addressDetail');
       },
       width: '100%',
       height: '100%',
@@ -650,7 +696,7 @@ export default function ApplyForm({
               />
               <Choice
                 active={form.rentalStatus === '기존'}
-                onClick={() => set('rentalStatus', '기존')}
+                onClick={() => setAndAdvance('rentalStatus', '기존', 'existingRentalNote')}
                 label="사용 중인 제품이 있어요"
               />
             </div>
@@ -660,6 +706,8 @@ export default function ApplyForm({
                 <Input
                   value={form.existingRentalNote}
                   onChange={(v) => set('existingRentalNote', v)}
+                  af="existingRentalNote"
+                  onEnter={goNext}
                   placeholder="사용 중인 브랜드·제품 (예: 코웨이 정수기)"
                 />
                 <p className="mt-1.5 text-xs text-gray-400">
@@ -693,6 +741,8 @@ export default function ApplyForm({
             <Input
               value={form.applicantName}
               onChange={(v) => set('applicantName', v)}
+              af="applicantName"
+              onEnter={() => focusField('birthDate')}
               placeholder="가입자명"
               autoComplete="name"
             />
@@ -703,7 +753,13 @@ export default function ApplyForm({
               <Field label="생년월일" required error={err('birthDate')}>
                 <Input
                   value={form.birthDate}
-                  onChange={(v) => set('birthDate', formatBirth(v))}
+                  onChange={(v) => {
+                    const next = formatBirth(v);
+                    // 8자리를 다 채운 순간에만 넘긴다(고치는 중에는 붙잡아 두지 않는다)
+                    const done = isValidBirth(next) && !isValidBirth(form.birthDate);
+                    setAndAdvance('birthDate', next, done ? (form.gender ? 'phoneNumber' : 'gender') : null);
+                  }}
+                  af="birthDate"
                   placeholder="YYYY-MM-DD"
                   inputMode="numeric"
                 />
@@ -714,9 +770,16 @@ export default function ApplyForm({
           {revealed >= 2 && (
             <Reveal>
               <Field label="성별" required error={err('gender')}>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2" data-af="gender">
                   {GENDERS.map((g) => (
-                    <Choice key={g} active={form.gender === g} onClick={() => set('gender', g)} label={g} />
+                    <Choice
+                      key={g}
+                      active={form.gender === g}
+                      onClick={() =>
+                        setAndAdvance('gender', g, isValidPhone(form.phoneNumber) ? null : 'phoneNumber')
+                      }
+                      label={g}
+                    />
                   ))}
                 </div>
               </Field>
@@ -728,7 +791,14 @@ export default function ApplyForm({
               <Field label="가입자 명의 연락처" required error={err('phoneNumber')}>
                 <Input
                   value={form.phoneNumber}
-                  onChange={(v) => set('phoneNumber', formatPhone(v))}
+                  onChange={(v) => {
+                    const next = formatPhone(v);
+                    set('phoneNumber', next);
+                    // 번호를 다 채우면 키보드를 내려 아래(선택 항목)와 다음 버튼이 보이게 한다
+                    if (isValidPhone(next) && !isValidPhone(form.phoneNumber))
+                      (document.activeElement as HTMLElement | null)?.blur?.();
+                  }}
+                  af="phoneNumber"
                   placeholder="010-0000-0000"
                   inputMode="numeric"
                   autoComplete="tel"
@@ -745,6 +815,8 @@ export default function ApplyForm({
                     <Input
                       value={form.agentPhoneNumber}
                       onChange={(v) => set('agentPhoneNumber', formatPhone(v))}
+                      af="agentPhoneNumber"
+                      onEnter={() => focusField('email')}
                       placeholder="010-0000-0000"
                       inputMode="numeric"
                     />
@@ -764,7 +836,7 @@ export default function ApplyForm({
               ) : (
                 <button
                   type="button"
-                  onClick={() => set('useAgentPhone', true)}
+                  onClick={() => setAndAdvance('useAgentPhone', true, 'agentPhoneNumber')}
                   className="w-full flex items-center justify-center gap-1.5 py-3.5 mb-5 rounded-xl bg-gray-50 hover:bg-gray-100 text-sm font-medium text-gray-600 transition-colors"
                 >
                   <Plus className="w-4 h-4" />
@@ -776,6 +848,8 @@ export default function ApplyForm({
                 <Input
                   value={form.email}
                   onChange={(v) => set('email', v)}
+                  af="email"
+                  onEnter={goNext}
                   placeholder="이메일을 입력하세요"
                   type="email"
                   autoComplete="email"
@@ -809,6 +883,8 @@ export default function ApplyForm({
             <Input
               value={form.addressDetail}
               onChange={(v) => set('addressDetail', v)}
+              af="addressDetail"
+              onEnter={goNext}
               placeholder="동/호수 (주택이면 비워두셔도 돼요)"
             />
           </Field>
@@ -828,7 +904,7 @@ export default function ApplyForm({
               name="giftReceiver"
               title="수령자를 선택해주세요"
               value={form.giftReceiver}
-              onChange={(v) => set('giftReceiver', v)}
+              onChange={(v) => setAndAdvance('giftReceiver', v, form.giftBank ? null : 'giftBank')}
               placeholder="수령자 선택"
               options={[...GIFT_RECEIVERS]}
             />
@@ -838,15 +914,18 @@ export default function ApplyForm({
             <div className="space-y-2">
               <SheetSelect
                 name="giftBank"
+                af="giftBank"
                 title="은행을 선택해주세요"
                 value={form.giftBank}
-                onChange={(v) => set('giftBank', v)}
+                onChange={(v) => setAndAdvance('giftBank', v, 'giftAccountNumber')}
                 placeholder="은행 선택"
                 options={[...BANKS]}
               />
               <Input
                 value={form.giftAccountNumber}
                 onChange={(v) => set('giftAccountNumber', v.replace(/[^\d-]/g, ''))}
+                af="giftAccountNumber"
+                onEnter={goNext}
                 placeholder="계좌번호 입력 ('-' 없이)"
                 inputMode="numeric"
               />
@@ -900,13 +979,15 @@ export default function ApplyForm({
                     name="paymentBank"
                     title="은행을 선택해주세요"
                     value={form.paymentBank}
-                    onChange={(v) => set('paymentBank', v)}
+                    onChange={(v) => setAndAdvance('paymentBank', v, 'paymentAccountNumber')}
                     placeholder="은행 선택"
                     options={[...BANKS]}
                   />
                   <Input
                     value={form.paymentAccountNumber}
                     onChange={(v) => set('paymentAccountNumber', v.replace(/[^\d-]/g, ''))}
+                    af="paymentAccountNumber"
+                    onEnter={goNext}
                     placeholder="계좌번호 입력"
                     inputMode="numeric"
                   />
@@ -1102,6 +1183,8 @@ function Input({
   type = 'text',
   inputMode,
   autoComplete,
+  af,
+  onEnter,
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -1109,6 +1192,10 @@ function Input({
   type?: string;
   inputMode?: 'numeric' | 'text' | 'tel' | 'email';
   autoComplete?: string;
+  /** 자동 넘김이 이 칸을 찾을 때 쓰는 이름 */
+  af?: string;
+  /** 키보드의 엔터(다음)를 눌렀을 때 */
+  onEnter?: () => void;
 }) {
   return (
     <input
@@ -1118,6 +1205,14 @@ function Input({
       placeholder={placeholder}
       inputMode={inputMode}
       autoComplete={autoComplete}
+      data-af={af}
+      enterKeyHint={onEnter ? 'next' : undefined}
+      onKeyDown={(e) => {
+        // 한글 조합 중의 엔터는 글자 확정이므로 넘기지 않는다
+        if (e.key !== 'Enter' || e.nativeEvent.isComposing || !onEnter) return;
+        e.preventDefault();
+        onEnter();
+      }}
       className="w-full py-3.5 px-4 rounded-xl bg-[#f2f4f6] border-0 focus:outline-none focus:ring-2 focus:ring-[#ffc2d2] text-[15px] placeholder-gray-400 transition-shadow"
     />
   );
@@ -1145,9 +1240,12 @@ function SheetSelect({
   onChange,
   options,
   placeholder,
+  af,
 }: {
   name: string;
   title: string;
+  /** 자동 넘김 대상이면 이름을 준다. 넘어오면 시트가 바로 열린다 */
+  af?: string;
   value: string;
   onChange: (v: string) => void;
   options: string[];
@@ -1168,6 +1266,8 @@ function SheetSelect({
         type="button"
         onClick={() => setOpen(true)}
         data-testid={`sheet-select-${name}`}
+        data-af={af}
+        data-af-open={af ? '' : undefined}
         className={`w-full flex items-center justify-between py-3.5 px-4 rounded-xl bg-[#f2f4f6] hover:bg-[#eceef1] text-[15px] text-left transition-colors ${
           value ? 'text-[#333d4b]' : 'text-gray-400'
         }`}
