@@ -34,6 +34,12 @@ export function getSupabaseAdmin(): SupabaseClient {
         autoRefreshToken: false,
         persistSession: false,
       },
+      // Next 는 서버의 fetch(GET) 응답을 기본으로 저장해 두고 다시 쓴다. supabase-js 의 조회도 fetch 라서
+      // 그대로 두면 방금 바꾼 값(이름 등)이 다른 요청에서는 예전 값으로 보인다. 관리자용 조회는 항상 새로 받는다.
+      // (공개 화면의 캐시는 unstable_cache 로 따로 관리하므로 영향이 없다.)
+      global: {
+        fetch: (input, init) => fetch(input, { ...init, cache: 'no-store' }),
+      },
     })
   }
 
