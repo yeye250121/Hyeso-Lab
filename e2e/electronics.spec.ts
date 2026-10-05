@@ -67,7 +67,7 @@ test.describe('4. 옵션 선택 → 상담 신청(명세서) → 신청서', () 
 
     await expect(page).toHaveURL(/\/electronics\/application\?product=kyowon-wells-wp610nwa&plan=/);
     const bridge = page.getByTestId('apply-bridge');
-    await expect(bridge).toContainText('아래 상품으로 신청할게요');
+    await expect(bridge).toContainText('이 상품으로 신청할게요');
     await expect(bridge).toContainText('미미 정수기');
     await bridge.getByRole('button', { name: '상세보기' }).click();
     await expect(bridge).toContainText('5년 약정');
