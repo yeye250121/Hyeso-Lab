@@ -1,66 +1,28 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { ClipboardList, FileText, ImageOff, Package, PhoneCall } from 'lucide-react'
 import AdminLayout from '@/components/admin/AdminLayout'
-import api from '@/lib/admin/api'
-import { Users, FileText, TrendingUp, Clock } from 'lucide-react'
 import InviteKeyGenerator from '@/components/admin/InviteKeyGenerator'
+import api from '@/lib/admin/api'
+import { LEAD_STATUS, SERVICE_LABEL, formatDateTime } from '@/components/admin/labels'
 
-interface DashboardStats {
-  totalPartners: number
-  totalInquiries: number
-  newInquiries: number
-  contractedInquiries: number
-  recentInquiries: {
-    id: number
-    name: string
-    phone: string
-    marketerCode: string
-    status: string
-    createdAt: string
-  }[]
+interface Stats {
+  leads: { total: number; today: number; week: number; unprocessed: number; byService: Record<string, number>; daily: { date: string; count: number }[] }
+  applications: { total: number; today: number; unprocessed: number }
+  products: { active: number; inactive: number; withoutImage: number }
+  recentLeads: { id: string; service: string; name: string; phone: string; product: string | null; status: string; submittedAt: string }[]
 }
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [stats, setStats] = useState<Stats | null>(null)
 
   useEffect(() => {
-    fetchStats()
+    api.get('/admin/dashboard').then((res) => setStats(res.data)).catch(() => {})
   }, [])
 
-  const fetchStats = async () => {
-    try {
-      const response = await api.get('/admin/dashboard')
-      setStats(response.data)
-    } catch (error) {
-      console.error('Failed to fetch stats:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      new: '신규',
-      in_progress: '상담중',
-      contracted: '계약완료',
-      cancelled: '취소',
-    }
-    return labels[status] || status
-  }
-
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      new: 'bg-action-primary/10 text-action-primary',
-      in_progress: 'bg-yellow-100 text-yellow-700',
-      contracted: 'bg-green-100 text-green-700',
-      cancelled: 'bg-gray-100 text-gray-500',
-    }
-    return colors[status] || 'bg-gray-100 text-gray-500'
-  }
-
-  if (isLoading) {
+  if (!stats) {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center h-64">
@@ -70,114 +32,90 @@ export default function DashboardPage() {
     )
   }
 
+  const maxDaily = Math.max(1, ...stats.leads.daily.map((d) => d.count))
+
   return (
     <AdminLayout>
       <div className="space-y-6">
         <h1 className="text-headline text-text-primary">대시보드</h1>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-bg-card rounded-card p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-action-primary/10 rounded-full flex items-center justify-center">
-                <Users className="w-6 h-6 text-action-primary" />
-              </div>
-              <div>
-                <p className="text-small text-text-secondary">전체 파트너</p>
-                <p className="text-headline text-text-primary">
-                  {stats?.totalPartners || 0}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-bg-card rounded-card p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <FileText className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <p className="text-small text-text-secondary">전체 문의</p>
-                <p className="text-headline text-text-primary">
-                  {stats?.totalInquiries || 0}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-bg-card rounded-card p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                <Clock className="w-6 h-6 text-yellow-600" />
-              </div>
-              <div>
-                <p className="text-small text-text-secondary">신규 문의</p>
-                <p className="text-headline text-text-primary">
-                  {stats?.newInquiries || 0}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-bg-card rounded-card p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-small text-text-secondary">계약 완료</p>
-                <p className="text-headline text-text-primary">
-                  {stats?.contractedInquiries || 0}
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* 지금 처리할 것 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <Card href="/admin/leads?status=new" icon={PhoneCall} tone="primary" label="미처리 상담 신청" value={stats.leads.unprocessed} sub={`오늘 ${stats.leads.today}건 · 최근 7일 ${stats.leads.week}건`} />
+          <Card href="/admin/applications" icon={FileText} tone="green" label="미처리 신청서" value={stats.applications.unprocessed} sub={`오늘 ${stats.applications.today}건 · 전체 ${stats.applications.total}건`} />
+          <Card href="/admin/leads" icon={ClipboardList} tone="yellow" label="누적 상담 신청" value={stats.leads.total} sub={Object.entries(stats.leads.byService).map(([k, v]) => `${SERVICE_LABEL[k] ?? k} ${v}`).join(' · ')} />
+          <Card href="/admin/rental-products" icon={stats.products.withoutImage ? ImageOff : Package} tone="purple" label="판매 중 렌탈 상품" value={stats.products.active} sub={`사진 없음 ${stats.products.withoutImage}개 · 판매 중지 ${stats.products.inactive}개`} />
         </div>
 
-        {/* Recent Inquiries */}
-        <div className="bg-bg-card rounded-card p-6">
-          <h2 className="text-title text-text-primary mb-4">최근 문의</h2>
-
-          {stats?.recentInquiries && stats.recentInquiries.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 text-small text-text-secondary font-medium">이름</th>
-                    <th className="text-left py-3 px-4 text-small text-text-secondary font-medium">연락처</th>
-                    <th className="text-left py-3 px-4 text-small text-text-secondary font-medium">담당자</th>
-                    <th className="text-left py-3 px-4 text-small text-text-secondary font-medium">상태</th>
-                    <th className="text-left py-3 px-4 text-small text-text-secondary font-medium">등록일</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentInquiries.map((inquiry) => (
-                    <tr key={inquiry.id} className="border-b border-border last:border-0">
-                      <td className="py-3 px-4 text-body text-text-primary">{inquiry.name}</td>
-                      <td className="py-3 px-4 text-body text-text-secondary">{inquiry.phone}</td>
-                      <td className="py-3 px-4 text-body text-text-secondary">{inquiry.marketerCode}</td>
-                      <td className="py-3 px-4">
-                        <span className={`inline-block px-2 py-1 rounded-full text-small ${getStatusColor(inquiry.status)}`}>
-                          {getStatusLabel(inquiry.status)}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-body text-text-tertiary">
-                        {new Date(inquiry.createdAt).toLocaleDateString('ko-KR')}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        <div className="grid xl:grid-cols-3 gap-4">
+          {/* 최근 7일 유입 */}
+          <section className="bg-bg-card rounded-card p-6">
+            <h2 className="text-title text-text-primary mb-5">최근 7일 상담 신청</h2>
+            <div className="flex items-end gap-2 h-36">
+              {stats.leads.daily.map((d) => (
+                <div key={d.date} className="flex-1 flex flex-col items-center gap-1.5">
+                  <span className="text-xs text-text-secondary">{d.count || ''}</span>
+                  <div className="w-full rounded-t bg-action-primary/80" style={{ height: `${(d.count / maxDaily) * 96 + (d.count ? 4 : 1)}px`, opacity: d.count ? 1 : 0.25 }} />
+                  <span className="text-xs text-text-tertiary">{d.date}</span>
+                </div>
+              ))}
             </div>
-          ) : (
-            <p className="text-body text-text-secondary text-center py-8">
-              최근 문의가 없습니다
-            </p>
-          )}
+          </section>
+
+          {/* 최근 신청 */}
+          <section className="bg-bg-card rounded-card p-6 xl:col-span-2">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-title text-text-primary">최근 상담 신청</h2>
+              <Link href="/admin/leads" className="text-small text-action-primary">전체 보기</Link>
+            </div>
+            {stats.recentLeads.length === 0 ? (
+              <p className="py-8 text-center text-small text-text-secondary">아직 들어온 상담 신청이 없습니다.</p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {stats.recentLeads.map((l) => {
+                  const st = LEAD_STATUS[l.status] ?? LEAD_STATUS.new
+                  return (
+                    <li key={l.id} className="flex items-center gap-3 py-2.5 text-small">
+                      <span className="w-20 shrink-0 text-text-secondary">{formatDateTime(l.submittedAt)}</span>
+                      <span className="w-16 shrink-0 text-text-primary">{SERVICE_LABEL[l.service] ?? l.service}</span>
+                      <span className="w-20 shrink-0 text-text-primary truncate">{l.name}</span>
+                      <span className="w-32 shrink-0 text-text-primary">{l.phone}</span>
+                      <span className="flex-1 min-w-0 truncate text-text-secondary">{l.product ?? '상담 후 결정'}</span>
+                      <span className={`shrink-0 px-2 py-0.5 rounded-full text-xs font-medium ${st.cls}`}>{st.label}</span>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </section>
         </div>
 
         <InviteKeyGenerator />
       </div>
     </AdminLayout>
+  )
+}
+
+const TONES: Record<string, string> = {
+  primary: 'bg-action-primary/10 text-action-primary',
+  green: 'bg-green-100 text-green-600',
+  yellow: 'bg-yellow-100 text-yellow-600',
+  purple: 'bg-purple-100 text-purple-600',
+}
+
+function Card({ href, icon: Icon, tone, label, value, sub }: { href: string; icon: typeof Package; tone: string; label: string; value: number; sub: string }) {
+  return (
+    <Link href={href} className="bg-bg-card rounded-card p-6 hover:shadow-md transition-shadow">
+      <div className="flex items-center gap-4">
+        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${TONES[tone]}`}>
+          <Icon className="w-6 h-6" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-small text-text-secondary">{label}</p>
+          <p className="text-headline text-text-primary">{value.toLocaleString()}</p>
+        </div>
+      </div>
+      <p className="mt-3 text-xs text-text-secondary truncate">{sub}</p>
+    </Link>
   )
 }

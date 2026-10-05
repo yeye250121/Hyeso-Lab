@@ -5,12 +5,11 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
-  Users,
   FileText,
-  Receipt,
-  BookOpen,
   LogOut,
   Package,
+  PhoneCall,
+  CreditCard,
 } from 'lucide-react'
 import { useAuthStore } from '@/lib/admin/store'
 import { useRouter } from 'next/navigation'
@@ -18,13 +17,14 @@ import ThemeToggle from '@/components/shared/ThemeToggle'
 
 const LOGO_URL = 'https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png'
 
+// 지금 사업(상담 신청 → 신청서 → 본사 전달)에 맞춘 메뉴.
+// 예전 CCTV 파트너 사업용 화면(문의·파트너·정산서·가이드)은 주소로는 열리지만 메뉴에서는 뺐다.
 const menuItems = [
   { href: '/admin/dashboard', label: '대시보드', icon: LayoutDashboard },
-  { href: '/admin/inquiries', label: '문의 관리', icon: FileText },
-  { href: '/admin/partners', label: '파트너 관리', icon: Users },
-  { href: '/admin/settlements', label: '정산서 관리', icon: Receipt },
-  { href: '/admin/guides', label: '가이드 관리', icon: BookOpen },
-  { href: '/admin/products', label: '상품 관리', icon: Package },
+  { href: '/admin/leads', label: '상담 신청', icon: PhoneCall },
+  { href: '/admin/applications', label: '신청서', icon: FileText },
+  { href: '/admin/rental-products', label: '렌탈 상품', icon: Package },
+  { href: '/admin/cards', label: '카드 상품', icon: CreditCard },
 ]
 
 interface SidebarProps {
