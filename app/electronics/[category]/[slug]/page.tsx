@@ -70,8 +70,18 @@ const HIDDEN_SPEC_KEYS = new Set(['sourceModel', 'coverageBucket']);
 // 숫자만 들어오는 값에 단위를 붙인다
 const SPEC_UNITS: Record<string, string> = { weightKg: 'kg', filterCount: '개' };
 
+// 한글이 들어간 슬러그는 params 에 퍼센트 인코딩된 채로 온다. 풀지 않으면 DB 의 슬러그와
+// 맞지 않아 404 가 된다(현대렌탈처럼 모델코드가 한글 이름인 상품 55개가 해당).
+function decodeSlug(slug: string): string {
+  try {
+    return decodeURIComponent(slug);
+  } catch {
+    return slug;
+  }
+}
+
 export async function generateMetadata({ params }: PageProps) {
-  const product = await getProductBySlug(params.slug);
+  const product = await getProductBySlug(decodeSlug(params.slug));
   if (!product) return {};
   const min = Math.min(...product.plans.map((p) => p.monthly_fee));
   return {
@@ -81,7 +91,7 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function ProductDetailPage({ params }: PageProps) {
-  const product = await getProductBySlug(params.slug);
+  const product = await getProductBySlug(decodeSlug(params.slug));
   if (!product || product.plans.length === 0) notFound();
 
   const insights = await getProductInsights(product);

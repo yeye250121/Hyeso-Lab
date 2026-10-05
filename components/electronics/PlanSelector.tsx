@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, Info } from 'lucide-react';
 import type { ProductPlan } from '@/lib/electronicsApi';
+import ApplyDrawer from '@/components/electronics/toss/ApplyDrawer';
 
 // 약정 -> 관리방법 -> 판매구분 순으로 좁혀가며 요금제를 고른다.
 // 앞 단계를 바꾸면 뒤 단계는 선택 가능한 값으로 자동 보정된다.
@@ -25,6 +26,7 @@ export default function PlanSelector({
 }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [drawerSrc, setDrawerSrc] = useState<string | null>(null);
 
   const contracts = useMemo(
     () => [...new Set(plans.map((p) => p.contract_months))].sort((a, b) => a - b),
@@ -76,7 +78,6 @@ export default function PlanSelector({
     }`;
 
   const apply = () => {
-    setSubmitting(true);
     // planId 만 넘기면 신청 폼이 약정/관리를 기본값(최저 약정)으로 되돌린다.
     // 화면에 보이는 선택과 저장되는 조건이 어긋나지 않도록 함께 넘긴다.
     const params = new URLSearchParams({
@@ -85,11 +86,19 @@ export default function PlanSelector({
       months: String(contract),
     });
     if (effectiveCare) params.set('care', effectiveCare);
+    // 데스크톱은 상세 화면을 떠나지 않고 오른쪽 서랍에서 신청서를 쓴다. 모바일은 페이지로 이동한다.
+    if (window.matchMedia('(min-width: 1024px)').matches) {
+      params.set('embed', '1');
+      setDrawerSrc(`/electronics/application?${params.toString()}`);
+      return;
+    }
+    setSubmitting(true);
     router.push(`/electronics/application?${params.toString()}`);
   };
 
   return (
     <div className="w-full">
+      <ApplyDrawer src={drawerSrc} onClose={() => setDrawerSrc(null)} />
       <div className="space-y-3">
         <div>
           <p className="text-[13px] font-bold text-[#333d4b] mb-1.5">약정</p>

@@ -68,6 +68,7 @@ export default function ApplyForm({
   initialApplicantName,
   initialPhoneNumber,
   leadId,
+  embedded,
 }: {
   products: ProductListItem[];
   initialProductSlug?: string;
@@ -80,6 +81,8 @@ export default function ApplyForm({
   initialApplicantName?: string;
   initialPhoneNumber?: string;
   leadId?: string;
+  /** 상품 상세의 서랍(iframe) 안에서 열린 경우. 바깥 창을 기준으로 이동·닫기를 한다 */
+  embedded?: boolean;
 }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -235,12 +238,28 @@ export default function ApplyForm({
 
   const goPrev = () => {
     setTouched(false);
-    if (step === 0) router.back();
+    if (step === 0) {
+      // 서랍 안에서는 뒤로 갈 페이지가 없다. 확인 화면이 있었으면 거기로, 아니면 서랍을 닫는다
+      if (embedded) {
+        if (initialProductSlug && selectedProduct) setIntro(true);
+        else window.parent.postMessage({ type: 'bl:apply-close' }, window.location.origin);
+      } else router.back();
+    }
     else {
       setStep(step - 1);
       topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+
+  // 서랍(iframe) 안에 포커스가 있으면 ESC 가 바깥 창에 닿지 않는다. 여기서 받아 닫기를 요청한다.
+  useEffect(() => {
+    if (!embedded) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') window.parent.postMessage({ type: 'bl:apply-close' }, window.location.origin);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [embedded]);
 
   // 주소 찾기는 새 창 팝업 대신 화면 안 모달에 끼워 넣는다(모바일에서 창이 튀지 않고 톤도 맞출 수 있다).
   const [postcodeOpen, setPostcodeOpen] = useState(false);
@@ -315,7 +334,7 @@ export default function ApplyForm({
   if (intro && selectedProduct) {
     return (
       <div className="max-w-[560px] mx-auto px-6 pt-8 pb-44" data-testid="apply-bridge">
-        <h1 className="text-[26px] font-semibold text-[#333d4b] leading-snug mb-7">아래 상품으로 신청할게요</h1>
+        <h1 className="text-[26px] font-semibold text-[#333d4b] leading-snug mb-7">이 상품으로 신청할게요</h1>
 
         <div className="rounded-2xl bg-[#f2f4f6] px-5 py-5">
           <div className="flex items-center gap-3">
@@ -397,12 +416,14 @@ export default function ApplyForm({
           actions={
             <>
               <Link
+                target={embedded ? '_top' : undefined}
                 href="/electronics"
                 className="inline-flex items-center justify-center h-[52px] rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white font-semibold transition-colors"
               >
                 완료
               </Link>
               <Link
+                target={embedded ? '_top' : undefined}
                 href="/"
                 className="inline-flex items-center justify-center h-[52px] rounded-xl bg-[#f2f4f6] hover:bg-[#eceef1] text-[#333d4b] font-semibold transition-colors"
               >

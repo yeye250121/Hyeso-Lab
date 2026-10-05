@@ -1,6 +1,6 @@
 import Navbar from '@/components/shared/Navbar';
 import ApplyForm from '@/components/electronics/ApplyForm';
-import { getProductsForCategory } from '@/lib/electronicsApi';
+import { getAllProducts, getProductsForCategory } from '@/lib/electronicsApi';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 // 셀프 가입 신청서(6단계). 상담 신청(명세서) 뒤 알림톡으로 받은 링크(?lead=)로 들어오면
@@ -49,9 +49,35 @@ export default async function ApplicationPage({ searchParams }: PageProps) {
   const lead = await loadLead(firstValue(searchParams?.lead));
 
   const productSlug = firstValue(searchParams?.product) ?? lead?.product_snapshot?.slug;
-  const category = firstValue(searchParams?.category) ?? lead?.category_slug ?? 'water-purifier';
+  // 상품만 넘어온 경우(상세의 신청 버튼) 그 상품의 카테고리를 찾아 쓴다.
+  // 찾지 않으면 정수기 목록만 불러와서, 비데·공기청정기 상품은 미리 선택되지 않는다.
+  let category = firstValue(searchParams?.category) ?? lead?.category_slug ?? undefined;
+  if (!category && productSlug) {
+    category = (await getAllProducts()).find((p) => p.slug === productSlug)?.category_slug;
+  }
+  category ??= 'water-purifier';
   // 상품 선택기에 쓸 목록. 요금제는 이미 요약본이라 가볍다.
   const products = await getProductsForCategory(category);
+
+  const form = (embedded: boolean) => (
+    <ApplyForm
+      products={products}
+      initialProductSlug={productSlug}
+      initialPlanId={firstValue(searchParams?.plan) ?? lead?.plan_id ?? undefined}
+      initialContractMonths={Number(firstValue(searchParams?.months)) || lead?.contract_months || undefined}
+      initialCareType={firstValue(searchParams?.care) ?? lead?.care_type ?? undefined}
+      initialCategory={category}
+      initialApplicantName={lead?.applicant_name ?? undefined}
+      initialPhoneNumber={lead?.phone_number}
+      leadId={lead?.id}
+      embedded={embedded}
+    />
+  );
+
+  // 상품 상세의 서랍(iframe)에서 열릴 때는 폼만 그린다. 서랍이 틀 역할을 한다.
+  if (firstValue(searchParams?.embed) === '1') {
+    return <div className="min-h-screen bg-white">{form(true)}</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white lg:bg-[#f2f4f6]">
@@ -62,19 +88,7 @@ export default async function ApplicationPage({ searchParams }: PageProps) {
       <main className="flex-1 w-full lg:flex lg:items-start lg:justify-center lg:py-6">
         <div className="lg:w-[430px] lg:h-[min(880px,calc(100vh-7rem))] lg:rounded-[28px] lg:bg-white lg:shadow-[0_12px_40px_rgba(51,61,75,0.12)] lg:overflow-hidden lg:[transform:translateZ(0)]">
           <div className="lg:h-full lg:overflow-y-auto">
-            <ApplyForm
-              products={products}
-              initialProductSlug={productSlug}
-              initialPlanId={firstValue(searchParams?.plan) ?? lead?.plan_id ?? undefined}
-              initialContractMonths={
-                Number(firstValue(searchParams?.months)) || lead?.contract_months || undefined
-              }
-              initialCareType={firstValue(searchParams?.care) ?? lead?.care_type ?? undefined}
-              initialCategory={category}
-              initialApplicantName={lead?.applicant_name ?? undefined}
-              initialPhoneNumber={lead?.phone_number}
-              leadId={lead?.id}
-            />
+            {form(false)}
           </div>
         </div>
       </main>
