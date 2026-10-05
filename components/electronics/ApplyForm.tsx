@@ -179,6 +179,7 @@ export default function ApplyForm({
         if (!form.productSlug) e.product = '상품을 선택하거나 "상담 후 결정"을 골라주세요.';
         else if (form.contractMonths === null) e.contract = '약정 기간을 선택해주세요.';
       }
+      if (!form.rentalStatus) e.rentalStatus = '렌탈 이용 여부를 선택해주세요.';
     }
     if (step === 1) {
       if (!form.applicantName.trim()) e.applicantName = '가입자명을 입력해주세요.';
@@ -498,6 +499,36 @@ export default function ApplyForm({
               )}
             </>
           )}
+
+          {/* 신규/기존: 기존 사용 중이면 타사보상·결합 할인이 적용될 수 있어 상담원이 먼저 확인한다 */}
+          <div className="mt-8">
+            <Label required>렌탈 이용 여부</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <Choice
+                active={form.rentalStatus === '신규'}
+                onClick={() => set('rentalStatus', '신규')}
+                label="처음이에요"
+              />
+              <Choice
+                active={form.rentalStatus === '기존'}
+                onClick={() => set('rentalStatus', '기존')}
+                label="사용 중인 제품이 있어요"
+              />
+            </div>
+            {err('rentalStatus') && <ErrorText>{err('rentalStatus')}</ErrorText>}
+            {form.rentalStatus === '기존' && (
+              <div className="mt-3">
+                <Input
+                  value={form.existingRentalNote}
+                  onChange={(v) => set('existingRentalNote', v)}
+                  placeholder="사용 중인 브랜드·제품 (예: 코웨이 정수기)"
+                />
+                <p className="mt-1.5 text-xs text-gray-400">
+                  다른 브랜드로 바꾸면 보상 할인, 같은 브랜드면 결합 할인을 받을 수 있어요.
+                </p>
+              </div>
+            )}
+          </div>
         </Section>
       )}
 

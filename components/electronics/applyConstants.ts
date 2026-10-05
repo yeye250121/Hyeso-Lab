@@ -52,6 +52,9 @@ export const STEPS = [
 export type ApplyFormState = {
   // 1
   decideAfterConsult: boolean;
+  /** 렌탈 신규/기존 사용 여부. 타사보상·결합 할인이 갈려 상담에 가장 먼저 필요하다 */
+  rentalStatus: '신규' | '기존' | null;
+  existingRentalNote: string;
   productSlug: string | null;
   planId: string | null;
   contractMonths: number | null;
@@ -87,6 +90,8 @@ export type ApplyFormState = {
 
 export const INITIAL_STATE: ApplyFormState = {
   decideAfterConsult: false,
+  rentalStatus: null,
+  existingRentalNote: '',
   productSlug: null,
   planId: null,
   contractMonths: null,

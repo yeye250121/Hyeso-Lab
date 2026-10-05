@@ -35,6 +35,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         leadId: a.lead_id,
         revealed: reveal,
 
+        statementSentAt: a.statement_sent_at,
+        rentalStatus: a.rental_status,
+        existingRentalNote: a.existing_rental_note,
+
         decideAfterConsult: a.decide_after_consult,
         product: snap.displayName ? `${snap.brand ?? ''} ${snap.displayName}`.trim() : null,
         modelCode: snap.modelCode ?? null,

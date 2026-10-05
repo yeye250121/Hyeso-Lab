@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     let query = getSupabaseAdmin()
       .from('electronics_applications')
       .select(
-        'id, applicant_name, phone_number, customer_type, status, decide_after_consult, product_snapshot, contract_months, care_type, address, lead_id, admin_memo, submitted_at'
+        'id, applicant_name, phone_number, customer_type, status, decide_after_consult, product_snapshot, contract_months, care_type, address, lead_id, admin_memo, rental_status, statement_sent_at, submitted_at'
       )
       .order('submitted_at', { ascending: false })
       .limit(500)
@@ -46,6 +46,8 @@ export async function GET(request: NextRequest) {
           region: a.address ? a.address.split(' ').slice(0, 2).join(' ') : null,
           leadId: a.lead_id,
           memo: a.admin_memo ?? '',
+          rentalStatus: a.rental_status,
+          statementSentAt: a.statement_sent_at,
           submittedAt: a.submitted_at,
         }
       }),

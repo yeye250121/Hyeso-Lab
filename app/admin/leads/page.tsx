@@ -6,6 +6,7 @@ import { Phone, RefreshCw, Search } from 'lucide-react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import api from '@/lib/admin/api'
 import { LEAD_STATUS, SERVICE_LABEL, formatDateTime, monthsLabel } from '@/components/admin/labels'
+import StatementPanel from '@/components/admin/StatementPanel'
 
 interface Lead {
   id: string
@@ -23,6 +24,7 @@ interface Lead {
   referrerUrl: string | null
   alimtalkSentAt: string | null
   applicationId: string | null
+  statementSentAt: string | null
   submittedAt: string
 }
 
@@ -235,7 +237,9 @@ function LeadRows({
                   </dd>
                 </div>
               </dl>
-              <div>
+              <div className="space-y-4">
+                <StatementPanel endpoint={`/admin/leads/${l.id}/statement`} sentAt={l.statementSentAt} />
+                <div>
                 <textarea
                   value={memoDraft}
                   onChange={(e) => setMemoDraft(e.target.value)}
@@ -246,6 +250,7 @@ function LeadRows({
                 <button onClick={onSaveMemo} disabled={saving || memoDraft.trim() === l.memo} className="mt-2 px-4 py-2 rounded-button bg-action-primary text-white text-small font-medium disabled:opacity-40">
                   {saving ? '저장 중…' : '메모 저장'}
                 </button>
+                </div>
               </div>
             </div>
           </td>

@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     let query = getSupabaseAdmin()
       .from('leads')
       .select(
-        'id, service, category_slug, applicant_name, phone_number, status, admin_memo, product_snapshot, contract_months, care_type, agreed_marketing, referrer_url, marketer_code, alimtalk_sent_at, application_id, submitted_at'
+        'id, service, category_slug, applicant_name, phone_number, status, admin_memo, product_snapshot, contract_months, care_type, agreed_marketing, referrer_url, marketer_code, alimtalk_sent_at, application_id, statement_sent_at, submitted_at'
       )
       .order('submitted_at', { ascending: false })
       .limit(500)
@@ -51,6 +51,7 @@ export async function GET(request: NextRequest) {
           marketerCode: l.marketer_code,
           alimtalkSentAt: l.alimtalk_sent_at,
           applicationId: l.application_id,
+          statementSentAt: l.statement_sent_at,
           submittedAt: l.submitted_at,
         }
       }),

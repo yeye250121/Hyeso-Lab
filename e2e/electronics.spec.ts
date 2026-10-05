@@ -147,6 +147,8 @@ test.describe('4. 옵션 선택 → 상담 신청(명세서) → 신청서', () 
 
     await page.goto('/electronics/application?product=kyowon-wells-wp610nwa&months=60');
     await expect(page.getByText('미미 정수기').first()).toBeVisible();
+    await page.getByRole('button', { name: '사용 중인 제품이 있어요' }).click();
+    await page.getByPlaceholder(/사용 중인 브랜드/).fill('코웨이 정수기');
     await next(page);
 
     // 2단계: 가입자 정보
@@ -187,6 +189,8 @@ test.describe('4. 옵션 선택 → 상담 신청(명세서) → 신청서', () 
     expect(submitted!.productSlug).toBe('kyowon-wells-wp610nwa');
     expect(submitted!.contractMonths).toBe(60);
     expect(submitted!.applicantName).toBe('E2E테스트');
+    expect(submitted!.rentalStatus).toBe('기존');
+    expect(submitted!.existingRentalNote).toBe('코웨이 정수기');
   });
 });
 

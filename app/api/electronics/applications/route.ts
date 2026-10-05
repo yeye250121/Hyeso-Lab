@@ -15,6 +15,8 @@ const account = z
 const bodySchema = z.object({
   // 1
   decideAfterConsult: z.boolean().default(false),
+  rentalStatus: z.enum(['신규', '기존']).nullable().optional(),
+  existingRentalNote: z.string().trim().max(200).optional(),
   productSlug: z.string().trim().min(1).max(120).nullable().optional(),
   planId: z.string().uuid().nullable().optional(),
   contractMonths: z.number().int().positive().max(240).nullable().optional(),
@@ -147,6 +149,8 @@ export async function POST(request: NextRequest) {
         product_id: productId,
         plan_id: planId,
         decide_after_consult: parsed.decideAfterConsult,
+        rental_status: parsed.rentalStatus ?? null,
+        existing_rental_note: parsed.rentalStatus === '기존' ? parsed.existingRentalNote || null : null,
         contract_months: parsed.contractMonths ?? null,
         care_type: parsed.careType ?? null,
         product_snapshot: snapshot,

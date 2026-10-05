@@ -6,6 +6,7 @@ import { Eye, EyeOff, RefreshCw, Search, X } from 'lucide-react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import api from '@/lib/admin/api'
 import { APPLICATION_STATUS, formatDateTime, monthsLabel } from '@/components/admin/labels'
+import StatementPanel from '@/components/admin/StatementPanel'
 
 interface AppRow {
   id: string
@@ -21,6 +22,8 @@ interface AppRow {
   region: string | null
   leadId: string | null
   memo: string
+  rentalStatus: string | null
+  statementSentAt: string | null
   submittedAt: string
 }
 
@@ -138,15 +141,16 @@ function ApplicationsInner() {
                 <th className="px-4 py-3 font-medium">구분</th>
                 <th className="px-4 py-3 font-medium">상품</th>
                 <th className="px-4 py-3 font-medium">설치 지역</th>
+                <th className="px-4 py-3 font-medium">명세서</th>
                 <th className="px-4 py-3 font-medium">상태</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
-                <tr><td colSpan={7} className="px-4 py-12 text-center text-text-secondary">불러오는 중…</td></tr>
+                <tr><td colSpan={8} className="px-4 py-12 text-center text-text-secondary">불러오는 중…</td></tr>
               )}
               {!loading && rows.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-12 text-center text-text-secondary">조건에 맞는 신청서가 없습니다.</td></tr>
+                <tr><td colSpan={8} className="px-4 py-12 text-center text-text-secondary">조건에 맞는 신청서가 없습니다.</td></tr>
               )}
               {!loading &&
                 rows.map((r) => {
@@ -168,6 +172,9 @@ function ApplicationsInner() {
                         )}
                       </td>
                       <td className="px-4 py-3 text-text-secondary whitespace-nowrap">{r.region ?? '-'}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {r.statementSentAt ? <span className="text-xs text-green-600">{formatDateTime(r.statementSentAt)} 전달</span> : <span className="text-xs text-text-tertiary">미전달</span>}
+                      </td>
                       <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                         <select value={r.status} onChange={(e) => changeStatus(r.id, e.target.value)} className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${st.cls}`}>
                           {Object.entries(APPLICATION_STATUS).map(([k, v]) => (
@@ -203,6 +210,21 @@ function ApplicationsInner() {
                 {detail.revealed ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 {detail.revealed ? '민감정보 다시 가리기' : '민감정보 보기 (열람 기록이 남습니다)'}
               </button>
+
+              <StatementPanel
+                key={detail.id}
+                endpoint={`/admin/applications/${detail.id}/statement`}
+                sentAt={(detail.statementSentAt as string | null) ?? null}
+                onSent={(res) => {
+                  setRows((prev) => prev.map((r) => (r.id === detail.id ? { ...r, statementSentAt: res.sentAt, status: res.status ?? r.status } : r)))
+                  setDetail((d) => (d ? { ...d, statementSentAt: res.sentAt, status: res.status ?? d.status } : d))
+                }}
+              />
+
+              <Block title="렌탈 이용 여부">
+                <Item k="신규 / 기존" v={detail.rentalStatus === '기존' ? '기존 사용 중' : detail.rentalStatus ?? '미확인'} />
+                <Item k="사용 중인 제품" v={detail.existingRentalNote} />
+              </Block>
 
               <Block title="상품">
                 <Item k="상품" v={detail.decideAfterConsult ? '상담 후 결정' : detail.product} />
