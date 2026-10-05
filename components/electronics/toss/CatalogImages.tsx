@@ -24,7 +24,7 @@ export default function CatalogImages({ images, alt }: { images: string[]; alt: 
         className="relative overflow-hidden rounded-2xl"
         style={open ? undefined : { maxHeight: COLLAPSED_HEIGHT }}
       >
-        <div className="mx-auto max-w-[860px]">
+        <div className="mx-auto max-w-[860px] lg:max-w-[645px]">
           {images.map((src, i) => {
             const size = sizeOf(src);
             return (
