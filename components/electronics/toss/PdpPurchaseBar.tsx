@@ -13,11 +13,13 @@ import type { WishItem } from './useWishlist';
 export default function PdpPurchaseBar({
   plans,
   productSlug,
+  brand,
   minFee,
   wishItem,
 }: {
   plans: ProductPlan[];
   productSlug: string;
+  brand: string;
   minFee: number;
   wishItem: Omit<WishItem, 'addedAt'>;
 }) {
@@ -75,7 +77,7 @@ export default function PdpPurchaseBar({
                 <X className="w-5 h-5 text-gray-400" />
               </button>
             </div>
-            <PlanSelector plans={plans} productSlug={productSlug} />
+            <PlanSelector plans={plans} productSlug={productSlug} brand={brand} />
           </div>
         </div>
       )}

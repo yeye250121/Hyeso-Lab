@@ -139,6 +139,13 @@ const CATEGORY_COLUMNS = 'id, parent_id, slug, name, icon_url, display_order, fi
 const PRODUCT_LIST_COLUMNS =
   'id, slug, brand, model_code, display_name, image_urls, specs, review_count, display_order';
 
+// [B2B] 판매조건은 10대·30대 이상 사업자 대량 계약용이라 일반 고객 화면에서는 뺀다.
+// B2B 요금제밖에 없는 상품은 가격이 비지 않도록 그대로 둔다. (목록용 뷰 electronics_plan_summary 도 같은 규칙)
+function consumerPlans<T extends { plan_variant: string }>(plans: T[]): T[] {
+  const rest = plans.filter((p) => !p.plan_variant.startsWith('[B2B]'));
+  return rest.length ? rest : plans;
+}
+
 // 정책표의 모델코드 칸에는 메모("(신제품)", "26.08.03일부터 …")나 이름 전체가 들어 있는 경우가 있다.
 // 화면에는 코드처럼 생긴 부분만 보여 주고, 코드가 없으면 비운다. DB 값(업체 전달용)은 그대로 둔다.
 const MODEL_TOKEN_RE = /[A-Z]{1,6}-?[A-Z0-9]*\d[A-Z0-9]*(?:[-_][A-Z0-9]+)*/g;
@@ -392,7 +399,7 @@ export const getProductBySlug = unstable_cache(
       specs: (product.specs ?? {}) as ProductSpecs,
       review_count: product.review_count ?? 0,
       category: { slug: category?.slug ?? '', name: category?.name ?? '' },
-      plans: ((plans ?? []) as ProductPlan[]).map((p) => ({ ...p, extra: p.extra ?? {} })),
+      plans: consumerPlans((plans ?? []) as ProductPlan[]).map((p) => ({ ...p, extra: p.extra ?? {} })),
     };
   },
   ['electronics-product-detail'],

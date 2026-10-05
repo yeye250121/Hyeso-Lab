@@ -190,7 +190,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
             <div className="hidden lg:block mt-8 pt-8 border-t border-gray-100">
               <h2 className="text-lg font-bold text-[#333d4b] mb-5">가입 조건을 선택하세요</h2>
-              <PlanSelector plans={product.plans} productSlug={product.slug} />
+              <PlanSelector plans={product.plans} productSlug={product.slug} brand={product.brand} />
             </div>
           </div>
         </div>
@@ -228,6 +228,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       <PdpPurchaseBar
         plans={product.plans}
         productSlug={product.slug}
+        brand={product.brand}
         minFee={minFee}
         wishItem={wishItem}
       />

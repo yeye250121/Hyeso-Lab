@@ -8,6 +8,11 @@ import ApplyDrawer from '@/components/electronics/toss/ApplyDrawer';
 
 // 약정 -> 관리방법 -> 판매구분 순으로 좁혀가며 요금제를 고른다.
 // 앞 단계를 바꾸면 뒤 단계는 선택 가능한 값으로 자동 보정된다.
+//
+// 판매조건이 정책표 내부 코드(S/P/J…, 패키지(크로스) 등)라 고객이 고를 수 없는 브랜드는
+// 판매조건 칩을 숨기고, 고른 약정·관리방법 안에서 가장 저렴한 요금을 보여준다.
+// 실제 적용 조건은 상담에서 확정한다. (코드 뜻을 확인하면 질문형 선택으로 바꿀 예정)
+const AUTO_VARIANT_BRANDS = ['SK매직', '청호나이스'];
 
 // 칩에는 짧게("3년"), 가격 요약에는 길게("3년 약정") 쓴다
 function monthsShort(m: number) {
@@ -20,10 +25,13 @@ function monthsLabel(m: number) {
 export default function PlanSelector({
   plans,
   productSlug,
+  brand,
 }: {
   plans: ProductPlan[];
   productSlug: string;
+  brand?: string;
 }) {
+  const autoVariant = !!brand && AUTO_VARIANT_BRANDS.includes(brand);
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [drawerSrc, setDrawerSrc] = useState<string | null>(null);
@@ -57,7 +65,7 @@ export default function PlanSelector({
     (p) =>
       p.contract_months === contract &&
       p.care_type === effectiveCare &&
-      p.plan_variant === effectiveVariant
+      (autoVariant || p.plan_variant === effectiveVariant)
   );
   // 같은 조합에 요금제가 여럿이면(관리주기 차이 등) 가장 저렴한 것을 기본으로 보여준다
   const selected = candidates.sort((a, b) => a.monthly_fee - b.monthly_fee)[0];
@@ -136,7 +144,7 @@ export default function PlanSelector({
           </div>
         )}
 
-        {effectiveVariants.length > 1 && (
+        {!autoVariant && effectiveVariants.length > 1 && (
           <div>
             <p className="text-[13px] font-bold text-[#333d4b] mb-1.5">판매조건</p>
             <div className="flex flex-wrap gap-1.5">
@@ -205,6 +213,13 @@ export default function PlanSelector({
             </div>
           )}
         </div>
+
+        {autoVariant && effectiveVariants.length > 1 && (
+          <p className="mt-4 flex items-start gap-2 rounded-xl bg-white px-3 py-2.5 text-xs text-gray-600 leading-relaxed">
+            <Info className="w-3.5 h-3.5 text-[var(--action-primary)] shrink-0 mt-0.5" />
+            이 조건에서 받을 수 있는 가장 낮은 요금이에요. 결합·타사 보상 여부에 따라 달라질 수 있고, 상담에서 확정해 드려요.
+          </p>
+        )}
 
         {selected.promotion_note && (
           <p className="mt-4 flex items-start gap-2 rounded-xl bg-white px-3 py-2.5 text-xs text-gray-600 leading-relaxed">
