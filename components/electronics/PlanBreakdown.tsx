@@ -1,11 +1,11 @@
-import Image from 'next/image';
 import { ChevronDown, Info } from 'lucide-react';
+import CatalogImages from '@/components/electronics/toss/CatalogImages';
 import type { ProductDetail, ProductInsights } from '@/lib/electronicsApi';
 
 // 상세정보. 조합을 전부 나열하면 눈만 아프므로 약정별 최저가만 한 줄씩 보여준다.
 // "월이 싸질수록 총액은 비싸진다"가 한눈에 들어오는 것이 목적이다.
 //
-// 제휴사에서 제품 상세 이미지를 받으면 image_urls 에 넣기만 하면 표 위에 붙는다.
+// 상세페이지 카탈로그 이미지는 detail_image_urls 에 넣으면 표 위에 접힌 채로 붙는다.
 
 function monthsLabel(m: number) {
   return m % 12 === 0 ? `${m / 12}년` : `${m}개월`;
@@ -35,27 +35,9 @@ export default function PlanBreakdown({
   const cheapestMonthly = Math.min(...rows.map((r) => r.fee));
   const cheapestTotal = Math.min(...rows.map((r) => r.total));
 
-  // 상세 이미지는 첫 장(대표 이미지)을 뺀 나머지로 본다
-  const detailImages = product.image_urls.slice(1);
-
   return (
     <div className="space-y-8">
-      {detailImages.length > 0 && (
-        <div className="space-y-3">
-          {detailImages.map((src) => (
-            <div key={src} className="relative w-full">
-              <Image
-                src={src}
-                alt={`${product.display_name} 상세 이미지`}
-                width={1000}
-                height={1400}
-                sizes="(max-width: 1024px) 100vw, 900px"
-                className="w-full h-auto rounded-2xl"
-              />
-            </div>
-          ))}
-        </div>
-      )}
+      <CatalogImages images={product.detail_image_urls} alt={product.display_name} />
 
       <div>
         <h3 className="text-base font-bold text-[#333d4b] mb-1">약정별 렌탈료</h3>

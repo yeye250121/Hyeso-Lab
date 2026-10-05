@@ -127,6 +127,8 @@ export type ProductDetail = {
   display_name: string;
   description: string | null;
   image_urls: string[];
+  /** 상세페이지 카탈로그 이미지. 위에서 아래 순서 */
+  detail_image_urls: string[];
   specs: ProductSpecs;
   review_count: number;
   category: { slug: string; name: string };
@@ -357,7 +359,7 @@ export const getProductBySlug = unstable_cache(
     const { data: product, error } = await supabase
       .from('electronics_products')
       .select(
-        'id, slug, brand, model_code, display_name, description, image_urls, specs, review_count, electronics_categories!inner(slug, name)'
+        'id, slug, brand, model_code, display_name, description, image_urls, detail_image_urls, specs, review_count, electronics_categories!inner(slug, name)'
       )
       .eq('slug', slug)
       .maybeSingle();
@@ -386,6 +388,7 @@ export const getProductBySlug = unstable_cache(
       display_name: product.display_name,
       description: product.description,
       image_urls: product.image_urls ?? [],
+      detail_image_urls: product.detail_image_urls ?? [],
       specs: (product.specs ?? {}) as ProductSpecs,
       review_count: product.review_count ?? 0,
       category: { slug: category?.slug ?? '', name: category?.name ?? '' },
