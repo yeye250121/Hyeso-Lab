@@ -134,7 +134,7 @@ export default function PlanBreakdown({
 function SpecTable({ rows, product }: { rows: string[][]; product: ProductDetail }) {
   const base: string[][] = [
     ['브랜드', product.brand],
-    ['모델명', product.model_code],
+    ...(product.model_code ? [['모델명', product.model_code]] : []),
     ...rows,
   ];
   const head = base.slice(0, VISIBLE_SPEC_ROWS);

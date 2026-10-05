@@ -86,7 +86,7 @@ export async function generateMetadata({ params }: PageProps) {
   const min = Math.min(...product.plans.map((p) => p.monthly_fee));
   return {
     title: `${product.brand} ${product.display_name} 렌탈 | 혜택 연구소`,
-    description: `${product.brand} ${product.display_name}(${product.model_code}) 월 ${min.toLocaleString()}원부터. 약정·관리방법별 실제 렌탈료와 총 납부액을 확인하세요.`,
+    description: `${product.brand} ${product.display_name}${product.model_code ? `(${product.model_code})` : ''} 월 ${min.toLocaleString()}원부터. 약정·관리방법별 실제 렌탈료와 총 납부액을 확인하세요.`,
   };
 }
 

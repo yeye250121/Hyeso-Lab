@@ -136,6 +136,16 @@ export type ProductDetail = {
 const CATEGORY_COLUMNS = 'id, parent_id, slug, name, icon_url, display_order, filter_schema';
 const PRODUCT_LIST_COLUMNS =
   'id, slug, brand, model_code, display_name, image_urls, specs, review_count, display_order';
+
+// 정책표의 모델코드 칸에는 메모("(신제품)", "26.08.03일부터 …")나 이름 전체가 들어 있는 경우가 있다.
+// 화면에는 코드처럼 생긴 부분만 보여 주고, 코드가 없으면 비운다. DB 값(업체 전달용)은 그대로 둔다.
+const MODEL_TOKEN_RE = /[A-Z]{1,6}-?[A-Z0-9]*\d[A-Z0-9]*(?:[-_][A-Z0-9]+)*/g;
+export function displayModelCode(raw: string): string {
+  if (!/[가-힣]/.test(raw)) return raw.trim();
+  const tokens = (raw.match(MODEL_TOKEN_RE) ?? []).filter((t) => t.replace(/[-_]/g, '').length >= 5);
+  const strong = tokens.filter((t) => t.includes('-') || t.length >= 7);
+  return Array.from(new Set(strong.length ? strong : tokens)).join(' · ');
+}
 const PLAN_COLUMNS =
   'id, product_id, contract_months, care_type, care_cycle_months, plan_variant, monthly_fee, list_price, ownership_months, promotion_note, extra';
 
@@ -283,7 +293,7 @@ async function attachPlanSummaries(rows: RawProductRow[]): Promise<ProductListIt
         id: r.id,
         slug: r.slug,
         brand: r.brand,
-        model_code: r.model_code,
+        model_code: displayModelCode(r.model_code),
         display_name: r.display_name,
         image_urls: r.image_urls ?? [],
         specs: (r.specs ?? {}) as ProductSpecs,
@@ -372,7 +382,7 @@ export const getProductBySlug = unstable_cache(
       id: product.id,
       slug: product.slug,
       brand: product.brand,
-      model_code: product.model_code,
+      model_code: displayModelCode(product.model_code),
       display_name: product.display_name,
       description: product.description,
       image_urls: product.image_urls ?? [],

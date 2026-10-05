@@ -350,7 +350,7 @@ export default function ApplyForm({
             <BridgeRow k="상품명" v={`${selectedProduct.brand} ${selectedProduct.display_name}`} />
             {introDetail && (
               <>
-                <BridgeRow k="모델코드" v={selectedProduct.model_code} />
+                {selectedProduct.model_code && <BridgeRow k="모델코드" v={selectedProduct.model_code} />}
                 <BridgeRow k="약정 기간" v={form.contractMonths ? monthsLabel(form.contractMonths) : '상담 시 결정'} />
                 <BridgeRow k="관리 방법" v={form.careType ?? '상담 시 결정'} />
               </>
@@ -519,7 +519,7 @@ export default function ApplyForm({
                       {selectedProduct.display_name}
                     </p>
                     <p className="mt-0.5 text-xs text-gray-500">
-                      {selectedProduct.model_code} · 월 {selectedProduct.minFee.toLocaleString()}원~
+                      {selectedProduct.model_code ? `${selectedProduct.model_code} · ` : ''}월 {selectedProduct.minFee.toLocaleString()}원~
                     </p>
                   </div>
                   <button
