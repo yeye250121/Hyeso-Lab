@@ -6,7 +6,7 @@ import AdminLayout from '@/components/admin/AdminLayout'
 import Avatar from '@/components/admin/Avatar'
 import api from '@/lib/admin/api'
 
-// 내 프로필: 채팅에 보이는 이름과 사진을 바꾼다.
+// 내 프로필: 채팅에 보이는 이름과 사진, 로그인 비밀번호를 바꾼다.
 
 const PROFILE_EVENT = 'admin-profile-changed'
 
@@ -32,6 +32,30 @@ export default function AdminProfilePage() {
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const [pw, setPw] = useState({ current: '', next: '', confirm: '' })
+  const [pwBusy, setPwBusy] = useState(false)
+  const [pwNotice, setPwNotice] = useState('')
+  const [pwError, setPwError] = useState('')
+
+  const changePassword = async () => {
+    setPwNotice('')
+    if (!pw.current) return setPwError('현재 비밀번호를 입력해주세요.')
+    if (pw.next.length < 8) return setPwError('새 비밀번호는 8자 이상으로 입력해주세요.')
+    if (pw.next !== pw.confirm) return setPwError('새 비밀번호가 서로 달라요.')
+    setPwBusy(true)
+    setPwError('')
+    try {
+      await api.post('/admin/profile/password', { currentPassword: pw.current, newPassword: pw.next })
+      setPw({ current: '', next: '', confirm: '' })
+      setPwNotice('비밀번호를 바꿨어요. 다음 로그인부터 새 비밀번호를 쓰세요.')
+    } catch (e) {
+      const msg = (e as { response?: { data?: { error?: string } } }).response?.data?.error
+      setPwError(msg || '비밀번호를 바꾸지 못했어요.')
+    } finally {
+      setPwBusy(false)
+    }
+  }
 
   useEffect(() => {
     api
@@ -165,6 +189,50 @@ export default function AdminProfilePage() {
             {notice && <p className="text-small text-action-primary">{notice}</p>}
             {error && <p className="text-small text-red-500">{error}</p>}
           </div>
+        )}
+
+        {!loading && (
+          <form
+            className="rounded-2xl bg-bg-card border border-border p-6 space-y-3"
+            onSubmit={(e) => {
+              e.preventDefault()
+              changePassword()
+            }}
+          >
+            <h2 className="text-title text-text-primary">비밀번호 바꾸기</h2>
+            {/* 브라우저 비밀번호 관리자가 어느 계정의 비밀번호인지 알 수 있게 아이디를 숨겨 둔다 */}
+            <input type="text" autoComplete="username" value={loginId} readOnly hidden />
+            {(
+              [
+                ['current', '현재 비밀번호', 'current-password'],
+                ['next', '새 비밀번호 (8자 이상)', 'new-password'],
+                ['confirm', '새 비밀번호 확인', 'new-password'],
+              ] as const
+            ).map(([key, label, auto]) => (
+              <input
+                key={key}
+                type="password"
+                value={pw[key]}
+                onChange={(e) => setPw((p) => ({ ...p, [key]: e.target.value }))}
+                placeholder={label}
+                aria-label={label}
+                autoComplete={auto}
+                maxLength={72}
+                data-testid={`password-${key}`}
+                className="w-full px-4 py-2.5 rounded-button bg-bg-primary border border-border text-body text-text-primary focus:outline-none focus:border-action-primary"
+              />
+            ))}
+            {pwNotice && <p className="text-small text-action-primary">{pwNotice}</p>}
+            {pwError && <p className="text-small text-red-500" data-testid="password-error">{pwError}</p>}
+            <button
+              type="submit"
+              disabled={pwBusy}
+              data-testid="password-submit"
+              className="px-4 py-2.5 rounded-button bg-action-primary text-white text-small font-medium disabled:opacity-50"
+            >
+              비밀번호 바꾸기
+            </button>
+          </form>
         )}
       </div>
     </AdminLayout>
