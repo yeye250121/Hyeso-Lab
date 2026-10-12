@@ -41,7 +41,6 @@ export default async function CarrierPage({ params, searchParams }: Props) {
             <ChevronLeft className="w-4 h-4" /> 인터넷 홈
           </Link>
           <h1 className="mt-3 text-2xl font-bold text-[#333d4b]">{carrier.name} 인터넷</h1>
-          <p className="mt-1 text-sm text-gray-500">조건을 고르면 월 요금과 사은품이 바로 계산돼요.</p>
         </div>
 
         <div className="pt-8">
