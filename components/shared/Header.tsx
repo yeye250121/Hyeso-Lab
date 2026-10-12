@@ -16,7 +16,7 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2">
-              <Image src={LOGO_URL} alt="혜택 연구소" width={720} height={264} className="h-4 w-auto" />
+              <Image src={LOGO_URL} alt="혜택 연구소" width={720} height={264} className="h-[18px] w-auto" />
             </Link>
             <span className="ml-4 text-sm text-gray-500">N-Level 마케팅 플랫폼</span>
           </div>

@@ -66,7 +66,7 @@ export default function Footer({
               alt="혜택 연구소"
               width={720}
               height={264}
-              className="h-[18px] w-auto opacity-80"
+              className="h-5 w-auto opacity-80"
             />
             <div className="space-y-1 text-sm text-gray-500">
               <p>

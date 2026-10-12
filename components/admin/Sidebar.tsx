@@ -86,8 +86,8 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
       {/* 로고 */}
       <div className="p-6 border-b border-border">
         <Link href="/admin/dashboard" className="flex items-center gap-2">
-          <Image src={LOGO_URL} alt="혜택 연구소" width={720} height={264} className="h-4 w-auto dark:hidden" />
-          <Image src={LOGO_DARK_URL} alt="" aria-hidden width={720} height={264} className="h-4 w-auto hidden dark:block" />
+          <Image src={LOGO_URL} alt="혜택 연구소" width={720} height={264} className="h-[18px] w-auto dark:hidden" />
+          <Image src={LOGO_DARK_URL} alt="" aria-hidden width={720} height={264} className="h-[18px] w-auto hidden dark:block" />
           <span className="text-title text-text-primary">Admin</span>
         </Link>
         <Link href="/admin/profile" className="mt-3 flex items-center gap-2.5 group" data-testid="sidebar-profile">

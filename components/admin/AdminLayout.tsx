@@ -54,8 +54,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* 모바일 헤더 */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-bg-card border-b border-border flex items-center justify-between px-4 z-40">
         <Link href="/admin/dashboard" className="flex items-center gap-2">
-          <Image src={LOGO_URL} alt="혜택 연구소" width={720} height={264} className="h-4 w-auto dark:hidden" />
-          <Image src={LOGO_DARK_URL} alt="" aria-hidden width={720} height={264} className="h-4 w-auto hidden dark:block" />
+          <Image src={LOGO_URL} alt="혜택 연구소" width={720} height={264} className="h-[18px] w-auto dark:hidden" />
+          <Image src={LOGO_DARK_URL} alt="" aria-hidden width={720} height={264} className="h-[18px] w-auto hidden dark:block" />
           <span className="text-body font-semibold text-text-primary">Admin</span>
         </Link>
         <button
