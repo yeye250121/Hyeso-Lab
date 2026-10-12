@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import MyPageDrawer from '@/components/shared/MyPageDrawer';
 
-const NAV_LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-lab_logo_pic_text_black.png';
+const NAV_LOGO_URL = '/logo/hyeso.png';
 
 const MENU = [
   { href: '/card', label: '카드' },
@@ -35,9 +35,10 @@ export default function Navbar() {
           <Image
             src={NAV_LOGO_URL}
             alt="혜택 연구소"
-            width={300}
-            height={84}
-            className="h-[60px] w-auto"
+            width={720}
+            height={264}
+            priority
+            className="h-10 w-auto"
           />
         </Link>
 
