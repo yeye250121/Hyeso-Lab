@@ -3,26 +3,33 @@ import { expect, test } from '@playwright/test';
 // 인터넷 탭 E2E. 메인(통신사 선택·맞춤 추천) → 통신사 설정기 → 신청 버튼 활성까지.
 // 신청서 제출은 다루지 않는다(DB 에 쓰지 않는다).
 
-test.describe('인터넷 메인', () => {
-  test('통신사 카드가 있고, 추천 질문 2개에 답하면 통신사별 결과가 요금순으로 뜬다', async ({ page }) => {
+test.describe('인터넷 메인 · 맞춤 추천', () => {
+  test('통신사 카드(사업자 제외)가 있고, 추천 카드 → 질문 3개 → 결과가 요금순으로 뜬다', async ({ page }) => {
     await page.goto('/internet');
     await expect(page.getByTestId('carrier-card-kt')).toBeVisible();
+    await expect(page.getByTestId('carrier-card-lg-soho')).toHaveCount(0);
 
-    // 답하기 전엔 결과 없음
-    await expect(page.getByTestId('rec-results')).toHaveCount(0);
+    await page.getByTestId('recommend-entry').click();
+    await expect(page).toHaveURL(/\/internet\/recommend$/);
+
+    // 선택지를 누르면 바로 다음 질문
     await page.getByTestId('rec-household-3-4').click();
     await page.getByTestId('rec-tv-yes').click();
+    await page.getByTestId('rec-pref-any').click();
 
-    const results = page.getByTestId('rec-result');
-    await expect(results.first()).toBeVisible();
-    const fees = await results.evaluateAll((els) =>
+    await expect(page.getByTestId('rec-result-screen')).toBeVisible();
+    const top = page.getByTestId('rec-top');
+    await expect(top).toContainText('월');
+    const topFee = Number(((await top.textContent())?.match(/월 ([\d,]+)원/) ?? [])[1]?.replace(/,/g, ''));
+    const fees = await page.getByTestId('rec-result').evaluateAll((els) =>
       els.map((el) => Number((el.textContent?.match(/월 ([\d,]+)원/) ?? [])[1]?.replace(/,/g, '')))
     );
-    expect(fees.length).toBeGreaterThan(1);
-    expect([...fees].sort((a, b) => a - b)).toEqual(fees);
+    expect(fees.length).toBeGreaterThan(0);
+    expect([topFee, ...fees]).toEqual([topFee, ...fees].slice().sort((a, b) => a - b));
+    await expect(page.getByTestId('rec-apply')).toHaveAttribute('href', /\/internet\/application\?product=/);
 
     // 결과를 누르면 조건이 미리 선택된 설정기로 간다
-    await results.first().click();
+    await top.click();
     await expect(page).toHaveURL(/\/internet\/[a-z-]+\?addon=tv&speed=500M/);
     await expect(page.getByTestId('cfg-summary-inline')).toContainText('월');
   });

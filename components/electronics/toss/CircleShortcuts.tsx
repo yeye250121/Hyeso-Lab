@@ -5,9 +5,15 @@ import type { LucideIcon } from 'lucide-react';
 // 실제 동작하는 진입점(상담·카테고리·찜·인기 카테고리)을 놓는다.
 export type Shortcut = { label: string; href: string; icon: LucideIcon };
 
-export default function CircleShortcuts({ items }: { items: Shortcut[] }) {
+export default function CircleShortcuts({ items, align = 'spread' }: { items: Shortcut[]; align?: 'spread' | 'left' }) {
   return (
-    <ul className="flex items-start justify-between max-w-[420px] mx-auto sm:mx-0 sm:gap-10 sm:justify-start">
+    <ul
+      className={
+        align === 'left'
+          ? 'flex items-start justify-start gap-6 sm:gap-10'
+          : 'flex items-start justify-between max-w-[420px] mx-auto sm:mx-0 sm:gap-10 sm:justify-start'
+      }
+    >
       {items.map(({ label, href, icon: Icon }) => (
         <li key={href}>
           <Link href={href} className="group flex flex-col items-center gap-2 w-[68px]">

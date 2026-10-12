@@ -151,7 +151,7 @@ export default function CarrierConfigurator({
         <section>
           <h2 className="text-[17px] font-bold text-[#333d4b]">통신사</h2>
           <div className="mt-3 flex gap-2 overflow-x-auto -mx-6 px-6 pb-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]" data-testid="cfg-carriers">
-            {carriers.map((c) => {
+            {carriers.filter((c) => !c.business_only || c.id === carrier.id).map((c) => {
               const active = c.id === carrier.id;
               return (
                 <button
