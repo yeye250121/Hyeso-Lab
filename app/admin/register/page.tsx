@@ -7,7 +7,8 @@ import Link from 'next/link'
 import api from '@/lib/admin/api'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 
-const LOGO_URL = 'https://yknptcjxrizgccxczzuy.supabase.co/storage/v1/object/public/Benefit-lab/Benefit-lab_logo_v0.png'
+const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso.png'
+const LOGO_DARK_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-dark.png'
 
 export default function AdminRegisterPage() {
   const router = useRouter()
@@ -45,7 +46,8 @@ export default function AdminRegisterPage() {
         <div className="bg-bg-card rounded-card p-8">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <Image src={LOGO_URL} alt="혜택 연구소" width={140} height={40} className="h-10 w-auto dark:brightness-0 dark:invert" />
+              <Image src={LOGO_URL} alt="혜택 연구소" width={720} height={264} className="h-5 w-auto dark:hidden" />
+              <Image src={LOGO_DARK_URL} alt="" aria-hidden width={720} height={264} className="h-5 w-auto hidden dark:block" />
               <span className="text-headline text-text-primary">Admin</span>
             </div>
             <p className="text-body text-text-secondary">새 관리자 등록 (초대 전용)</p>

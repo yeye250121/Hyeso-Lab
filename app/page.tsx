@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from 'react'
 import Footer from '@/components/shared/Footer'
 import Navbar from '@/components/shared/Navbar'
 
-const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-lab_logo_pic_text_black.png'
 
 // 명세서 폼(M1)이 생기기 전까지는 유일한 입력폼인 렌탈 신청으로 보낸다.
 const START_HREF = '/apply'
@@ -242,7 +241,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Footer logoSrc={LOGO_URL} />
+      <Footer />
 
       <style jsx>{`
         @keyframes fade-in-up {
