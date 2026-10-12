@@ -21,15 +21,24 @@ const FAQ = [
 
 export default function InternetNotes({ compact = false }: { compact?: boolean }) {
   const [open, setOpen] = useState<number | null>(null);
+  const [openNote, setOpenNote] = useState<number | null>(null);
   return (
     <div className="space-y-10">
       <section>
         <h2 className="text-[17px] font-bold text-[#333d4b]">꼭 알아두세요</h2>
-        <ul className="mt-3 rounded-2xl bg-[#f4f5f7] divide-y divide-white">
-          {NOTES.slice(0, compact ? 3 : NOTES.length).map((n) => (
-            <li key={n.t} className="px-4 py-3.5">
-              <p className="text-[14px] font-semibold text-[#333d4b]">{n.t}</p>
-              <p className="mt-0.5 text-[13px] text-gray-500">{n.d}</p>
+        <ul className="mt-3 rounded-2xl bg-[#f4f5f7] divide-y divide-white" data-testid="internet-notes">
+          {NOTES.slice(0, compact ? 3 : NOTES.length).map((n, i) => (
+            <li key={n.t}>
+              <button
+                type="button"
+                onClick={() => setOpenNote(openNote === i ? null : i)}
+                aria-expanded={openNote === i}
+                className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left"
+              >
+                <span className="text-[14px] font-semibold text-[#333d4b]">{n.t}</span>
+                <ChevronDown className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${openNote === i ? 'rotate-180' : ''}`} />
+              </button>
+              {openNote === i && <p className="px-4 pb-3.5 -mt-1 text-[13px] text-gray-500 leading-relaxed">{n.d}</p>}
             </li>
           ))}
         </ul>
