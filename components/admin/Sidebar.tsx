@@ -19,8 +19,7 @@ import { useAuthStore } from '@/lib/admin/store'
 import { useRouter } from 'next/navigation'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 
-const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso.png'
-const LOGO_DARK_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-dark.png'
+const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-mark.png'
 
 // 지금 사업(상담 신청 → 신청서 → 본사 전달)에 맞춘 메뉴.
 // 예전 CCTV 파트너 사업용 화면(문의·파트너·정산서·가이드)은 주소로는 열리지만 메뉴에서는 뺐다.
@@ -86,8 +85,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
       {/* 로고 */}
       <div className="p-6 border-b border-border">
         <Link href="/admin/dashboard" className="flex items-center gap-2">
-          <Image src={LOGO_URL} alt="혜택 연구소" width={720} height={264} className="h-[18px] w-auto dark:hidden" />
-          <Image src={LOGO_DARK_URL} alt="" aria-hidden width={720} height={264} className="h-[18px] w-auto hidden dark:block" />
+          <Image src={LOGO_URL} alt="혜택 연구소" width={512} height={512} className="h-6 w-6" />
           <span className="text-title text-text-primary">Admin</span>
         </Link>
         <Link href="/admin/profile" className="mt-3 flex items-center gap-2.5 group" data-testid="sidebar-profile">

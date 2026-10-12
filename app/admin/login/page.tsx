@@ -7,8 +7,7 @@ import { useAuthStore } from '@/lib/admin/store'
 import api from '@/lib/admin/api'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 
-const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso.png'
-const LOGO_DARK_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-dark.png'
+const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-mark.png'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -48,8 +47,7 @@ export default function AdminLoginPage() {
         <div className="bg-bg-card rounded-card p-8">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <Image src={LOGO_URL} alt="혜택 연구소" width={720} height={264} className="h-[22px] w-auto dark:hidden" />
-              <Image src={LOGO_DARK_URL} alt="" aria-hidden width={720} height={264} className="h-[22px] w-auto hidden dark:block" />
+              <Image src={LOGO_URL} alt="혜택 연구소" width={512} height={512} className="h-8 w-8" />
               <span className="text-headline text-text-primary">Admin</span>
             </div>
             <p className="text-body text-text-secondary">관리자 로그인</p>

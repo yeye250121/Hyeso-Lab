@@ -12,6 +12,10 @@ const notoSansKR = Noto_Sans_KR({
 export const metadata: Metadata = {
   title: "혜택 연구소",
   description: "집에서 딸깍, 혜택 연구소",
+  icons: {
+    icon: "https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-mark.png",
+    apple: "https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-mark-apple.png",
+  },
 };
 
 export default function RootLayout({
