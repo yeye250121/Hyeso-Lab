@@ -50,7 +50,7 @@ const defaultLinkSections: FooterLinkSection[] = [
 ];
 
 export default function Footer({
-  logoSrc = '/logo/hyeso.png',
+  logoSrc = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso.png',
   companyInfo = defaultCompanyInfo,
   linkSections = defaultLinkSections,
   showCopyright = true,
@@ -66,7 +66,7 @@ export default function Footer({
               alt="혜택 연구소"
               width={720}
               height={264}
-              className="h-9 w-auto opacity-80"
+              className="h-[18px] w-auto opacity-80"
             />
             <div className="space-y-1 text-sm text-gray-500">
               <p>
