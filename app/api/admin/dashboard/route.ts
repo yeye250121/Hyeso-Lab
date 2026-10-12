@@ -14,16 +14,20 @@ export async function GET(request: NextRequest) {
     const todayStart = new Date(Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth(), kst.getUTCDate()) - 9 * 3600 * 1000)
     const weekStart = new Date(todayStart.getTime() - 6 * 24 * 3600 * 1000)
 
-    const [leads, apps, products] = await Promise.all([
+    const [leads, apps, iapps, products] = await Promise.all([
       db.from('leads').select('id, service, status, applicant_name, phone_number, product_snapshot, submitted_at').order('submitted_at', { ascending: false }).limit(1000),
       db.from('electronics_applications').select('id, status, submitted_at').order('submitted_at', { ascending: false }).limit(1000),
+      db.from('internet_applications').select('id, status, submitted_at, needs_followup').order('submitted_at', { ascending: false }).limit(1000),
       db.from('electronics_products').select('id, is_active, image_urls'),
     ])
-    const error = leads.error || apps.error || products.error
+    const error = leads.error || apps.error || iapps.error || products.error
     if (error) throw error
 
     const L = leads.data ?? []
-    const A = apps.data ?? []
+    const E = apps.data ?? []
+    const I = iapps.data ?? []
+    // 신청서는 서비스별 테이블이 다르다. 합계는 둘을 합치고, 서비스별 수치도 따로 준다.
+    const A = [...E, ...I]
     const P = products.data ?? []
     const since = (rows: { submitted_at: string }[], from: Date) => rows.filter((r) => new Date(r.submitted_at) >= from).length
 
@@ -56,6 +60,15 @@ export async function GET(request: NextRequest) {
         total: A.length,
         today: since(A, todayStart),
         unprocessed: A.filter((a) => a.status === 'new').length,
+        byService: {
+          electronics: { total: E.length, unprocessed: E.filter((a) => a.status === 'new').length },
+          internet: {
+            total: I.length,
+            unprocessed: I.filter((a) => a.status === 'new').length,
+            // 건너뛴 항목이 있고 아직 끝나지 않은 건. 해피콜 대상.
+            followup: I.filter((a) => a.needs_followup && a.status !== 'contracted' && a.status !== 'cancelled').length,
+          },
+        },
       },
       products: {
         active: active.length,

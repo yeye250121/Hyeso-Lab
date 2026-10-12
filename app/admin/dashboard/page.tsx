@@ -10,7 +10,12 @@ import { LEAD_STATUS, SERVICE_LABEL, formatDateTime } from '@/components/admin/l
 
 interface Stats {
   leads: { total: number; today: number; week: number; unprocessed: number; byService: Record<string, number>; daily: { date: string; count: number }[] }
-  applications: { total: number; today: number; unprocessed: number }
+  applications: {
+    total: number
+    today: number
+    unprocessed: number
+    byService: { electronics: { total: number; unprocessed: number }; internet: { total: number; unprocessed: number; followup: number } }
+  }
   products: { active: number; inactive: number; withoutImage: number }
   recentLeads: { id: string; service: string; name: string; phone: string; product: string | null; status: string; submittedAt: string }[]
 }
@@ -42,7 +47,7 @@ export default function DashboardPage() {
         {/* 지금 처리할 것 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           <Card href="/admin/leads?status=new" icon={PhoneCall} tone="primary" label="미처리 상담 신청" value={stats.leads.unprocessed} sub={`오늘 ${stats.leads.today}건 · 최근 7일 ${stats.leads.week}건`} />
-          <Card href="/admin/applications" icon={FileText} tone="green" label="미처리 신청서" value={stats.applications.unprocessed} sub={`오늘 ${stats.applications.today}건 · 전체 ${stats.applications.total}건`} />
+          <Card href="/admin/applications" icon={FileText} tone="green" label="미처리 신청서" value={stats.applications.unprocessed} sub={`가전렌탈 ${stats.applications.byService.electronics.unprocessed} · 인터넷 ${stats.applications.byService.internet.unprocessed}${stats.applications.byService.internet.followup ? ` (보완 필요 ${stats.applications.byService.internet.followup})` : ''} · 오늘 ${stats.applications.today}건 · 전체 ${stats.applications.total}건`} />
           <Card href="/admin/leads" icon={ClipboardList} tone="yellow" label="누적 상담 신청" value={stats.leads.total} sub={Object.entries(stats.leads.byService).map(([k, v]) => `${SERVICE_LABEL[k] ?? k} ${v}`).join(' · ')} />
           <Card href="/admin/rental-products" icon={stats.products.withoutImage ? ImageOff : Package} tone="purple" label="판매 중 렌탈 상품" value={stats.products.active} sub={`사진 없음 ${stats.products.withoutImage}개 · 판매 중지 ${stats.products.inactive}개`} />
         </div>
