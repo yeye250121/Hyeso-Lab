@@ -1,25 +1,17 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal, flushSync } from 'react-dom';
+import { flushSync } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
-import Script from 'next/script';
 import { useRouter } from 'next/navigation';
-import {
-  ChevronLeft,
-  Check,
-  ChevronDown,
-  ChevronRight,
-  Info,
-  Loader2,
-  MapPin,
-  Plus,
-  Search,
-  X,
-} from 'lucide-react';
+import { ChevronLeft, ChevronDown, ChevronRight, Info, Loader2, MapPin, Plus, Search, X } from 'lucide-react';
 import type { ProductListItem } from '@/lib/electronicsApi';
 import SuccessOverlay from '@/components/shared/SuccessOverlay';
+import { BridgeRow, Choice, ErrorText, Field, Input, Label, Reveal, Section, SheetSelect } from '@/components/apply/ui';
+import { focusFieldIn, scrollToFirstError } from '@/components/apply/engine';
+import ProgressDots from '@/components/apply/ProgressDots';
+import PostcodeModal, { usePostcode } from '@/components/apply/PostcodeModal';
 import {
   AGREEMENTS,
   BANKS,
@@ -37,20 +29,6 @@ import {
   isValidPhone,
   type ApplyFormState,
 } from './applyConstants';
-
-declare global {
-  interface Window {
-    daum?: {
-      Postcode: new (options: {
-        oncomplete: (data: { zonecode: string; roadAddress: string; jibunAddress: string }) => void;
-        onclose?: () => void;
-        width?: string | number;
-        height?: string | number;
-        theme?: Record<string, string>;
-      }) => { open: () => void; embed: (el: HTMLElement) => void };
-    };
-  }
-}
 
 const TOTAL = STEPS.length;
 
@@ -104,7 +82,6 @@ export default function ApplyForm({
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
-  const [postcodeReady, setPostcodeReady] = useState(false);
   const [pickerQuery, setPickerQuery] = useState('');
   const topRef = useRef<HTMLDivElement>(null);
 
@@ -176,22 +153,7 @@ export default function ApplyForm({
      한 칸을 다 채우면 다음 칸으로 포커스를 옮긴다(선택 시트는 바로 연다).
      모바일 사파리는 사용자 동작(탭·입력) 처리 중에 준 포커스에만 키보드를 띄우므로,
      값을 flushSync 로 먼저 반영해 다음 칸을 화면에 올린 뒤 같은 흐름에서 포커스를 준다. */
-  const focusField = (key: string) => {
-    const el = topRef.current?.querySelector<HTMLElement>(`[data-af="${key}"]`);
-    if (!el) return;
-    if (el.dataset.afOpen !== undefined) {
-      (document.activeElement as HTMLElement | null)?.blur?.();
-      el.click();
-      return;
-    }
-    if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
-      el.focus({ preventScroll: true });
-    } else {
-      // 버튼 묶음(성별 등)은 포커스 대신 키보드를 내리고 보이는 곳으로 끌어온다
-      (document.activeElement as HTMLElement | null)?.blur?.();
-    }
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  };
+  const focusField = (key: string) => focusFieldIn(topRef.current, key);
   /** 값을 넣고, 그 값으로 "작성 완료"가 되면 다음 칸으로 넘긴다 */
   const setAndAdvance = <K extends keyof ApplyFormState>(
     key: K,
@@ -260,10 +222,7 @@ export default function ApplyForm({
     if (!canProceed) {
       // 빠진 칸으로 데려간다: 오류 문구가 붙은 첫 항목을 화면 가운데로 올리고, 입력 칸이면 포커스까지 준다
       flushSync(() => setTouched(true));
-      const first = topRef.current?.querySelector<HTMLElement>('[data-field-error]');
-      const target = first?.parentElement ?? first;
-      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      target?.querySelector<HTMLElement>('input, textarea')?.focus({ preventScroll: true });
+      scrollToFirstError(topRef.current);
       return;
     }
     setTouched(false);
@@ -327,48 +286,10 @@ export default function ApplyForm({
     return () => window.removeEventListener('keydown', onKey);
   }, [embedded]);
 
-  // 주소 찾기는 새 창 팝업 대신 화면 안 모달에 끼워 넣는다(모바일에서 창이 튀지 않고 톤도 맞출 수 있다).
-  const [postcodeOpen, setPostcodeOpen] = useState(false);
-  const postcodeBoxRef = useRef<HTMLDivElement>(null);
-  const openPostcode = () => {
-    if (!window.daum?.Postcode) return;
-    setPostcodeOpen(true);
-  };
-  useEffect(() => {
-    if (!postcodeOpen || !postcodeBoxRef.current || !window.daum?.Postcode) return;
-    const box = postcodeBoxRef.current;
-    box.innerHTML = '';
-    new window.daum.Postcode({
-      oncomplete: (data) => {
-        flushSync(() => {
-          set('zonecode', data.zonecode);
-          set('address', data.roadAddress || data.jibunAddress);
-          setPostcodeOpen(false);
-        });
-        focusField('addressDetail');
-      },
-      width: '100%',
-      height: '100%',
-      theme: {
-        bgColor: '#FFFFFF',
-        searchBgColor: '#F2F4F6',
-        contentBgColor: '#FFFFFF',
-        pageBgColor: '#FFFFFF',
-        textColor: '#333D4B',
-        queryTextColor: '#333D4B',
-        postcodeTextColor: '#8B95A1',
-        emphTextColor: '#FF7096',
-        outlineColor: '#E5E8EB',
-      },
-    }).embed(box);
-    // 열려 있는 동안 뒤 화면 스크롤 잠금
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prev;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postcodeOpen]);
+  // 주소 찾기(화면 안 모달). 고르면 상세주소 칸으로 넘어간다.
+  const postcode = usePostcode();
+  const postcodeReady = postcode.ready;
+  const openPostcode = postcode.openPostcode;
 
   const submit = async () => {
     setTouched(true);
@@ -502,47 +423,21 @@ export default function ApplyForm({
           }
         />
       )}
-      <Script
-        src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
-        strategy="afterInteractive"
-        // onLoad 는 스크립트를 처음 받을 때만 불린다. 신청서를 다시 열면(이미 받은 상태) 불리지 않아
-        // 주소 찾기 버튼이 계속 잠겨 있었다. onReady 는 화면에 붙을 때마다 불린다.
-        onReady={() => setPostcodeReady(true)}
+      <PostcodeModal
+        open={postcode.open}
+        onClose={() => postcode.setOpen(false)}
+        onReady={() => postcode.setReady(true)}
+        onComplete={(r) => {
+          flushSync(() => {
+            set('zonecode', r.zonecode);
+            set('address', r.address);
+            postcode.setOpen(false);
+          });
+          focusField('addressDetail');
+        }}
       />
 
-      {postcodeOpen && (
-        <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center" data-testid="postcode-modal">
-          <button type="button" aria-label="닫기" className="absolute inset-0 bg-black/40" onClick={() => setPostcodeOpen(false)} />
-          <div className="relative w-full sm:max-w-[480px] h-[78vh] sm:h-[600px] flex flex-col rounded-t-3xl sm:rounded-3xl bg-white overflow-hidden animate-[sheetUp_.25s_ease-out]">
-            <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0">
-              <p className="text-xl font-semibold text-[#333d4b]">주소 찾기</p>
-              <button type="button" onClick={() => setPostcodeOpen(false)} aria-label="닫기" className="p-1 -m-1 text-gray-400 hover:text-[#333d4b]">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div ref={postcodeBoxRef} className="flex-1 min-h-0 px-2 pb-2" />
-          </div>
-        </div>
-      )}
-
-      {/* 진행 표시 */}
-      <div className="flex items-center gap-2 pt-8 pb-6">
-        {STEPS.map((label, i) => (
-          <div key={label} className="flex items-center gap-2">
-            <span
-              className={`flex items-center justify-center rounded-full text-xs font-semibold transition-all ${
-                i === step
-                  ? 'w-6 h-6 bg-[var(--action-primary)] text-white'
-                  : i < step
-                    ? 'w-2.5 h-2.5 bg-[var(--action-primary)]'
-                    : 'w-2.5 h-2.5 bg-gray-200'
-              }`}
-            >
-              {i === step ? i + 1 : ''}
-            </span>
-          </div>
-        ))}
-      </div>
+      <ProgressDots steps={STEPS} step={step} />
 
       <button
         type="button"
@@ -1143,250 +1038,5 @@ export default function ApplyForm({
         </div>
       </div>
     </div>
-  );
-}
-
-/* ── 작은 UI 조각들 ── */
-
-function BridgeRow({ k, v }: { k: string; v: string }) {
-  return (
-    <div className="flex gap-4">
-      <dt className="w-20 shrink-0 text-gray-500">{k}</dt>
-      <dd className="flex-1 min-w-0 font-medium text-[#333d4b]">{v}</dd>
-    </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <h1 className="text-[26px] font-semibold text-[#333d4b] leading-snug mb-8 whitespace-pre-line">
-        {title}
-      </h1>
-      {children}
-    </div>
-  );
-}
-
-function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
-  return (
-    <p className="text-sm font-semibold text-[#333d4b] mb-2.5">
-      {children}
-      {required && <span className="text-[var(--action-primary)] ml-0.5">*</span>}
-    </p>
-  );
-}
-
-function ErrorText({ children }: { children: React.ReactNode }) {
-  return (
-    <p data-field-error className="mt-1.5 text-xs text-red-500">
-      {children}
-    </p>
-  );
-}
-
-function Field({
-  label,
-  required,
-  error,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="mb-5">
-      <Label required={required}>{label}</Label>
-      {children}
-      {error && <ErrorText>{error}</ErrorText>}
-    </div>
-  );
-}
-
-function Input({
-  value,
-  onChange,
-  placeholder,
-  type = 'text',
-  inputMode,
-  autoComplete,
-  af,
-  onEnter,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  type?: string;
-  inputMode?: 'numeric' | 'text' | 'tel' | 'email';
-  autoComplete?: string;
-  /** 자동 넘김이 이 칸을 찾을 때 쓰는 이름 */
-  af?: string;
-  /** 키보드의 엔터(다음)를 눌렀을 때 */
-  onEnter?: () => void;
-}) {
-  return (
-    <input
-      type={type}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      inputMode={inputMode}
-      autoComplete={autoComplete}
-      data-af={af}
-      enterKeyHint={onEnter ? 'next' : undefined}
-      onKeyDown={(e) => {
-        // 한글 조합 중의 엔터는 글자 확정이므로 넘기지 않는다
-        if (e.key !== 'Enter' || e.nativeEvent.isComposing || !onEnter) return;
-        e.preventDefault();
-        onEnter();
-      }}
-      className="w-full py-3.5 px-4 rounded-xl bg-[#f2f4f6] border-0 focus:outline-none focus:ring-2 focus:ring-[#ffc2d2] text-[15px] placeholder-gray-400 transition-shadow"
-    />
-  );
-}
-
-/** 2단계에서 새로 나타나는 항목. 살짝 올라오며 등장한다 */
-function Reveal({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  // 새 항목이 하단 고정 버튼 밑에 가려지지 않도록 보이는 곳까지 끌어올린다
-  useEffect(() => {
-    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, []);
-  return (
-    <div ref={ref} className="scroll-mb-28 animate-[sheetUp_.25s_ease-out]">
-      {children}
-    </div>
-  );
-}
-
-/** 네이티브 select 대신 바텀시트로 고른다. 모바일에서 OS 피커가 뜨는 걸 피한다 */
-function SheetSelect({
-  name,
-  title,
-  value,
-  onChange,
-  options,
-  placeholder,
-  af,
-}: {
-  name: string;
-  title: string;
-  /** 자동 넘김 대상이면 이름을 준다. 넘어오면 시트가 바로 열린다 */
-  af?: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: string[];
-  placeholder: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  const pick = (v: string) => {
-    onChange(v);
-    setOpen(false);
-  };
-
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        data-testid={`sheet-select-${name}`}
-        data-af={af}
-        data-af-open={af ? '' : undefined}
-        className={`w-full flex items-center justify-between py-3.5 px-4 rounded-xl bg-[#f2f4f6] hover:bg-[#eceef1] text-[15px] text-left transition-colors ${
-          value ? 'text-[#333d4b]' : 'text-gray-400'
-        }`}
-      >
-        <span>{value || placeholder}</span>
-        <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
-      </button>
-
-      {open &&
-        mounted &&
-        createPortal(
-          <div className="fixed inset-0 z-[60] flex items-end justify-center">
-            <button
-              type="button"
-              aria-label="닫기"
-              onClick={() => setOpen(false)}
-              data-testid={`sheet-dim-${name}`}
-              className="absolute inset-0 bg-black/40"
-            />
-            <div
-              role="dialog"
-              aria-label={title}
-              data-testid={`sheet-${name}`}
-              className="relative w-full max-w-[560px] max-h-[70vh] flex flex-col rounded-t-3xl bg-white pt-5 pb-[max(env(safe-area-inset-bottom),16px)] animate-[sheetUp_.25s_ease-out]"
-            >
-              <div className="flex items-center justify-between px-5 pb-3">
-                <p className="text-lg font-semibold text-[#333d4b]">{title}</p>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  aria-label="닫기"
-                  className="p-1 -m-1 text-gray-400 hover:text-[#333d4b]"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <ul className="overflow-y-auto px-2">
-                {options.map((o) => {
-                  const active = o === value;
-                  return (
-                    <li key={o}>
-                      <button
-                        type="button"
-                        onClick={() => pick(o)}
-                        data-testid={`sheet-option-${o}`}
-                        className={`w-full flex items-center justify-between px-3 py-3.5 rounded-xl text-[15px] text-left transition-colors ${
-                          active
-                            ? 'text-[var(--action-primary)] font-semibold bg-[#fff1f5]'
-                            : 'text-[#333d4b] hover:bg-gray-50'
-                        }`}
-                      >
-                        {o}
-                        {active && <Check className="w-4 h-4" />}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          </div>,
-          document.body
-        )}
-    </>
-  );
-}
-
-function Choice({
-  active,
-  onClick,
-  label,
-  compact,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-  compact?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-xl font-semibold transition-colors text-center ${
-        compact ? 'py-2.5 px-2 text-sm' : 'py-4 px-3 text-[15px]'
-      } ${
-        active
-          ? 'bg-[#fff1f5] text-[var(--action-primary)] ring-2 ring-[#ff9ebb]'
-          : 'bg-[#f2f4f6] text-gray-600 hover:bg-[#eceef1]'
-      }`}
-    >
-      {label}
-    </button>
   );
 }

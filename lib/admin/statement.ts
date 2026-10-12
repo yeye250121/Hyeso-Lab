@@ -128,3 +128,53 @@ export function buildLeadStatement(l: Row): string {
     '※ 신청서 미작성 고객입니다. 렌탈 신규/기존 여부, 설치 주소 등은 통화로 확인 부탁드립니다.',
   ].join('\n')
 }
+
+/**
+ * 인터넷 신청서 명세서. 통신사 접수 필수사항(명의·연락처·이메일·자동이체·약정·설치주소·결합) 순서로 싣고,
+ * 고객이 건너뛴 항목은 "(해피콜 확인)" 으로 둔다.
+ */
+export function buildInternetStatement(a: Row): string {
+  const snap = (a.product_snapshot ?? {}) as Record<string, unknown>
+  const hasProduct = !a.decide_after_consult && !!snap.carrierName
+  const addon = snap.addonType === 'none' || !snap.addonName ? '인터넷 단독' : String(snap.addonName)
+  const account = (bank: unknown, no: unknown) => (bank || no ? [bank, no].filter(Boolean).join(' ') : null)
+  const won = (v: unknown) => (typeof v === 'number' ? `${v.toLocaleString()}원` : null)
+  const current =
+    a.current_internet === 'using'
+      ? `사용 중 — ${a.current_carrier ?? '통신사 미확인'}${a.has_mobile_bundle === true ? ' (휴대폰 결합 중)' : a.has_mobile_bundle === false ? ' (결합 없음)' : ' (결합 여부 미확인)'}`
+      : a.current_internet === 'none'
+        ? '미사용(신규)'
+        : ASK
+
+  const rows: [string, unknown][] = [
+    ['명의자', `${a.applicant_name}${a.applicant_is_self === false ? ' (대리 신청)' : ''}`],
+    ['고객 구분', a.customer_type],
+    ...(a.business_name || a.business_number ? ([['사업자', [a.business_name, a.business_number].filter(Boolean).join(' / ')]] as [string, unknown][]) : []),
+    ['연락처', `${a.phone_number}${a.phone_carrier ? ` (${a.phone_carrier})` : ''}`],
+    ['청구서 이메일', a.email || ASK],
+    ['설치주소', [a.zonecode && `(${a.zonecode})`, a.address, a.address_detail].filter(Boolean).join(' ') || ASK],
+    ['현재 인터넷', current],
+    ['통신사', hasProduct ? snap.carrierName : '상담 후 결정'],
+    ['상품', hasProduct ? `${snap.speed} ${snap.internetName} · ${addon}` : ASK],
+    ['월요금', hasProduct ? `${won(snap.monthlyFee)} (접수 시점 정책표 기준)` : ASK],
+    ['약정', '3년'],
+    ['자동이체 계좌', a.payment_skipped ? ASK : `${account(a.payment_bank, a.payment_account_number) ?? ASK}${a.payment_payer ? ` (납부자 ${a.payment_payer})` : ''}`],
+    ['사은품', hasProduct ? `현금 ${won(snap.customerGift) ?? '(협의 후 안내)'}${snap.voucher ? ` + 상품권 ${won(snap.voucher)}` : ''}` : '(협의 후 안내)'],
+    ['사은품 받을 계좌', a.gift_skipped ? ASK : `${account(a.gift_bank, a.gift_account_number) ?? ASK}${a.gift_receiver ? ` (${a.gift_receiver})` : ''}`],
+    ['설치희망일자', ASK],
+    ['해피콜가능시간', ASK],
+  ]
+
+  return [
+    `[${CONTACT_BRAND} 인터넷 접수 명세서]`,
+    lines([
+      ['접수번호', `I-${String(a.id).slice(0, 8).toUpperCase()}`],
+      ['접수일시', kst(a.submitted_at)],
+      ['보완 필요', a.needs_followup ? '예 (해피콜에서 확인)' : '아니오'],
+    ]),
+    `※ 고객 연락 시 "${CONTACT_BRAND}" 상호로 안내 부탁드립니다.`,
+    '',
+    rows.map(([k, v]) => `${k} : ${v ?? ''}`).join('\n'),
+    ...(a.customer_note ? ['', `고객 요청사항 : ${a.customer_note}`] : []),
+  ].join('\n')
+}

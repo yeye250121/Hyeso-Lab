@@ -71,3 +71,82 @@ test.describe('통신사 설정기', () => {
     await expect(page.getByTestId('cfg-bar')).toContainText('월 33,000원');
   });
 });
+
+test.describe('인터넷 신청서', () => {
+  test('설정기 → 신청서: 브릿지 → 약관 시트 → 연락처 → 가입정보 → 사은품(나중에) → 납부 → 제출', async ({ page }) => {
+    await page.route('**/mapjsapi/bundle/postcode/**', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/javascript',
+        body: `window.daum = window.daum || {};
+window.daum.Postcode = function (options) {
+  var pick = function () { options.oncomplete({ zonecode: '51234', roadAddress: '경상남도 창원시 테스트로 1', jibunAddress: '경상남도 창원시 테스트동 1' }); };
+  this.open = pick; this.embed = function () { setTimeout(pick, 50); };
+};`,
+      })
+    );
+    let submitted: Record<string, unknown> | null = null;
+    await page.route('**/api/internet/applications', async (route) => {
+      submitted = route.request().postDataJSON();
+      await route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify({ id: 'e2e-mock-id' }) });
+    });
+
+    // 설정기에서 KT 500M + TV 베이직을 고르고 신청하기
+    await page.goto('/internet/kt');
+    await page.getByTestId('cfg-addon-tv').click();
+    await page.getByTestId('cfg-speed-500M').click();
+    await page.getByTestId('cfg-name-option').first().click();
+    await page.getByTestId('cfg-apply').click();
+    await expect(page).toHaveURL(/\/internet\/application\?product=/);
+
+    // 브릿지 → 약관 바텀시트 → 동의
+    await expect(page.getByTestId('iapply-bridge')).toContainText('KT');
+    await page.getByTestId('iapply-bridge-next').click();
+    await expect(page.getByTestId('agreement-sheet')).toBeVisible();
+    await expect(page.getByTestId('agree-confirm')).toBeDisabled();
+    await page.getByTestId('agree-all').check();
+    await page.getByTestId('agree-confirm').click();
+
+    // 연락처: 이름 → 통신사 고르면 번호 칸으로 넘어간다
+    await page.getByPlaceholder('이름').fill('E2E테스트');
+    await page.getByRole('button', { name: 'KT', exact: true }).click();
+    await expect(page.getByPlaceholder('010-0000-0000')).toBeFocused();
+    await page.getByPlaceholder('010-0000-0000').fill('01012345678');
+    await page.getByTestId('iapply-next').click();
+
+    // 가입 정보: 빠진 칸이 있으면 못 넘어간다
+    await page.getByTestId('iapply-next').click();
+    await expect(page.locator('[data-field-error]').first()).toBeVisible();
+    await page.getByRole('button', { name: '쓰고 있어요', exact: true }).click();
+    await page.getByRole('button', { name: 'LG U+' }).click();
+    await page.getByRole('button', { name: '네', exact: true }).click();
+    await page.getByTestId('address-search').click();
+    await expect(page.getByText('우편번호 51234')).toBeVisible();
+    await page.getByTestId('iapply-next').click();
+
+    // 사은품: 나중에
+    await expect(page.getByText('이 조건의 현금 사은품')).toBeVisible();
+    await page.getByTestId('iapply-gift-later').click();
+
+    // 납부: 사은품을 건너뛰었으니 계좌를 직접 입력
+    await page.getByTestId('sheet-select-paymentBank').click();
+    await page.getByTestId('sheet-option-국민은행').click();
+    await expect(page.getByPlaceholder('계좌번호 입력')).toBeFocused();
+    await page.getByPlaceholder('계좌번호 입력').fill('123456789012');
+    await page.getByTestId('iapply-submit').click();
+
+    await expect(page.getByTestId('iapply-done')).toBeVisible();
+    expect(submitted).toMatchObject({
+      applicantName: 'E2E테스트',
+      phoneCarrier: 'KT',
+      phoneNumber: '010-1234-5678',
+      currentInternet: 'using',
+      currentCarrier: 'LG U+',
+      hasMobileBundle: true,
+      giftSkipped: true,
+      paymentSkipped: false,
+      paymentBank: '국민은행',
+    });
+    expect((submitted as Record<string, unknown> | null)?.productId).toBeTruthy();
+  });
+});

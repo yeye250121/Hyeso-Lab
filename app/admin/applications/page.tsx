@@ -1,12 +1,38 @@
 'use client'
 
 import { Suspense, useCallback, useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Eye, EyeOff, RefreshCw, Search, X } from 'lucide-react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import api from '@/lib/admin/api'
 import { APPLICATION_STATUS, formatDateTime, monthsLabel } from '@/components/admin/labels'
 import StatementPanel from '@/components/admin/StatementPanel'
+import InternetApplications from '@/components/admin/InternetApplications'
+
+// 신청서는 서비스별 테이블이 다르다(가전렌탈 / 인터넷). 탭으로 오간다.
+const SERVICES = [
+  { key: 'electronics', label: '가전렌탈' },
+  { key: 'internet', label: '인터넷' },
+] as const
+
+function ServiceTabs({ active }: { active: string }) {
+  return (
+    <div className="flex gap-1 rounded-button bg-bg-card p-1 w-fit">
+      {SERVICES.map((s) => (
+        <Link
+          key={s.key}
+          href={`/admin/applications${s.key === 'electronics' ? '' : `?service=${s.key}`}`}
+          className={`px-4 py-1.5 rounded-button text-small font-medium transition-colors ${
+            active === s.key ? 'bg-action-primary text-white' : 'text-text-secondary hover:text-text-primary'
+          }`}
+        >
+          {s.label}
+        </Link>
+      ))}
+    </div>
+  )
+}
 
 interface AppRow {
   id: string
@@ -39,6 +65,7 @@ export default function ApplicationsPage() {
 
 function ApplicationsInner() {
   const searchParams = useSearchParams()
+  const service = searchParams.get('service') === 'internet' ? 'internet' : 'electronics'
   const [rows, setRows] = useState<AppRow[]>([])
   const [loading, setLoading] = useState(true)
   const [status, setStatus] = useState('')
@@ -97,12 +124,29 @@ function ApplicationsInner() {
 
   const unprocessed = rows.filter((r) => r.status === 'new').length
 
+  if (service === 'internet') {
+    return (
+      <AdminLayout>
+        <div className="space-y-5">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <h1 className="text-headline text-text-primary">신청서</h1>
+            <ServiceTabs active="internet" />
+          </div>
+          <InternetApplications />
+        </div>
+      </AdminLayout>
+    )
+  }
+
   return (
     <AdminLayout>
       <div className="space-y-5">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <h1 className="text-headline text-text-primary">신청서</h1>
+          <ServiceTabs active="electronics" />
+        </div>
         <div className="flex items-end justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-headline text-text-primary">신청서</h1>
             <p className="text-small text-text-secondary mt-1">
               총 {rows.length}건 · 미처리 <span className="text-action-primary font-semibold">{unprocessed}</span>건 · 계좌번호·생년월일은 상세에서 민감정보 보기를 눌러야 보입니다
             </p>
