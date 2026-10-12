@@ -40,10 +40,9 @@ export default async function CarrierPage({ params, searchParams }: Props) {
           <Link href="/internet" className="inline-flex items-center gap-0.5 text-sm text-gray-500 hover:text-[#333d4b]">
             <ChevronLeft className="w-4 h-4" /> 인터넷 홈
           </Link>
-          <h1 className="mt-3 text-2xl font-bold text-[#333d4b]">{carrier.name} 인터넷</h1>
         </div>
 
-        <div className="pt-8">
+        <div className="pt-6">
           <CarrierConfigurator
             key={carrier.id}
             carrier={carrier}
