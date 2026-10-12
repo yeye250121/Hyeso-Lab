@@ -96,7 +96,7 @@ export default function HomePage() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative -mt-16 pt-16 overflow-x-clip bg-[linear-gradient(180deg,#ffffff_0%,#fff3f6_60%,#f9fafb_100%)]">
+      <section className="relative -mt-[58px] pt-[58px] overflow-x-clip bg-[linear-gradient(180deg,#ffffff_0%,#fff3f6_60%,#f9fafb_100%)]">
         <div
           aria-hidden
           className="absolute -top-40 left-1/2 -translate-x-1/2 w-[640px] h-[640px] lg:w-[900px] lg:h-[900px] rounded-full bg-[radial-gradient(circle_at_center,rgba(255,143,171,0.2)_0%,rgba(255,143,171,0)_65%)] pointer-events-none"
@@ -131,7 +131,7 @@ export default function HomePage() {
       </section>
 
       {/* 고민 */}
-      <section id="concerns" className="py-20 lg:py-28 bg-gray-50 scroll-mt-16">
+      <section id="concerns" className="py-20 lg:py-28 bg-gray-50 scroll-mt-[58px]">
         <div className="max-w-[1100px] mx-auto px-6">
           <div className="text-center mb-12 lg:mb-16 animate-on-scroll opacity-0 translate-y-12 transition-all duration-700">
             <h2 className="text-[28px] leading-tight lg:text-4xl font-semibold text-[#333d4b] tracking-[-0.02em]">

@@ -30,7 +30,7 @@ export default function Navbar() {
 
   return (
     <nav className={`sticky top-0 z-50 transition-colors duration-300 ${isScrolled ? 'bg-gray-50' : 'bg-transparent'}`}>
-      <div className="h-16 max-w-[1100px] mx-auto px-6 flex items-center justify-between">
+      <div className="h-[58px] max-w-[1100px] mx-auto px-6 flex items-center justify-between">
         <Link href="/">
           <Image
             src={NAV_LOGO_URL}
