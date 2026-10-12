@@ -27,6 +27,9 @@ test.describe('인터넷 메인 · 맞춤 추천', () => {
     expect(fees.length).toBeGreaterThan(0);
     expect([topFee, ...fees]).toEqual([topFee, ...fees].slice().sort((a, b) => a - b));
     await expect(page.getByTestId('rec-apply')).toHaveAttribute('href', /\/internet\/application\?product=/);
+    // 사은품은 1순위 카드와 나머지 목록 모두에 보인다
+    await expect(page.getByTestId('rec-top-gift')).toContainText('만원');
+    await expect(page.getByTestId('rec-gift').first()).toContainText('사은품');
 
     // 결과를 누르면 조건이 미리 선택된 설정기로 간다
     await top.click();

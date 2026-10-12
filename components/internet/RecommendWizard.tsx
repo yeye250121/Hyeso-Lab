@@ -111,13 +111,15 @@ export default function RecommendWizard({
                   </span>
                 </span>
               </span>
-              <span className="mt-4 flex items-end justify-between">
-                <span className="text-[13px] text-gray-500">
-                  사은품 <strong className="font-semibold text-[var(--action-primary)]">{giftLabel(top.product)}</strong>
-                </span>
+              <span className="mt-4 flex items-end justify-between gap-3">
+                <span className="text-[13px] text-gray-500">월 요금</span>
                 <span className="text-[24px] font-bold text-[#191f28] tabular-nums leading-none">
                   월 {top.product.monthly_fee.toLocaleString()}원
                 </span>
+              </span>
+              <span className="mt-2 flex items-center justify-between gap-3" data-testid="rec-top-gift">
+                <span className="text-[13px] text-gray-500">현금 사은품</span>
+                <span className="text-[17px] font-bold text-[var(--action-primary)]">{giftLabel(top.product)}</span>
               </span>
             </Link>
 
@@ -138,11 +140,16 @@ export default function RecommendWizard({
                         <span className="flex-1 min-w-0">
                           <span className="block text-[15px] font-semibold text-[#333d4b]">{carrier.name}</span>
                           <span className="block text-[12px] text-gray-500 truncate">
-                            {product.speed} · {addonLabel(product)} · 사은품 {giftLabel(product)}
+                            {product.speed} · {addonLabel(product)}
                           </span>
                         </span>
-                        <span className="text-[15px] font-bold text-[#333d4b] tabular-nums shrink-0">
-                          월 {product.monthly_fee.toLocaleString()}원
+                        <span className="text-right shrink-0">
+                          <span className="block text-[15px] font-bold text-[#333d4b] tabular-nums">
+                            월 {product.monthly_fee.toLocaleString()}원
+                          </span>
+                          <span className="block text-[12px] font-medium text-[var(--action-primary)]" data-testid="rec-gift">
+                            사은품 {giftLabel(product)}
+                          </span>
                         </span>
                         <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
                       </Link>
