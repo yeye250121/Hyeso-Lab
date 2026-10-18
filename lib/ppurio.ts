@@ -3,8 +3,10 @@
  * https://www.ppurio.com
  */
 
-// GCP 프록시 서버를 통해 뿌리오 API 호출 (IP 화이트리스트 우회)
+// 뿌리오는 발신 IP 등록이 필수라 고정 IP 릴레이(infra/ppurio-relay)를 거친다.
+// PPURIO_PROXY_URL 이 비어 있으면 직접 호출한다(로컬 테스트용, IP 가 등록된 곳에서만 된다).
 const PPURIO_BASE_URL = process.env.PPURIO_PROXY_URL || 'https://message.ppurio.com'
+const PPURIO_PROXY_SECRET = process.env.PPURIO_PROXY_SECRET || ''
 const PPURIO_ACCOUNT = process.env.PPURIO_ACCOUNT || ''
 const PPURIO_API_KEY = process.env.PPURIO_API_KEY || ''
 const PPURIO_SENDER_PROFILE = process.env.PPURIO_SENDER_PROFILE || ''
@@ -60,6 +62,11 @@ interface KakaoSendResponse {
   messageKey?: string
 }
 
+/** 릴레이를 거칠 때만 비밀키 헤더를 붙인다 */
+function relayHeaders(): Record<string, string> {
+  return PPURIO_PROXY_SECRET ? { 'X-Relay-Secret': PPURIO_PROXY_SECRET } : {}
+}
+
 /**
  * 랜덤 refKey 생성 (32자 이내)
  */
@@ -89,13 +96,17 @@ async function getAccessToken(): Promise<string> {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Basic ${basicAuth}`,
+      ...relayHeaders(),
     },
   })
 
   if (!response.ok) {
-    const error = await response.json()
-    console.error('[Ppurio] Token error:', error)
-    throw new Error(`뿌리오 토큰 발급 실패: ${error.description || response.statusText}`)
+    // 릴레이가 403 을 주면 비밀키 불일치, HTML 이 오면 릴레이/인증서 문제다. JSON 이 아닐 수 있다.
+    const text = await response.text()
+    let description = response.statusText
+    try { description = JSON.parse(text).description || description } catch { /* not json */ }
+    console.error('[Ppurio] Token error:', response.status, text.slice(0, 200))
+    throw new Error(`뿌리오 토큰 발급 실패(${response.status}): ${description}`)
   }
 
   const data: TokenResponse = await response.json()
@@ -127,6 +138,7 @@ export async function sendKakaoAlimtalk(
     hasAccount: !!PPURIO_ACCOUNT,
     hasApiKey: !!PPURIO_API_KEY,
     hasSenderProfile: !!PPURIO_SENDER_PROFILE,
+    hasProxySecret: !!PPURIO_PROXY_SECRET,
   })
 
   if (!PPURIO_ACCOUNT || !PPURIO_API_KEY || !PPURIO_SENDER_PROFILE) {
@@ -176,11 +188,19 @@ export async function sendKakaoAlimtalk(
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
+      ...relayHeaders(),
     },
     body: JSON.stringify(requestBody),
   })
 
-  const data = await response.json()
+  const raw = await response.text()
+  let data: KakaoSendResponse
+  try {
+    data = JSON.parse(raw)
+  } catch {
+    console.error('[Ppurio] Non-JSON response:', response.status, raw.slice(0, 200))
+    throw new Error(`알림톡 발송 실패(${response.status}): 릴레이 또는 뿌리오 응답 오류`)
+  }
 
   console.log('[Ppurio] Response:', data)
 

@@ -1,0 +1,27 @@
+# 뿌리오 API 릴레이. Vercel(IP 비고정) -> 이 VM(IP 고정) -> message.ppurio.com
+# 비밀키 헤더가 맞고, 경로가 토큰/알림톡 발송 둘 중 하나일 때만 넘긴다. 나머지는 403.
+# RELAY_DOMAIN / RELAY_SECRET 은 /etc/caddy/relay.env 에서 읽는다.
+{$RELAY_DOMAIN} {
+	@allowed {
+		header X-Relay-Secret {$RELAY_SECRET}
+		path /v1/token /v1/kakao
+	}
+	handle @allowed {
+		reverse_proxy https://message.ppurio.com {
+			header_up Host message.ppurio.com
+			header_up -X-Relay-Secret
+			transport http {
+				tls
+			}
+		}
+	}
+	handle {
+		respond 403
+	}
+	log {
+		output file /var/log/caddy/relay.log {
+			roll_size 10mb
+			roll_keep 5
+		}
+	}
+}
