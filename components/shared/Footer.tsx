@@ -17,6 +17,8 @@ interface FooterProps {
     name: string;
     representative?: string;
     businessNumber: string;
+    /** 통신판매업 신고번호 */
+    mailOrderNumber?: string;
     address: string;
     phone: string;
   };
@@ -28,6 +30,7 @@ const defaultCompanyInfo = {
   name: '피움',
   representative: '신예준',
   businessNumber: '573-07-03391',
+  mailOrderNumber: '2026-창원진해-0365',
   address: '경상남도 창원시 진해구 충장로 68-1, 2층 1호(충무동)',
   phone: '010-7469-4385',
 };
@@ -74,6 +77,7 @@ export default function Footer({
                 {companyInfo.representative && ` | 대표자 : ${companyInfo.representative}`}
               </p>
               <p>사업자등록번호 : {companyInfo.businessNumber}</p>
+              {companyInfo.mailOrderNumber && <p>통신판매업 신고번호 : {companyInfo.mailOrderNumber}</p>}
               <p>주소 : {companyInfo.address}</p>
             </div>
           </div>
