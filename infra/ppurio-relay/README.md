@@ -8,19 +8,23 @@
 Vercel (lib/ppurio.ts) --HTTPS + X-Relay-Secret--> relay.hyeso.kr (VM, Caddy) --> message.ppurio.com
 ```
 
-## 1. VM 만들기 (Oracle Cloud Always Free)
-- Compute → Instance 생성. 이미지 **Ubuntu 24.04**, Shape **VM.Standard.A1.Flex** (1 OCPU / 6GB, 무료) 또는 E2.1.Micro.
-- 네트워킹: 공인 IPv4 할당 체크. SSH 키 저장.
-- 생성 후 **VCN → Subnet → Security List → Ingress Rules** 에 `0.0.0.0/0  TCP 80`, `0.0.0.0/0  TCP 443` 두 줄 추가.
-- 공인 IP 를 메모한다. 이 IP 는 인스턴스를 지우지 않는 한 바뀌지 않는다(예약 IP 로 바꿔두면 더 안전).
+## 1. VM 만들기 (Google Cloud Compute Engine)
+- Compute Engine → VM 인스턴스 → 인스턴스 만들기.
+  - 이름 `ppurio-relay`
+  - 리전 **us-west1 / us-central1 / us-east1** 중 하나(e2-micro 1대가 무료 등급. 알림톡 릴레이는 지연이 중요하지 않다). 서울(asia-northeast3)로 두면 월 1만 원 안팎.
+  - 머신 **e2-micro**
+  - 부팅 디스크 **Ubuntu 24.04 LTS**, 표준 영구 디스크 10GB
+  - 방화벽: **HTTP 트래픽 허용, HTTPS 트래픽 허용** 둘 다 체크
+- 만든 뒤 **VPC 네트워크 → IP 주소**에서 이 VM 의 외부 IP 를 **고정(예약)** 으로 바꾼다. 실행 중인 VM 에 붙은 고정 IP 는 무료이고, 뿌리오에 등록할 IP 라 반드시 고정이어야 한다.
+- 외부 IP 를 메모한다.
 
 ## 2. DNS
 Vercel 대시보드 → Domains → `hyeso.kr` → DNS Records 에 `A  relay  <VM 공인 IP>  TTL 60` 추가.
 (Caddy 가 이 도메인으로 Let's Encrypt 인증서를 자동 발급한다.)
 
 ## 3. 릴레이 설치
+VM 목록의 **SSH** 버튼(브라우저 터미널)으로 접속한 뒤:
 ```bash
-ssh ubuntu@<VM IP>
 git clone --depth 1 https://github.com/yeye250121/Hyeso-Lab.git && cd Hyeso-Lab/infra/ppurio-relay
 sudo RELAY_DOMAIN=relay.hyeso.kr bash setup.sh
 ```

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 뿌리오 릴레이 VM 셋업 (Ubuntu 22.04/24.04, Oracle Cloud Always Free 기준)
+# 뿌리오 릴레이 VM 셋업 (Ubuntu 22.04/24.04, GCP e2-micro 기준)
 # 사용: sudo RELAY_DOMAIN=relay.hyeso.kr bash setup.sh
 #  - Caddy 설치, 80/443 방화벽 개방, 릴레이 설정, 비밀키 생성
 #  - 끝나면 RELAY_SECRET 을 출력한다. 이 값을 Vercel 환경변수 PPURIO_PROXY_SECRET 에 넣는다.
@@ -17,7 +17,7 @@ curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' > /etc/
 apt-get update -qq
 apt-get install -y -qq caddy >/dev/null
 
-echo "[2/5] 방화벽 80/443 개방 (Oracle 이미지는 iptables 가 기본 차단)"
+echo "[2/5] 방화벽 80/443 개방 (GCP 는 콘솔 방화벽이 따로 있고, OS 쪽은 혹시 모를 차단 규칙만 푼다)"
 for p in 80 443; do
   iptables -C INPUT -p tcp --dport "$p" -m state --state NEW -j ACCEPT 2>/dev/null \
     || iptables -I INPUT 5 -p tcp --dport "$p" -m state --state NEW -j ACCEPT
