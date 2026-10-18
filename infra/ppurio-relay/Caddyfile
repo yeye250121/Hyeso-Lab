@@ -10,6 +10,12 @@
 		reverse_proxy https://message.ppurio.com {
 			header_up Host message.ppurio.com
 			header_up -X-Relay-Secret
+			# 뿌리오는 X-Forwarded-For 의 IP 로 연동 IP 를 판정한다. 원 요청자(Vercel) IP 가 새지 않게 전부 지운다.
+			header_up -X-Forwarded-For
+			header_up -X-Forwarded-Proto
+			header_up -X-Forwarded-Host
+			header_up -X-Real-IP
+			header_up -Forwarded
 			transport http {
 				tls
 			}
