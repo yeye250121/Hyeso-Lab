@@ -1,232 +1,75 @@
 /**
- * 알림톡 발송 서비스
- *
- * 각 비즈니스 시나리오에 맞는 알림톡 발송 함수 제공
+ * 알림톡 발송 서비스. 비즈니스 시나리오별 함수 + 발송 로그.
+ * 발송 실패는 접수 실패가 아니다 — 호출하는 쪽은 결과만 기록하고 흐름을 계속한다.
  */
+import { getSupabaseAdmin } from './supabase-admin'
+import { isSolapiConfigured, sendAlimtalk, type AlimtalkVariables } from './solapi'
+import { ALIMTALK_TEMPLATES } from './alimtalk-templates'
 
-import { sendAlimtalkToOne } from './ppurio'
-import {
-  ALIMTALK_TEMPLATES,
-  getPartnerSignupVariables,
-  getPartnerReferralSignupVariables,
-  getPartnerSettlementVariables,
-  getPartnerNewInquiryVariables,
-  getPartnerContractSuccessVariables,
-  getPartnerInquiryCancelledVariables,
-  getApplicationUrl,
-  AlimtalkVariables,
-} from './alimtalk-templates'
+export type SendResult = { success: boolean; skipped?: boolean; groupId?: string | null; error?: string }
 
-/**
- * 알림톡 발송 결과
- */
-interface SendResult {
-  success: boolean
-  messageKey?: string
-  error?: string
-}
+async function sendAndLog(opts: {
+  purpose: string
+  to: string
+  templateId: string
+  variables: AlimtalkVariables
+  leadId?: string | null
+  applicationRef?: string | null
+}): Promise<SendResult> {
+  if (!isSolapiConfigured()) return { success: false, skipped: true, error: 'solapi not configured' }
+  if (!opts.templateId) return { success: false, skipped: true, error: 'template not configured' }
 
-/**
- * 파트너 회원가입 완료 알림톡 발송
- * - 가입한 파트너 본인에게 발송
- * - [*1*] = 파트너 코드
- */
-export async function sendPartnerSignupAlimtalk(
-  phoneNumber: string,
-  partnerCode: string
-): Promise<SendResult> {
-  const templateCode = ALIMTALK_TEMPLATES.PARTNER_SIGNUP
-
+  let result: SendResult
   try {
-    const variables = getPartnerSignupVariables(partnerCode)
-    const result = await sendAlimtalkToOne(templateCode, phoneNumber, variables)
-    return { success: true, messageKey: result.messageKey }
-  } catch (error: any) {
-    console.error('[Alimtalk] 파트너 회원가입 알림톡 발송 실패:', error.message)
-    return { success: false, error: error.message }
+    const r = await sendAlimtalk({ to: opts.to, templateId: opts.templateId, variables: opts.variables })
+    result = r.failed.length
+      ? { success: false, groupId: r.groupId, error: `${r.failed[0].statusCode} ${r.failed[0].statusMessage}` }
+      : { success: true, groupId: r.groupId }
+  } catch (e) {
+    result = { success: false, error: e instanceof Error ? e.message : String(e) }
   }
+
+  const { error } = await getSupabaseAdmin().from('alimtalk_logs').insert({
+    purpose: opts.purpose,
+    lead_id: opts.leadId ?? null,
+    application_ref: opts.applicationRef ?? null,
+    to_phone: opts.to.replace(/\D/g, ''),
+    template_id: opts.templateId,
+    variables: opts.variables,
+    success: result.success,
+    provider_group_id: result.groupId ?? null,
+    error: result.error ?? null,
+  })
+  if (error) console.error('[Alimtalk] 로그 기록 실패:', error.message)
+  if (!result.success) console.error(`[Alimtalk] ${opts.purpose} 발송 실패:`, result.error)
+  return result
 }
 
 /**
- * 하위 파트너 가입 알림톡 발송
- * - 상위 파트너(추천인)에게 발송
- * - [*1*] = 가입한 하위 파트너 닉네임
+ * 상담 신청 접수 안내(신청서 작성 링크). 상담 신청 직후, 그리고 관리자 재발송에서 쓴다.
+ * 성공/실패를 leads.alimtalk_sent_at / alimtalk_error 에 남긴다.
  */
-export async function sendPartnerReferralSignupAlimtalk(
-  referrerPhoneNumber: string,
-  subordinateNickname: string
-): Promise<SendResult> {
-  const templateCode = ALIMTALK_TEMPLATES.PARTNER_REFERRAL_SIGNUP
+export async function sendApplicationLinkAlimtalk(lead: {
+  id: string
+  phone_number: string
+  short_token: string | null
+}): Promise<SendResult> {
+  if (!lead.short_token) return { success: false, skipped: true, error: 'short token missing' }
 
-  try {
-    const variables = getPartnerReferralSignupVariables(subordinateNickname)
-    const result = await sendAlimtalkToOne(templateCode, referrerPhoneNumber, variables)
-    return { success: true, messageKey: result.messageKey }
-  } catch (error: any) {
-    console.error('[Alimtalk] 하위 파트너 가입 알림톡 발송 실패:', error.message)
-    return { success: false, error: error.message }
+  const result = await sendAndLog({
+    purpose: 'application_link',
+    to: lead.phone_number,
+    templateId: ALIMTALK_TEMPLATES.APPLICATION_LINK,
+    variables: { '#{token}': lead.short_token },
+    leadId: lead.id,
+  })
+
+  if (!result.skipped) {
+    const { error } = await getSupabaseAdmin()
+      .from('leads')
+      .update(result.success ? { alimtalk_sent_at: new Date().toISOString(), alimtalk_error: null } : { alimtalk_error: result.error ?? '발송 실패' })
+      .eq('id', lead.id)
+    if (error) console.error('[Alimtalk] lead 갱신 실패:', error.message)
   }
-}
-
-/**
- * 정산 내역 도착 알림톡 발송
- * - 파트너에게 발송
- */
-export async function sendPartnerSettlementAlimtalk(
-  phoneNumber: string
-): Promise<SendResult> {
-  const templateCode = ALIMTALK_TEMPLATES.PARTNER_SETTLEMENT
-
-  try {
-    const variables = getPartnerSettlementVariables()
-    const result = await sendAlimtalkToOne(templateCode, phoneNumber, variables)
-    return { success: true, messageKey: result.messageKey }
-  } catch (error: any) {
-    console.error('[Alimtalk] 정산 내역 알림톡 발송 실패:', error.message)
-    return { success: false, error: error.message }
-  }
-}
-
-/**
- * 새로운 상담 문의 알림톡 발송
- * - 파트너에게 발송
- */
-export async function sendPartnerNewInquiryAlimtalk(
-  phoneNumber: string
-): Promise<SendResult> {
-  const templateCode = ALIMTALK_TEMPLATES.PARTNER_NEW_INQUIRY
-
-  try {
-    const variables = getPartnerNewInquiryVariables()
-    const result = await sendAlimtalkToOne(templateCode, phoneNumber, variables)
-    return { success: true, messageKey: result.messageKey }
-  } catch (error: any) {
-    console.error('[Alimtalk] 새 문의 알림톡 발송 실패:', error.message)
-    return { success: false, error: error.message }
-  }
-}
-
-/**
- * 계약 성공 알림톡 발송
- * - 파트너에게 발송
- */
-export async function sendPartnerContractSuccessAlimtalk(
-  phoneNumber: string
-): Promise<SendResult> {
-  const templateCode = ALIMTALK_TEMPLATES.PARTNER_CONTRACT_SUCCESS
-
-  try {
-    const variables = getPartnerContractSuccessVariables()
-    const result = await sendAlimtalkToOne(templateCode, phoneNumber, variables)
-    return { success: true, messageKey: result.messageKey }
-  } catch (error: any) {
-    console.error('[Alimtalk] 계약 성공 알림톡 발송 실패:', error.message)
-    return { success: false, error: error.message }
-  }
-}
-
-/**
- * 상담 취소 알림톡 발송
- * - 파트너에게 발송
- */
-export async function sendPartnerInquiryCancelledAlimtalk(
-  phoneNumber: string
-): Promise<SendResult> {
-  const templateCode = ALIMTALK_TEMPLATES.PARTNER_INQUIRY_CANCELLED
-
-  try {
-    const variables = getPartnerInquiryCancelledVariables()
-    const result = await sendAlimtalkToOne(templateCode, phoneNumber, variables)
-    return { success: true, messageKey: result.messageKey }
-  } catch (error: any) {
-    console.error('[Alimtalk] 상담 취소 알림톡 발송 실패:', error.message)
-    return { success: false, error: error.message }
-  }
-}
-
-// ===== 고객용 알림톡 =====
-
-/**
- * 고객 문의 접수 완료 알림톡 발송
- * - 문의한 고객에게 발송
- * - "곧 연락 드릴게요" 안내
- */
-export async function sendCustomerInquiryReceivedAlimtalk(
-  phoneNumber: string
-): Promise<SendResult> {
-  const templateCode = ALIMTALK_TEMPLATES.CUSTOMER_INQUIRY_RECEIVED
-
-  try {
-    const variables: AlimtalkVariables = {}
-    const result = await sendAlimtalkToOne(templateCode, phoneNumber, variables)
-    return { success: true, messageKey: result.messageKey }
-  } catch (error: any) {
-    console.error('[Alimtalk] 고객 문의 접수 알림톡 발송 실패:', error.message)
-    return { success: false, error: error.message }
-  }
-}
-
-/**
- * 고객 예약 안내 알림톡 발송
- * - 문의한 고객에게 발송
- * - "바로 예약하기" 버튼 포함 (https://benefit-lab.kr/book)
- */
-export async function sendCustomerReservationGuideAlimtalk(
-  phoneNumber: string
-): Promise<SendResult> {
-  const templateCode = ALIMTALK_TEMPLATES.CUSTOMER_RESERVATION_GUIDE
-
-  try {
-    const variables: AlimtalkVariables = {}
-    const result = await sendAlimtalkToOne(templateCode, phoneNumber, variables)
-    return { success: true, messageKey: result.messageKey }
-  } catch (error: any) {
-    console.error('[Alimtalk] 고객 예약 안내 알림톡 발송 실패:', error.message)
-    return { success: false, error: error.message }
-  }
-}
-
-/**
- * 고객 문의 접수 시 알림톡 일괄 발송
- * - 1) 문의 접수 완료 알림
- * - 2) 예약 안내 알림 (바로 예약하기 버튼)
- * 두 알림톡을 순서대로 발송
- */
-export async function sendCustomerInquiryAlimtalks(
-  phoneNumber: string
-): Promise<{ inquiry: SendResult; reservation: SendResult }> {
-  // 1. 문의 접수 완료 알림톡
-  const inquiryResult = await sendCustomerInquiryReceivedAlimtalk(phoneNumber)
-
-  // 2. 예약 안내 알림톡 (약간의 딜레이 후 발송)
-  await new Promise(resolve => setTimeout(resolve, 1000)) // 1초 대기
-  const reservationResult = await sendCustomerReservationGuideAlimtalk(phoneNumber)
-
-  return {
-    inquiry: inquiryResult,
-    reservation: reservationResult,
-  }
-}
-
-/**
- * 고객 신청서 작성 안내 알림톡 발송
- * - 상담 신청(명세서)을 남긴 고객에게 발송
- * - [*1*] = 셀프 가입 신청서 링크 (/electronics/application?lead=...)
- * - 템플릿 코드가 없으면(심사 전) 보내지 않고 skipped 로 돌려준다
- */
-export async function sendCustomerApplicationLinkAlimtalk(
-  phoneNumber: string,
-  leadId: string
-): Promise<SendResult & { skipped?: boolean }> {
-  const templateCode = ALIMTALK_TEMPLATES.CUSTOMER_APPLICATION_LINK
-  if (!templateCode) return { success: false, skipped: true, error: 'template not configured' }
-
-  try {
-    const variables: AlimtalkVariables = { var1: getApplicationUrl(leadId) }
-    const result = await sendAlimtalkToOne(templateCode, phoneNumber, variables)
-    return { success: true, messageKey: result.messageKey }
-  } catch (error: any) {
-    console.error('[Alimtalk] 고객 신청서 안내 알림톡 발송 실패:', error.message)
-    return { success: false, error: error.message }
-  }
+  return result
 }

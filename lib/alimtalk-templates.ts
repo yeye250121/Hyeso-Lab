@@ -1,129 +1,29 @@
 /**
- * 카카오 알림톡 템플릿 설정
+ * 카카오 알림톡 템플릿 (솔라피 · 채널 @혜소)
  *
- * 변수 매핑: [*1*] → var1, [*2*] → var2, ...
+ * 템플릿 ID 는 비밀이 아니라 코드에 기본값을 두고, 재등록 시 환경변수로 덮어쓴다.
+ * 변수는 솔라피 형식 '#{이름}' 그대로 넘긴다.
  */
-
-// 템플릿 코드 (뿌리오 심사 중 - 2025.12.30)
 export const ALIMTALK_TEMPLATES = {
-  // 파트너 회원가입 완료 - 본인에게 발송
-  // [*1*] = 파트너 코드
-  PARTNER_SIGNUP: 'ppur_2025123017483012849854361',
-
-  // 하위 파트너 가입 - 상위 파트너에게 발송
-  // [*1*] = 하위 파트너 닉네임
-  PARTNER_REFERRAL_SIGNUP: 'ppur_2025123017520112849871250',
-
-  // 정산 내역 도착 - 파트너에게 발송
-  PARTNER_SETTLEMENT: 'ppur_2025123017591820835749782',
-
-  // 새로운 상담 문의 - 파트너에게 발송
-  PARTNER_NEW_INQUIRY: 'ppur_2025123017543820835166741',
-
-  // 계약 성공 - 파트너에게 발송
-  PARTNER_CONTRACT_SUCCESS: 'ppur_2025123017573512849260118',
-
-  // 상담 취소 - 파트너에게 발송
-  PARTNER_INQUIRY_CANCELLED: 'ppur_2025123018280120835265020',
-
-  // ===== 고객용 알림톡 =====
-
-  // 고객 문의 접수 완료 - 고객에게 발송
-  // (변수 없음)
-  CUSTOMER_INQUIRY_RECEIVED: 'ppur_2025123018060012849110430',
-
-  // 고객 예약 안내 - 고객에게 발송 (바로 예약하기 버튼 포함)
-  // (변수 없음, 버튼 URL: https://benefit-lab.kr/book)
-  CUSTOMER_RESERVATION_GUIDE: 'ppur_2025123018083720835716306',
-
-  // 고객 신청서 작성 안내 - 상담 신청(명세서) 접수 직후 고객에게 발송
-  // [*1*] = 신청서 링크. 템플릿 심사 전이라 코드는 환경변수로 받는다.
-  CUSTOMER_APPLICATION_LINK: process.env.ALIMTALK_TEMPLATE_APPLICATION_LINK || '',
+  /**
+   * 상담 신청 접수 안내 — 상담 신청 직후 고객에게.
+   * 본문 변수 없음. 버튼 "신청서 작성하기" → https://www.hyeso.kr/c/#{token}
+   */
+  APPLICATION_LINK: process.env.SOLAPI_TEMPLATE_APPLICATION_LINK || 'KA01TP261018133349593y1oLGSYst83',
 } as const
 
-export type AlimtalkTemplateType = keyof typeof ALIMTALK_TEMPLATES
+export type AlimtalkTemplateKey = keyof typeof ALIMTALK_TEMPLATES
 
-/**
- * 알림톡 발송 시나리오별 변수 매핑
- */
-export interface AlimtalkVariables {
-  var1?: string // [*1*]
-  var2?: string // [*2*]
-  var3?: string // [*3*]
-  var4?: string // [*4*]
-  var5?: string // [*5*]
+export const SITE_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.hyeso.kr'
+
+/** 서비스별 셀프 신청서 경로. 상담 신청 id 가 붙으면 이름·전화번호·상품이 미리 채워진다 */
+export function applicationPathFor(service: string, leadId: string): string {
+  if (service === 'electronics') return `/electronics/application?lead=${leadId}`
+  if (service === 'internet') return `/internet/application?lead=${leadId}`
+  return `/apply?service=${service}`
 }
 
-/**
- * 파트너 회원가입 완료 알림톡 변수 생성
- * [*1*] = 파트너 코드
- */
-export function getPartnerSignupVariables(partnerCode: string): AlimtalkVariables {
-  return {
-    var1: partnerCode,
-  }
-}
-
-/**
- * 하위 파트너 가입 알림톡 변수 생성 (상위 파트너에게 발송)
- * [*1*] = 하위 파트너 닉네임
- */
-export function getPartnerReferralSignupVariables(subordinateNickname: string): AlimtalkVariables {
-  return {
-    var1: subordinateNickname,
-  }
-}
-
-/**
- * 정산 내역 도착 알림톡 변수 생성
- * (변수 없음)
- */
-export function getPartnerSettlementVariables(): AlimtalkVariables {
-  return {}
-}
-
-/**
- * 새로운 상담 문의 알림톡 변수 생성
- * (변수 없음)
- */
-export function getPartnerNewInquiryVariables(): AlimtalkVariables {
-  return {}
-}
-
-/**
- * 계약 성공 알림톡 변수 생성
- * (변수 없음)
- */
-export function getPartnerContractSuccessVariables(): AlimtalkVariables {
-  return {}
-}
-
-/**
- * 상담 취소 알림톡 변수 생성
- * (변수 없음)
- */
-export function getPartnerInquiryCancelledVariables(): AlimtalkVariables {
-  return {}
-}
-
-/**
- * 예약 페이지 URL 생성
- * @param inquiryId - 문의 UUID (선택)
- * @returns 예약 페이지 전체 URL
- */
-export function getReservationUrl(inquiryId?: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://benefit-lab.kr'
-  if (inquiryId) {
-    return `${baseUrl}/book/${inquiryId}`
-  }
-  return `${baseUrl}/book`
-}
-
-/**
- * 셀프 가입 신청서 URL 생성
- * @param leadId - 상담 신청(명세서) UUID. 신청서에 이름·전화번호·상품이 미리 채워진다
- */
-export function getApplicationUrl(leadId: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.hyeso.kr'
-  return `${baseUrl}/electronics/application?lead=${leadId}`
+/** 알림톡 버튼이 여는 짧은 링크 */
+export function shortLinkFor(token: string): string {
+  return `${SITE_BASE_URL}/c/${token}`
 }

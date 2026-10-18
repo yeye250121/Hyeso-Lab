@@ -23,6 +23,8 @@ interface Lead {
   agreedMarketing: boolean
   referrerUrl: string | null
   alimtalkSentAt: string | null
+  alimtalkError: string | null
+  shortToken: string | null
   applicationId: string | null
   statementSentAt: string | null
   submittedAt: string
@@ -64,6 +66,18 @@ export default function LeadsPage() {
   const changeStatus = async (id: string, next: string) => {
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status: next } : l)))
     await api.patch(`/admin/leads/${id}`, { status: next })
+  }
+
+  const [resending, setResending] = useState<string | null>(null)
+  const resendAlimtalk = async (id: string) => {
+    setResending(id)
+    try {
+      const res = await api.post(`/admin/leads/${id}/alimtalk`)
+      const r = res.data as { success: boolean; sentAt?: string; error?: string }
+      setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, alimtalkSentAt: r.sentAt ?? l.alimtalkSentAt, alimtalkError: r.success ? null : r.error ?? '발송 실패' } : l)))
+    } finally {
+      setResending(null)
+    }
   }
 
   const saveMemo = async (id: string) => {
@@ -156,6 +170,8 @@ export default function LeadsPage() {
                     setMemoDraft={setMemoDraft}
                     onSaveMemo={() => saveMemo(l.id)}
                     saving={saving}
+                    onResend={() => resendAlimtalk(l.id)}
+                    resending={resending === l.id}
                   />
                 ))}
             </tbody>
@@ -175,6 +191,8 @@ function LeadRows({
   setMemoDraft,
   onSaveMemo,
   saving,
+  onResend,
+  resending,
 }: {
   lead: Lead
   open: boolean
@@ -183,6 +201,8 @@ function LeadRows({
   memoDraft: string
   setMemoDraft: (v: string) => void
   onSaveMemo: () => void
+  onResend: () => void
+  resending: boolean
   saving: boolean
 }) {
   const st = LEAD_STATUS[l.status] ?? LEAD_STATUS.new
@@ -224,7 +244,19 @@ function LeadRows({
                 <Row k="모델코드" v={l.modelCode} />
                 <Row k="예상 월 렌탈료" v={l.monthlyFee ? `${l.monthlyFee.toLocaleString()}원` : null} />
                 <Row k="마케팅 수신" v={l.agreedMarketing ? '동의' : '미동의'} />
-                <Row k="알림톡" v={l.alimtalkSentAt ? `${formatDateTime(l.alimtalkSentAt)} 발송` : '미발송'} />
+                <div className="flex gap-3">
+                  <dt className="w-28 shrink-0 text-text-secondary">알림톡</dt>
+                  <dd className="text-text-primary flex flex-wrap items-center gap-2">
+                    <span>{l.alimtalkSentAt ? `${formatDateTime(l.alimtalkSentAt)} 발송` : '미발송'}</span>
+                    {l.alimtalkError && <span className="text-xs text-red-500">실패: {l.alimtalkError}</span>}
+                    {l.service !== 'card' && (
+                      <button onClick={onResend} disabled={resending} className="px-2 py-0.5 rounded-full border border-border text-xs text-text-secondary hover:text-text-primary disabled:opacity-40">
+                        {resending ? '발송 중…' : l.alimtalkSentAt ? '다시 보내기' : '보내기'}
+                      </button>
+                    )}
+                    {l.shortToken && <span className="text-xs text-text-tertiary">/c/{l.shortToken}</span>}
+                  </dd>
+                </div>
                 <Row k="유입 경로" v={l.referrerUrl} />
                 <div className="flex gap-3">
                   <dt className="w-28 shrink-0 text-text-secondary">신청서</dt>

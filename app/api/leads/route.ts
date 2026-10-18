@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { routeError } from '@/lib/admin/route'
-import { sendCustomerApplicationLinkAlimtalk } from '@/lib/alimtalk-service'
+import { sendApplicationLinkAlimtalk } from '@/lib/alimtalk-service'
+import { generateShortToken } from '@/lib/shortToken'
 
 // 상담 신청(명세서) 접수. 카드·인터넷·가전렌탈 공통.
 // 필수는 서비스·전화번호·동의뿐이다 — 협력업체가 전화하는 데 그 이상은 필요 없고,
 // 받아두면 관리 책임만 생긴다. leads 테이블은 anon 키로 접근할 수 없다.
-// 가전렌탈이면 접수 직후 셀프 가입 신청서 링크를 알림톡으로 보낸다.
+// 가전렌탈·인터넷이면 접수 직후 셀프 신청서 링크(/c/<토큰>)를 알림톡으로 보낸다.
 
 const phone = z.string().regex(/^01[016789]-\d{3,4}-\d{4}$/, '휴대폰 번호 형식이 올바르지 않습니다.')
 
@@ -102,9 +103,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const { data, error } = await supabaseAdmin
-      .from('leads')
-      .insert({
+    const row = {
         service: parsed.service,
         category_slug: parsed.service === 'electronics' ? parsed.categorySlug ?? null : null,
         product_id: productId,
@@ -118,21 +117,27 @@ export async function POST(request: NextRequest) {
         agreed_marketing: parsed.agreedMarketing,
         referrer_url: parsed.referrerUrl || null,
         marketer_code: parsed.marketerCode || '',
-      })
-      .select('id')
-      .single()
+    }
 
-    if (error) throw error
+    // 짧은 토큰은 유일해야 한다. 충돌(23505)하면 새로 뽑아 다시 넣는다.
+    let data: { id: string; short_token: string | null } | null = null
+    for (let attempt = 0; attempt < 3 && !data; attempt++) {
+      const res = await supabaseAdmin
+        .from('leads')
+        .insert({ ...row, short_token: generateShortToken() })
+        .select('id, short_token')
+        .single()
+      if (res.error) {
+        if (res.error.code === '23505' && attempt < 2) continue
+        throw res.error
+      }
+      data = res.data
+    }
+    if (!data) throw new Error('lead insert failed')
 
     // 알림톡은 접수와 별개다. 실패해도 접수는 유효하고, 완료 화면에 링크가 따로 있다.
-    if (parsed.service === 'electronics') {
-      const sent = await sendCustomerApplicationLinkAlimtalk(parsed.phoneNumber, data.id)
-      if (sent.success) {
-        await supabaseAdmin
-          .from('leads')
-          .update({ alimtalk_sent_at: new Date().toISOString() })
-          .eq('id', data.id)
-      }
+    if (parsed.service === 'electronics' || parsed.service === 'internet') {
+      await sendApplicationLinkAlimtalk({ id: data.id, phone_number: parsed.phoneNumber, short_token: data.short_token })
     }
 
     return NextResponse.json({ id: data.id }, { status: 201 })
