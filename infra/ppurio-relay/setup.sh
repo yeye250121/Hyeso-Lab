@@ -17,16 +17,19 @@ curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' > /etc/
 apt-get update -qq
 apt-get install -y -qq caddy >/dev/null
 
-echo "[2/5] 방화벽 80/443 개방 (GCP 는 콘솔 방화벽이 따로 있고, OS 쪽은 혹시 모를 차단 규칙만 푼다)"
-for p in 80 443; do
-  iptables -C INPUT -p tcp --dport "$p" -m state --state NEW -j ACCEPT 2>/dev/null \
-    || iptables -I INPUT 5 -p tcp --dport "$p" -m state --state NEW -j ACCEPT
-done
-if command -v netfilter-persistent >/dev/null; then netfilter-persistent save >/dev/null; else
-  apt-get install -y -qq iptables-persistent >/dev/null 2>&1 || true
-  command -v netfilter-persistent >/dev/null && netfilter-persistent save >/dev/null || true
+echo "[2/5] 방화벽 80/443 개방 (GCP 는 콘솔 방화벽이 따로 있고, OS 쪽은 차단 규칙이 있을 때만 푼다)"
+if command -v iptables >/dev/null 2>&1; then
+  for p in 80 443; do
+    iptables -C INPUT -p tcp --dport "$p" -m state --state NEW -j ACCEPT 2>/dev/null \
+      || iptables -I INPUT -p tcp --dport "$p" -m state --state NEW -j ACCEPT || true
+  done
+  command -v netfilter-persistent >/dev/null 2>&1 && netfilter-persistent save >/dev/null 2>&1 || true
+else
+  echo "  iptables 없음 - OS 방화벽 없음, 건너뜀 (GCP 콘솔의 HTTP/HTTPS 허용 체크로 충분)"
 fi
-command -v ufw >/dev/null && ufw status | grep -q active && { ufw allow 80/tcp; ufw allow 443/tcp; } || true
+if command -v ufw >/dev/null 2>&1 && ufw status 2>/dev/null | grep -q "Status: active"; then
+  ufw allow 80/tcp >/dev/null; ufw allow 443/tcp >/dev/null
+fi
 
 echo "[3/5] 비밀키"
 if [ -f "$ENV_FILE" ] && grep -q RELAY_SECRET "$ENV_FILE"; then
