@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin, routeError, unauthorizedResponse } from '@/lib/admin/route'
+import { ALL_ROLES } from '@/lib/admin/auth'
 
 export const runtime = 'nodejs'
 
@@ -10,7 +11,7 @@ const TYPES: Record<string, string> = { 'image/webp': 'webp', 'image/jpeg': 'jpg
 const MAX = 1024 * 1024
 
 export async function POST(request: NextRequest) {
-  const admin = requireAdmin(request)
+  const admin = requireAdmin(request, ALL_ROLES)
   if (!admin) return unauthorizedResponse()
   try {
     const file = (await request.formData()).get('file')
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const admin = requireAdmin(request)
+  const admin = requireAdmin(request, ALL_ROLES)
   if (!admin) return unauthorizedResponse()
   try {
     const { error } = await getSupabaseAdmin().from('admin_users').update({ avatar_url: null }).eq('id', admin.id)

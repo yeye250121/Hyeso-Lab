@@ -6,6 +6,7 @@ import { Key } from 'lucide-react'
 
 export default function InviteKeyGenerator() {
   const [inviteKey, setInviteKey] = useState('')
+  const [role, setRole] = useState<'admin' | 'marketer'>('admin')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -13,7 +14,7 @@ export default function InviteKeyGenerator() {
     setIsLoading(true)
     setError('')
     try {
-      const res = await api.post('/admin/auth/invite')
+      const res = await api.post('/admin/auth/invite', { role })
       setInviteKey(res.data.key)
     } catch (err: any) {
       setError(err.response?.data?.error || '발급 실패')
@@ -41,6 +42,15 @@ export default function InviteKeyGenerator() {
 
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
+      {!inviteKey && (
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-small text-text-secondary">역할</span>
+          <select value={role} onChange={(e) => setRole(e.target.value as 'admin' | 'marketer')} className="px-3 py-1.5 rounded-button bg-bg-primary border border-border text-small text-text-primary">
+            <option value="admin">관리자 (운영 전체)</option>
+            <option value="marketer">외부 마케터 (라이브러리·채팅만)</option>
+          </select>
+        </div>
+      )}
       {!inviteKey ? (
         <button
           onClick={handleGenerate}

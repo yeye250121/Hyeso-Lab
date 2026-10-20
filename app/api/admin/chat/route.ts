@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin, routeError, unauthorizedResponse } from '@/lib/admin/route'
+import { ALL_ROLES } from '@/lib/admin/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,7 +21,7 @@ type OverviewRow = {
 }
 
 export async function GET(request: NextRequest) {
-  const admin = requireAdmin(request)
+  const admin = requireAdmin(request, ALL_ROLES)
   if (!admin) return unauthorizedResponse()
 
   try {

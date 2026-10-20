@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin, routeError, unauthorizedResponse } from '@/lib/admin/route'
+import { ALL_ROLES } from '@/lib/admin/auth'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
-  const admin = requireAdmin(request)
+  const admin = requireAdmin(request, ALL_ROLES)
   if (!admin) return unauthorizedResponse()
   try {
     const { data, error } = await getSupabaseAdmin()
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
 const patchSchema = z.object({ nickname: z.string().trim().min(1).max(20) })
 
 export async function PATCH(request: NextRequest) {
-  const admin = requireAdmin(request)
+  const admin = requireAdmin(request, ALL_ROLES)
   if (!admin) return unauthorizedResponse()
   try {
     const parsed = patchSchema.safeParse(await request.json())

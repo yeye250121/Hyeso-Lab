@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin, routeError, unauthorizedResponse } from '@/lib/admin/route'
+import { ALL_ROLES } from '@/lib/admin/auth'
 import { directKey } from '@/lib/admin/chat'
 
 export const dynamic = 'force-dynamic'
@@ -17,7 +18,7 @@ const schema = z.discriminatedUnion('type', [
 ])
 
 export async function POST(request: NextRequest) {
-  const admin = requireAdmin(request)
+  const admin = requireAdmin(request, ALL_ROLES)
   if (!admin) return unauthorizedResponse()
 
   try {

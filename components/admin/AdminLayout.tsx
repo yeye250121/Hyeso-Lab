@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useAuthStore } from '@/lib/admin/store'
@@ -11,12 +11,15 @@ import { Menu, X } from 'lucide-react'
 
 const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-mark.png'
 
+const MARKETER_PATHS = ['/admin/library', '/admin/profile', '/admin/chat']
+
 interface AdminLayoutProps {
   children: React.ReactNode
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const { setAdmin } = useAuthStore()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isChecking, setIsChecking] = useState(true)
@@ -26,6 +29,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       try {
         const response = await api.get('/admin/auth/session')
         setAdmin(response.data.admin)
+        // 외부 마케터는 라이브러리·프로필·채팅만 쓴다
+        if (response.data.admin?.role === 'marketer' && !MARKETER_PATHS.some((p) => pathname?.startsWith(p))) {
+          router.replace('/admin/library')
+          return
+        }
         setIsChecking(false)
       } catch {
         router.replace('/admin/login')
@@ -52,7 +60,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* 모바일 헤더 */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-bg-card border-b border-border flex items-center justify-between px-4 z-40">
-        <Link href="/admin/dashboard" className="flex items-center gap-2">
+        <Link href="/admin/library" className="flex items-center gap-2">
           <Image src={LOGO_URL} alt="혜택 연구소" width={512} height={512} className="h-6 w-6" />
           <span className="text-body font-semibold text-text-primary">Admin</span>
         </Link>

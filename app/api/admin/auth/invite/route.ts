@@ -10,6 +10,11 @@ export async function POST(req: NextRequest) {
     if (!adminUser) {
       return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
     }
+    if (adminUser.role === 'marketer') {
+      return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 });
+    }
+    const body = await req.json().catch(() => ({}));
+    const role = body?.role === 'marketer' || body?.role === 'owner' ? body.role : 'admin';
     const supabaseAdmin = getSupabaseAdmin();
 
     // 2. Generate random invite key
@@ -26,6 +31,7 @@ export async function POST(req: NextRequest) {
         key,
         expires_at: expiresAt.toISOString(),
         created_by: adminUser.id,
+        role,
       });
 
     if (error) {
@@ -35,6 +41,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       message: '초대 키 발급 완료',
       key,
+      role,
       expiresAt: expiresAt.toISOString()
     });
 

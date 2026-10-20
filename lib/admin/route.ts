@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAdminContext } from '@/lib/admin/auth'
+import { getAdminContext, STAFF_ROLES, type AdminRole } from '@/lib/admin/auth'
 
-export function requireAdmin(request: NextRequest) {
-  return getAdminContext(request)
+/**
+ * 로그인한 구성원 중 허용 역할만 통과시킨다. 기본은 운영진(owner·admin)이라
+ * 기존 관리자 API 는 그대로 두면 외부 마케터가 들어올 수 없다.
+ * 라이브러리·프로필·채팅처럼 전원이 쓰는 API 는 ALL_ROLES 를 넘긴다.
+ */
+export function requireAdmin(request: NextRequest, roles: AdminRole[] = STAFF_ROLES) {
+  const ctx = getAdminContext(request)
+  if (!ctx || !roles.includes(ctx.role)) return null
+  return ctx
 }
 
 export function unauthorizedResponse() {

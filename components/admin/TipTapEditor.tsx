@@ -6,6 +6,15 @@ import Image from '@tiptap/extension-image'
 import TextAlign from '@tiptap/extension-text-align'
 import Link from '@tiptap/extension-link'
 import Youtube from '@tiptap/extension-youtube'
+import Table from '@tiptap/extension-table'
+import TableRow from '@tiptap/extension-table-row'
+import TableCell from '@tiptap/extension-table-cell'
+import TableHeader from '@tiptap/extension-table-header'
+import TaskList from '@tiptap/extension-task-list'
+import TaskItem from '@tiptap/extension-task-item'
+import Details from '@tiptap/extension-details'
+import DetailsSummary from '@tiptap/extension-details-summary'
+import DetailsContent from '@tiptap/extension-details-content'
 import { Node as TiptapNode, mergeAttributes } from '@tiptap/core'
 import { useRef, useState, useCallback, useEffect, DragEvent } from 'react'
 import {
@@ -28,6 +37,12 @@ import {
   Minus,
   Code,
   ExternalLink,
+  Table as TableIcon,
+  ListChecks,
+  ChevronsUpDown,
+  Lightbulb,
+  Rows3,
+  Columns3,
   Trash2,
   Upload,
   Presentation,
@@ -40,6 +55,34 @@ declare module '@tiptap/core' {
     googleSlides: {
       setGoogleSlides: (options: { src: string }) => ReturnType
     }
+  }
+}
+
+// 콜아웃(강조 박스). 본문 블록을 감싸는 단순 컨테이너. 아이콘은 CSS(::before)로 그린다.
+const Callout = TiptapNode.create({
+  name: 'callout',
+  group: 'block',
+  content: 'block+',
+  defining: true,
+  parseHTML() {
+    return [{ tag: 'div.callout' }]
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, { class: 'callout' }), ['div', 0]]
+  },
+  addCommands() {
+    return {
+      toggleCallout:
+        () =>
+        ({ commands }) =>
+          commands.toggleWrap(this.name),
+    }
+  },
+})
+
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    callout: { toggleCallout: () => ReturnType }
   }
 }
 
@@ -294,6 +337,56 @@ const MenuBar = ({ editor, onImageUpload }: { editor: Editor | null; onImageUplo
         <div className="w-px bg-border mx-1" />
 
         <MenuButton
+          onClick={() => editor.chain().focus().toggleTaskList().run()}
+          isActive={editor.isActive('taskList')}
+          title="체크리스트"
+        >
+          <ListChecks className="w-4 h-4" />
+        </MenuButton>
+        <MenuButton
+          onClick={() => editor.chain().focus().toggleCallout().run()}
+          isActive={editor.isActive('callout')}
+          title="콜아웃(강조 박스)"
+        >
+          <Lightbulb className="w-4 h-4" />
+        </MenuButton>
+        <MenuButton
+          onClick={() => editor.chain().focus().setDetails().run()}
+          isActive={editor.isActive('details')}
+          title="접기(토글)"
+        >
+          <ChevronsUpDown className="w-4 h-4" />
+        </MenuButton>
+        {editor.isActive('table') ? (
+          <>
+            <MenuButton onClick={() => editor.chain().focus().addRowAfter().run()} title="행 추가">
+              <Rows3 className="w-4 h-4" />
+            </MenuButton>
+            <MenuButton onClick={() => editor.chain().focus().addColumnAfter().run()} title="열 추가">
+              <Columns3 className="w-4 h-4" />
+            </MenuButton>
+            <MenuButton onClick={() => editor.chain().focus().deleteRow().run()} title="행 삭제">
+              <span className="text-[11px] font-semibold">행−</span>
+            </MenuButton>
+            <MenuButton onClick={() => editor.chain().focus().deleteColumn().run()} title="열 삭제">
+              <span className="text-[11px] font-semibold">열−</span>
+            </MenuButton>
+            <MenuButton onClick={() => editor.chain().focus().deleteTable().run()} title="표 삭제">
+              <Trash2 className="w-4 h-4" />
+            </MenuButton>
+          </>
+        ) : (
+          <MenuButton
+            onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+            title="표 삽입 (3×3)"
+          >
+            <TableIcon className="w-4 h-4" />
+          </MenuButton>
+        )}
+
+        <div className="w-px bg-border mx-1" />
+
+        <MenuButton
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
           isActive={editor.isActive({ textAlign: 'left' })}
           title="왼쪽 정렬"
@@ -473,6 +566,16 @@ export default function TipTapEditor({ content, onChange }: TipTapEditorProps) {
         },
       }),
       GoogleSlides,
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableHeader,
+      TableCell,
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      Details.configure({ persist: true, HTMLAttributes: { class: 'details' } }),
+      DetailsSummary,
+      DetailsContent,
+      Callout,
     ],
     content,
     onUpdate: ({ editor }) => {

@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin, routeError, unauthorizedResponse } from '@/lib/admin/route'
+import { ALL_ROLES } from '@/lib/admin/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,7 +14,7 @@ const schema = z.object({
 })
 
 export async function POST(request: NextRequest) {
-  const admin = requireAdmin(request)
+  const admin = requireAdmin(request, ALL_ROLES)
   if (!admin) return unauthorizedResponse()
 
   try {

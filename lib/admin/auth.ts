@@ -1,11 +1,21 @@
 import { NextRequest } from 'next/server'
 import jwt from 'jsonwebtoken'
 
+// 구성원 역할. owner(대표자)·admin(관리자)는 운영 전체, marketer(외부 마케터)는 라이브러리·프로필·채팅만.
+export type AdminRole = 'owner' | 'admin' | 'marketer'
+export const ALL_ROLES: AdminRole[] = ['owner', 'admin', 'marketer']
+export const STAFF_ROLES: AdminRole[] = ['owner', 'admin']
+
 export interface AdminContext {
   id: string
   loginId: string
   uniqueCode: string
   nickname: string
+  role: AdminRole
+}
+
+function asRole(v: unknown): AdminRole {
+  return v === 'owner' || v === 'marketer' ? v : 'admin'
 }
 
 function getJwtSecret(): string {
@@ -36,6 +46,7 @@ export function verifyAdminToken(token: string): AdminContext | null {
       loginId: decoded.loginId,
       uniqueCode: decoded.uniqueCode,
       nickname: typeof decoded.nickname === 'string' ? decoded.nickname : '',
+      role: asRole(decoded.role),
     }
   } catch (error) {
     if (error instanceof Error && error.message.includes('JWT_SECRET')) {
@@ -69,6 +80,7 @@ export function generateToken(
       loginId: user.loginId,
       uniqueCode: user.uniqueCode,
       nickname: user.nickname,
+      role: user.role,
     },
     getJwtSecret(),
     {

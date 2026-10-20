@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin, routeError, unauthorizedResponse } from '@/lib/admin/route'
+import { ALL_ROLES } from '@/lib/admin/auth'
 import { findAccessibleRoom, markRead } from '@/lib/admin/chat'
 
 export const dynamic = 'force-dynamic'
@@ -15,7 +16,7 @@ type Row = { id: number; body: string; created_at: string; admin_id: string }
 const toMessage = (r: Row) => ({ id: r.id, body: r.body, createdAt: r.created_at, authorId: r.admin_id })
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const admin = requireAdmin(request)
+  const admin = requireAdmin(request, ALL_ROLES)
   if (!admin) return unauthorizedResponse()
 
   try {
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 const postSchema = z.object({ body: z.string().trim().min(1).max(2000) })
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  const admin = requireAdmin(request)
+  const admin = requireAdmin(request, ALL_ROLES)
   if (!admin) return unauthorizedResponse()
 
   try {

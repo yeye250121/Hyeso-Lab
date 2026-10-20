@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     const { data: user, error } = await supabaseAdmin
       .from('admin_users')
-      .select('id, login_id, password_hash, unique_code, nickname')
+      .select('id, login_id, password_hash, unique_code, nickname, role')
       .eq('login_id', loginId)
       .single();
 
@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
       loginId: user.login_id,
       uniqueCode: user.unique_code,
       nickname: user.nickname,
+      role: (user.role === 'owner' || user.role === 'marketer' ? user.role : 'admin') as 'owner' | 'admin' | 'marketer',
     };
 
     const token = generateToken(adminContext, rememberMe);

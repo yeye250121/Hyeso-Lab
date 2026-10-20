@@ -7,6 +7,7 @@ interface Admin {
   loginId: string
   nickname: string
   uniqueCode: string
+  role: 'owner' | 'admin' | 'marketer'
 }
 
 interface AuthState {

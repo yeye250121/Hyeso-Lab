@@ -444,3 +444,49 @@ body {
 .guide-article img { display: block; max-width: 100%; height: auto; border-radius: 14px; margin: 18px 0 22px; border: 1px solid #f2f4f6; }
 .guide-article em { font-style: normal; color: #4e5968; }
 .guide-article strong em, .guide-article em strong { color: #191f28; }
+
+/* ── 라이브러리 읽기 모드 + 편집기 공통 블록(표·체크리스트·접기·콜아웃) ── */
+.library-doc { color: var(--text-primary); font-size: 16px; line-height: 1.75; }
+.library-doc h1 { font-size: 24px; font-weight: 700; margin: 36px 0 12px; }
+.library-doc h2 { font-size: 20px; font-weight: 700; margin: 30px 0 10px; }
+.library-doc h3 { font-size: 17px; font-weight: 700; margin: 24px 0 8px; }
+.library-doc p { margin: 0 0 10px; }
+.library-doc p:empty { display: none; }
+.library-doc ul, .library-doc ol { margin: 6px 0 14px; padding-left: 24px; }
+.library-doc ul { list-style: disc; }
+.library-doc ol { list-style: decimal; }
+.library-doc li > p { margin: 0 0 4px; }
+.library-doc blockquote { border-left: 3px solid var(--action-primary); padding-left: 14px; color: var(--text-secondary); margin: 14px 0; }
+.library-doc hr { border: 0; border-top: 1px solid rgba(0,0,0,0.08); margin: 30px 0; }
+.library-doc img { display: block; max-width: 100%; height: auto; border-radius: 12px; margin: 16px 0; }
+.library-doc a { color: var(--action-primary); text-decoration: underline; }
+.library-doc code { background: var(--bg-primary); padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
+.library-doc pre { background: var(--bg-primary); padding: 12px 14px; border-radius: 10px; overflow-x: auto; margin: 14px 0; }
+.library-doc iframe { max-width: 100%; border-radius: 12px; margin: 16px 0; }
+
+.library-doc table, .tiptap-editor table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 15px; table-layout: fixed; }
+.library-doc th, .library-doc td, .tiptap-editor th, .tiptap-editor td { border: 1px solid rgba(0,0,0,0.1); padding: 8px 10px; vertical-align: top; min-width: 60px; }
+.library-doc th, .tiptap-editor th { background: var(--bg-primary); font-weight: 600; text-align: left; }
+.dark .library-doc th, .dark .library-doc td, .dark .tiptap-editor th, .dark .tiptap-editor td { border-color: rgba(255,255,255,0.12); }
+.tiptap-editor .selectedCell:after { content: ''; position: absolute; inset: 0; background: rgba(255,143,171,0.15); pointer-events: none; }
+.tiptap-editor td, .tiptap-editor th { position: relative; }
+
+.library-doc ul[data-type='taskList'], .tiptap-editor ul[data-type='taskList'] { list-style: none; padding-left: 4px; }
+.library-doc ul[data-type='taskList'] li, .tiptap-editor ul[data-type='taskList'] li { display: flex; align-items: flex-start; gap: 8px; }
+.library-doc ul[data-type='taskList'] li > label, .tiptap-editor ul[data-type='taskList'] li > label { flex: 0 0 auto; margin-top: 5px; }
+.library-doc ul[data-type='taskList'] li > div, .tiptap-editor ul[data-type='taskList'] li > div { flex: 1 1 auto; }
+.library-doc ul[data-type='taskList'] input[type='checkbox'], .tiptap-editor ul[data-type='taskList'] input[type='checkbox'] { accent-color: var(--action-primary); width: 16px; height: 16px; }
+.library-doc li[data-checked='true'] > div { color: var(--text-tertiary); text-decoration: line-through; }
+
+.library-doc details, .tiptap-editor details { border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; padding: 8px 12px; margin: 12px 0; }
+.library-doc details > summary, .tiptap-editor details > summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; align-items: center; gap: 6px; }
+.library-doc details > summary::before, .tiptap-editor details > summary::before { content: '▸'; font-size: 12px; color: var(--text-tertiary); transition: transform .15s; }
+.library-doc details[open] > summary::before, .tiptap-editor details[open] > summary::before { transform: rotate(90deg); }
+.library-doc details > div, .tiptap-editor details > div { padding-top: 6px; }
+.tiptap-editor details > summary::-webkit-details-marker { display: none; }
+
+.library-doc .callout, .tiptap-editor .callout { display: flex; gap: 10px; background: #fff1f5; border-radius: 12px; padding: 12px 14px; margin: 14px 0; }
+.dark .library-doc .callout, .dark .tiptap-editor .callout { background: rgba(255,143,171,0.12); }
+.library-doc .callout::before, .tiptap-editor .callout::before { content: '💡'; flex: 0 0 auto; }
+.library-doc .callout > div { flex: 1 1 auto; }
+.library-doc .callout p:last-child, .tiptap-editor .callout p:last-child { margin-bottom: 0; }

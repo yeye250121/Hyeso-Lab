@@ -11,6 +11,7 @@ import {
   PhoneCall,
   CreditCard,
   MessageCircle,
+  BookOpen,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import api from '@/lib/admin/api'
@@ -23,13 +24,15 @@ const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/pub
 
 // 지금 사업(상담 신청 → 신청서 → 본사 전달)에 맞춘 메뉴.
 // 예전 CCTV 파트너 사업용 화면(문의·파트너·정산서·가이드)은 주소로는 열리지만 메뉴에서는 뺐다.
+// everyone: 외부 마케터도 보는 메뉴. 나머지는 운영진(owner·admin)만.
 const menuItems = [
   { href: '/admin/dashboard', label: '대시보드', icon: LayoutDashboard },
   { href: '/admin/leads', label: '상담 신청', icon: PhoneCall },
   { href: '/admin/applications', label: '신청서', icon: FileText },
   { href: '/admin/rental-products', label: '렌탈 상품', icon: Package },
   { href: '/admin/cards', label: '카드 상품', icon: CreditCard },
-  { href: '/admin/chat', label: '채팅', icon: MessageCircle },
+  { href: '/admin/library', label: '라이브러리', icon: BookOpen, everyone: true },
+  { href: '/admin/chat', label: '채팅', icon: MessageCircle, everyone: true },
 ]
 
 interface SidebarProps {
@@ -97,7 +100,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
       {/* 메뉴 */}
       <nav className="flex-1 p-4">
         <ul className="space-y-1">
-          {menuItems.map((item) => {
+          {menuItems.filter((item) => admin?.role !== 'marketer' || item.everyone).map((item) => {
             const isActive = pathname.startsWith(item.href)
             const Icon = item.icon
 
