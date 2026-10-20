@@ -431,3 +431,16 @@ body {
   from { transform: translate(-50%, 8px); opacity: 0; }
   to { transform: translate(-50%, 0); opacity: 1; }
 }
+
+/* 직원용 가이드 본문(app/guide). TipTap HTML 출력을 읽기 좋게 */
+.guide-article { color: #333d4b; font-size: 16px; line-height: 1.75; }
+.guide-article h1 { font-size: 22px; font-weight: 700; color: #191f28; margin: 44px 0 14px; }
+.guide-article h3 { font-size: 17px; font-weight: 700; color: #333d4b; margin: 30px 0 10px; }
+.guide-article p { margin: 0 0 10px; }
+.guide-article p:empty { display: none; }
+.guide-article hr { border: 0; border-top: 1px solid #f2f4f6; margin: 36px 0; }
+.guide-article ul { margin: 6px 0 14px; padding-left: 22px; list-style: disc; }
+.guide-article li > p { margin: 0 0 4px; }
+.guide-article img { display: block; max-width: 100%; height: auto; border-radius: 14px; margin: 18px 0 22px; border: 1px solid #f2f4f6; }
+.guide-article em { font-style: normal; color: #4e5968; }
+.guide-article strong em, .guide-article em strong { color: #191f28; }
