@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useAuthStore } from '@/lib/admin/store'
 import api from '@/lib/admin/api'
 import { consoleHome } from '@/lib/admin/console'
@@ -111,6 +112,11 @@ export default function AdminLoginPage() {
               {isLoading ? '로그인 중...' : '로그인'}
             </button>
           </form>
+          <div className="mt-5 flex items-center justify-center gap-3 text-small text-text-secondary">
+            <Link href="/partners/register" className="text-action-primary font-medium">파트너스 가입 신청</Link>
+            <span className="text-text-tertiary">·</span>
+            <Link href="/admin/register">초대키로 관리자 가입</Link>
+          </div>
 
         </div>
       </div>

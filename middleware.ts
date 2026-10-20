@@ -82,7 +82,7 @@ export async function middleware(request: NextRequest) {
   const [, first, second] = pathname.split('/')
 
   // 로그인·초대 가입은 누구나
-  if (pathname.startsWith('/admin/login') || pathname.startsWith('/admin/register')) {
+  if (pathname.startsWith('/admin/login') || pathname.startsWith('/admin/register') || pathname.startsWith('/partners/register')) {
     return NextResponse.next()
   }
 

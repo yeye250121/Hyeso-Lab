@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     const { data: user, error } = await supabaseAdmin
       .from('admin_users')
-      .select('id, login_id, password_hash, unique_code, nickname, role')
+      .select('id, login_id, password_hash, unique_code, nickname, role, status')
       .eq('login_id', loginId)
       .single();
 
@@ -33,6 +33,13 @@ export async function POST(req: NextRequest) {
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
       return NextResponse.json({ error: '아이디 또는 비밀번호가 일치하지 않습니다.' }, { status: 401 });
+    }
+    // 승인제: active 만 로그인
+    if (user.status === 'pending') {
+      return NextResponse.json({ error: '가입 승인 대기 중이에요. 승인되면 문자로 안내드릴게요.' }, { status: 403 });
+    }
+    if (user.status && user.status !== 'active') {
+      return NextResponse.json({ error: '사용할 수 없는 계정이에요. 혜택연구소에 문의해 주세요.' }, { status: 403 });
     }
 
     const adminContext = {

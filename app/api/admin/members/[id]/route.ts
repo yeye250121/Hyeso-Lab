@@ -8,6 +8,8 @@ const schema = z
     role: z.enum(['owner', 'admin', 'marketer']).optional(),
     phone: z.string().trim().max(20).nullable().optional(),
     notifyLeads: z.boolean().optional(),
+    /** 승인(active) / 거부(rejected) / 비활성(disabled) */
+    status: z.enum(['active', 'rejected', 'disabled']).optional(),
   })
   .refine((v) => Object.keys(v).length > 0, '변경할 값이 없습니다.')
 
@@ -20,11 +22,19 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (params.id === admin.id && parsed.data.role && parsed.data.role !== 'owner') {
     return NextResponse.json({ error: '본인의 역할은 낮출 수 없습니다.' }, { status: 400 })
   }
+  if (params.id === admin.id && parsed.data.status && parsed.data.status !== 'active') {
+    return NextResponse.json({ error: '본인 계정은 막을 수 없습니다.' }, { status: 400 })
+  }
   try {
     const patch: Record<string, unknown> = {}
     if (parsed.data.role !== undefined) patch.role = parsed.data.role
     if (parsed.data.phone !== undefined) patch.phone = parsed.data.phone ? parsed.data.phone.replace(/\D/g, '') : null
     if (parsed.data.notifyLeads !== undefined) patch.notify_leads = parsed.data.notifyLeads
+    if (parsed.data.status !== undefined) {
+      patch.status = parsed.data.status
+      patch.reviewed_at = new Date().toISOString()
+      patch.reviewed_by = admin.id
+    }
     const { data, error } = await getSupabaseAdmin().from('admin_users').update(patch).eq('id', params.id).select('id').maybeSingle()
     if (error) throw error
     if (!data) return NextResponse.json({ error: '구성원을 찾을 수 없습니다.' }, { status: 404 })

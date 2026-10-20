@@ -47,7 +47,6 @@ export default function InviteKeyGenerator() {
           <span className="text-small text-text-secondary">역할</span>
           <select value={role} onChange={(e) => setRole(e.target.value as 'admin' | 'marketer')} className="px-3 py-1.5 rounded-button bg-bg-primary border border-border text-small text-text-primary">
             <option value="admin">관리자 (운영 전체)</option>
-            <option value="marketer">파트너스 (본인 상담·자료만)</option>
           </select>
         </div>
       )}

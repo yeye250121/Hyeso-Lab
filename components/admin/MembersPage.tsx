@@ -7,8 +7,14 @@ import InviteKeyGenerator from '@/components/admin/InviteKeyGenerator'
 import { formatDateTime } from '@/components/admin/labels'
 
 // 구성원 관리(오너 전용). 역할·전화번호·인입 알림, 초대키 발급.
-type Member = { id: string; loginId: string; nickname: string; code: string; role: 'owner' | 'admin' | 'marketer'; phone: string | null; notifyLeads: boolean; avatarUrl: string | null; leadCount: number; createdAt: string; isSelf: boolean }
+type Member = { id: string; loginId: string; nickname: string; code: string; role: 'owner' | 'admin' | 'marketer'; phone: string | null; notifyLeads: boolean; avatarUrl: string | null; leadCount: number; createdAt: string; isSelf: boolean; status: 'pending' | 'active' | 'rejected' | 'disabled'; bankName: string | null; bankAccount: string | null; accountHolder: string | null; channelUrl: string | null; appliedAt: string | null }
 const ROLE_LABEL = { owner: '대표자', admin: '관리자', marketer: '파트너스' } as const
+const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
+  active: { label: '사용 중', cls: 'bg-green-100 text-green-700' },
+  pending: { label: '승인 대기', cls: 'bg-yellow-100 text-yellow-700' },
+  rejected: { label: '거부됨', cls: 'bg-gray-100 text-gray-500' },
+  disabled: { label: '비활성', cls: 'bg-gray-100 text-gray-500' },
+}
 
 export default function MembersPage() {
   const [members, setMembers] = useState<Member[]>([])
@@ -41,9 +47,31 @@ export default function MembersPage() {
         <p className="mt-1 text-[13px] text-text-secondary">대표자는 모든 권한, 관리자는 구성원 관리 제외 전체, 파트너스는 본인 상담과 자료만 봅니다.</p>
       </div>
 
+      {members.some((m) => m.status === 'pending') && (
+        <section className="rounded-2xl bg-bg-card p-5" data-testid="pending-members">
+          <p className="text-[15px] font-semibold text-text-primary">가입 승인 대기 <span className="text-action-primary">{members.filter((m) => m.status === 'pending').length}</span></p>
+          <ul className="mt-3 divide-y divide-border">
+            {members.filter((m) => m.status === 'pending').map((m) => (
+              <li key={m.id} className="py-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+                <div className="min-w-[180px]">
+                  <p className="text-[14px] font-medium text-text-primary">{m.nickname} <span className="text-[12px] text-text-tertiary">{m.loginId}</span></p>
+                  <p className="text-[12px] text-text-secondary">{m.phone ? m.phone.replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3') : '-'} · {m.appliedAt ? `${formatDateTime(m.appliedAt)} 신청` : ''}</p>
+                </div>
+                <p className="text-[12px] text-text-secondary">{m.bankName ?? '-'} {m.bankAccount ?? ''} {m.accountHolder ? `(${m.accountHolder})` : ''}</p>
+                {m.channelUrl && <a href={m.channelUrl} target="_blank" rel="noreferrer" className="text-[12px] text-action-primary underline truncate max-w-[240px]">{m.channelUrl}</a>}
+                <div className="ml-auto flex gap-2">
+                  <button onClick={() => patch(m.id, { status: 'rejected' })} className="px-3 py-1.5 rounded-lg border border-border text-[13px] text-text-secondary hover:text-text-primary">거부</button>
+                  <button onClick={() => patch(m.id, { status: 'active' })} className="px-3 py-1.5 rounded-lg bg-action-primary text-white text-[13px] font-semibold">승인</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <div className="grid lg:grid-cols-[1fr_360px] gap-5 items-start">
         <section className="rounded-2xl bg-bg-card overflow-x-auto">
-          <table className="w-full min-w-[720px] text-[14px]">
+          <table className="w-full min-w-[860px] text-[14px]">
             <thead>
               <tr className="text-left text-[12px] text-text-secondary border-b border-border">
                 <th className="px-5 py-3 font-medium">구성원</th>
@@ -51,11 +79,12 @@ export default function MembersPage() {
                 <th className="px-5 py-3 font-medium">전화번호</th>
                 <th className="px-5 py-3 font-medium">인입 알림</th>
                 <th className="px-5 py-3 font-medium">코드 · 인입</th>
+                <th className="px-5 py-3 font-medium">상태</th>
               </tr>
             </thead>
             <tbody>
               {loading && <tr><td colSpan={5} className="px-5 py-12 text-center text-text-secondary">불러오는 중…</td></tr>}
-              {!loading && members.map((m) => (
+              {!loading && members.filter((m) => m.status !== 'pending').map((m) => (
                 <tr key={m.id} className="border-b border-border last:border-0">
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2.5">
@@ -87,6 +116,14 @@ export default function MembersPage() {
                     </label>
                   </td>
                   <td className="px-5 py-3 text-[12px] text-text-secondary whitespace-nowrap"><code>{m.code}</code> · {m.leadCount}건</td>
+                  <td className="px-5 py-3 whitespace-nowrap">
+                    <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${(STATUS_LABEL[m.status] ?? STATUS_LABEL.active).cls}`}>{(STATUS_LABEL[m.status] ?? STATUS_LABEL.active).label}</span>
+                    {!m.isSelf && (
+                      <button onClick={() => patch(m.id, { status: m.status === 'active' ? 'disabled' : 'active' })} className="ml-2 text-[12px] text-text-tertiary hover:text-text-primary underline">
+                        {m.status === 'active' ? '비활성화' : '활성화'}
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -94,8 +131,8 @@ export default function MembersPage() {
         </section>
 
         <aside className="rounded-2xl bg-bg-card p-5">
-          <p className="text-[15px] font-semibold text-text-primary">구성원 초대</p>
-          <p className="mt-1 text-[12px] text-text-secondary">역할을 고르고 초대키를 발급해 전달하세요. 가입 화면(/admin/register)에서 키를 넣으면 그 역할로 가입됩니다. 1시간 유효.</p>
+          <p className="text-[15px] font-semibold text-text-primary">관리자 초대</p>
+          <p className="mt-1 text-[12px] text-text-secondary">관리자는 초대키로 가입합니다(/admin/register, 1시간 유효). 파트너스는 초대키 없이 <code>/partners/register</code>에서 신청하고 위에서 승인하면 됩니다.</p>
           <div className="mt-3">
             <InviteKeyGenerator />
           </div>
