@@ -27,6 +27,7 @@ interface Lead {
   shortToken: string | null
   applicationId: string | null
   statementSentAt: string | null
+  giftAmount: number | null
   submittedAt: string
 }
 
@@ -270,7 +271,7 @@ function LeadRows({
                 </div>
               </dl>
               <div className="space-y-4">
-                <StatementPanel endpoint={`/admin/leads/${l.id}/statement`} sentAt={l.statementSentAt} />
+                <StatementPanel endpoint={`/admin/leads/${l.id}/statement`} sentAt={l.statementSentAt} giftAmount={l.giftAmount} />
                 <div>
                 <textarea
                   value={memoDraft}

@@ -259,6 +259,7 @@ function ApplicationsInner() {
                 key={detail.id}
                 endpoint={`/admin/applications/${detail.id}/statement`}
                 sentAt={(detail.statementSentAt as string | null) ?? null}
+                giftAmount={(detail.giftAmount as number | null) ?? null}
                 onSent={(res) => {
                   setRows((prev) => prev.map((r) => (r.id === detail.id ? { ...r, statementSentAt: res.sentAt, status: res.status ?? r.status } : r)))
                   setDetail((d) => (d ? { ...d, statementSentAt: res.sentAt, status: res.status ?? d.status } : d))

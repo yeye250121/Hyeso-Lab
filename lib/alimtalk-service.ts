@@ -4,7 +4,7 @@
  */
 import { getSupabaseAdmin } from './supabase-admin'
 import { isSolapiConfigured, sendAlimtalk, type AlimtalkVariables } from './solapi'
-import { ALIMTALK_TEMPLATES } from './alimtalk-templates'
+import { ALIMTALK_TEMPLATES, VENDOR_ALIMTALK_PHONE } from './alimtalk-templates'
 
 export type SendResult = { success: boolean; skipped?: boolean; groupId?: string | null; error?: string }
 
@@ -15,13 +15,14 @@ async function sendAndLog(opts: {
   variables: AlimtalkVariables
   leadId?: string | null
   applicationRef?: string | null
+  smsFallbackText?: string
 }): Promise<SendResult> {
   if (!isSolapiConfigured()) return { success: false, skipped: true, error: 'solapi not configured' }
   if (!opts.templateId) return { success: false, skipped: true, error: 'template not configured' }
 
   let result: SendResult
   try {
-    const r = await sendAlimtalk({ to: opts.to, templateId: opts.templateId, variables: opts.variables })
+    const r = await sendAlimtalk({ to: opts.to, templateId: opts.templateId, variables: opts.variables, smsFallbackText: opts.smsFallbackText })
     result = r.failed.length
       ? { success: false, groupId: r.groupId, error: `${r.failed[0].statusCode} ${r.failed[0].statusMessage}` }
       : { success: true, groupId: r.groupId }
@@ -72,4 +73,86 @@ export async function sendApplicationLinkAlimtalk(lead: {
     if (error) console.error('[Alimtalk] lead 갱신 실패:', error.message)
   }
   return result
+}
+
+const SERVICE_LABEL: Record<string, string> = { card: '카드', internet: '인터넷', electronics: '가전렌탈' }
+
+function kstTime(iso: string): string {
+  const d = new Date(new Date(iso).getTime() + 9 * 3600 * 1000)
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${p(d.getUTCMonth() + 1)}/${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`
+}
+
+/** 이름 가운데 글자 마스킹. 홍길동 → 홍*동 */
+function maskName(name: string | null | undefined): string {
+  const n = (name ?? '').trim()
+  if (!n) return '이름 미입력'
+  if (n.length <= 2) return n[0] + '*'
+  return n[0] + '*'.repeat(n.length - 2) + n[n.length - 1]
+}
+
+/**
+ * 새 상담 신청 → 알림을 켠 관리자 전원에게. 카톡 미수신이면 문자로 대체 발송한다.
+ * 실패해도 접수에는 영향이 없다.
+ */
+export async function sendAdminNewLeadAlimtalk(lead: {
+  id: string
+  service: string
+  applicant_name: string | null
+  product_label: string | null
+  submitted_at: string
+}): Promise<SendResult[]> {
+  const { data: admins, error } = await getSupabaseAdmin()
+    .from('admin_users')
+    .select('id, phone')
+    .eq('notify_leads', true)
+    .not('phone', 'is', null)
+  if (error) {
+    console.error('[Alimtalk] 관리자 조회 실패:', error.message)
+    return []
+  }
+  const service = SERVICE_LABEL[lead.service] ?? lead.service
+  const vars = {
+    '#{서비스}': service,
+    '#{고객명}': maskName(lead.applicant_name),
+    '#{상품}': lead.product_label || '상담 후 결정',
+    '#{접수시각}': kstTime(lead.submitted_at),
+  }
+  const sms = `[혜택연구소] 새 상담 신청\n${service} · ${vars['#{고객명}']} · ${vars['#{상품}']} · ${vars['#{접수시각}']}\n관리자 페이지에서 확인해 주세요.`
+  return Promise.all(
+    (admins ?? []).map((a) =>
+      sendAndLog({ purpose: 'admin_new_lead', to: a.phone as string, templateId: ALIMTALK_TEMPLATES.ADMIN_NEW_LEAD, variables: vars, leadId: lead.id, smsFallbackText: sms })
+    )
+  )
+}
+
+/**
+ * 담당자에게 접수 명세서 전달. 본문에는 해피콜에 필요한 요약만 싣고, 전문은 버튼의 보안 링크(/s/<token>)에서 본다.
+ */
+export async function sendVendorStatementAlimtalk(opts: {
+  refNo: string
+  customerName: string
+  productLabel: string
+  rentalStatus: string
+  giftLabel: string
+  token: string
+  leadId?: string | null
+  applicationRef?: string | null
+}): Promise<SendResult> {
+  if (!VENDOR_ALIMTALK_PHONE) return { success: false, skipped: true, error: 'VENDOR_ALIMTALK_PHONE not configured' }
+  return sendAndLog({
+    purpose: 'vendor_statement',
+    to: VENDOR_ALIMTALK_PHONE,
+    templateId: ALIMTALK_TEMPLATES.VENDOR_STATEMENT,
+    variables: {
+      '#{접수번호}': opts.refNo,
+      '#{고객명}': opts.customerName,
+      '#{상품}': opts.productLabel,
+      '#{렌탈이용}': opts.rentalStatus,
+      '#{사은품}': opts.giftLabel,
+      '#{token}': opts.token,
+    },
+    leadId: opts.leadId ?? null,
+    applicationRef: opts.applicationRef ?? null,
+  })
 }

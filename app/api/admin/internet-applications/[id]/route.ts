@@ -26,6 +26,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         leadId: a.lead_id,
         revealed: reveal,
         statementSentAt: a.statement_sent_at,
+        giftAmount: a.gift_amount,
         needsFollowup: a.needs_followup,
 
         decideAfterConsult: a.decide_after_consult,

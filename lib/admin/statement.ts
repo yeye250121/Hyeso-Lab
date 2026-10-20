@@ -44,6 +44,11 @@ type Row = Record<string, any>
 /** 우리가 받지 않는 항목. 담당자가 해피콜에서 확인한다 */
 const ASK = '(해피콜 확인)'
 
+/** 관리자가 정한 사은품 안내 금액. 없으면 협의 후 안내 */
+export function giftText(amount: unknown): string {
+  return typeof amount === 'number' ? `현금 ${amount.toLocaleString()}원 (혜택연구소 지정)` : '(협의 후 안내)'
+}
+
 /**
  * 신청서(6단계) 기준 명세서.
  * 항목 이름과 순서는 상위 업체의 접수 양식(성함 → 주민번호 → 설치주소 → … → 해피콜가능시간)을
@@ -83,7 +88,7 @@ export function buildApplicationStatement(a: Row): string {
     ['약정기간', months(a.contract_months) ?? ASK],
     ['관리주기', a.care_type || ASK],
     ...(isWaterPurifier || !hasProduct ? ([['조리수설치유/무', ASK]] as [string, unknown][]) : []),
-    ['사은품', '(협의 후 안내)'],
+    ['사은품', giftText(a.gift_amount)],
     ['사은품 받을 계좌', giftAccount ? `${giftAccount}${a.gift_receiver ? ` (${a.gift_receiver})` : ''}` : ASK],
     ['설치희망일자', ASK],
     ['해피콜가능시간', ASK],
@@ -125,6 +130,8 @@ export function buildLeadStatement(l: Row): string {
     '■ 희망 상품',
     productLines(snap, l.contract_months, l.care_type),
     '',
+    lines([['사은품', giftText(l.gift_amount)]]),
+    '',
     '※ 신청서 미작성 고객입니다. 렌탈 신규/기존 여부, 설치 주소 등은 통화로 확인 부탁드립니다.',
   ].join('\n')
 }
@@ -159,7 +166,7 @@ export function buildInternetStatement(a: Row): string {
     ['월요금', hasProduct ? `${won(snap.monthlyFee)} (접수 시점 정책표 기준)` : ASK],
     ['약정', '3년'],
     ['자동이체 계좌', a.payment_skipped ? ASK : `${account(a.payment_bank, a.payment_account_number) ?? ASK}${a.payment_payer ? ` (납부자 ${a.payment_payer})` : ''}`],
-    ['사은품', hasProduct ? `현금 ${won(snap.customerGift) ?? '(협의 후 안내)'}${snap.voucher ? ` + 상품권 ${won(snap.voucher)}` : ''}` : '(협의 후 안내)'],
+    ['사은품', a.gift_amount != null ? giftText(a.gift_amount) : hasProduct ? `현금 ${won(snap.customerGift) ?? '(협의 후 안내)'}${snap.voucher ? ` + 상품권 ${won(snap.voucher)}` : ''}` : '(협의 후 안내)'],
     ['사은품 받을 계좌', a.gift_skipped ? ASK : `${account(a.gift_bank, a.gift_account_number) ?? ASK}${a.gift_receiver ? ` (${a.gift_receiver})` : ''}`],
     ['설치희망일자', ASK],
     ['해피콜가능시간', ASK],
@@ -177,4 +184,32 @@ export function buildInternetStatement(a: Row): string {
     rows.map(([k, v]) => `${k} : ${v ?? ''}`).join('\n'),
     ...(a.customer_note ? ['', `고객 요청사항 : ${a.customer_note}`] : []),
   ].join('\n')
+}
+
+export type StatementKind = 'lead' | 'electronics_application' | 'internet_application'
+
+/** 종류별 명세서 본문 */
+export function buildStatement(kind: StatementKind, row: Row): string {
+  if (kind === 'internet_application') return buildInternetStatement(row)
+  if (kind === 'electronics_application') return buildApplicationStatement(row)
+  return buildLeadStatement(row)
+}
+
+/** 담당자 알림톡 본문용 요약(접수번호·고객명·상품·렌탈이용) */
+export function statementSummary(kind: StatementKind, row: Row): { refNo: string; customerName: string; productLabel: string; rentalStatus: string } {
+  const snap = (row.product_snapshot ?? {}) as Record<string, unknown>
+  const prefix = kind === 'internet_application' ? 'I' : kind === 'electronics_application' ? 'A' : 'L'
+  const refNo = `${prefix}-${String(row.id).slice(0, 8).toUpperCase()}`
+  const customerName = row.applicant_name || '이름 미입력'
+  let productLabel: string
+  let rentalStatus: string
+  if (kind === 'internet_application') {
+    const addon = snap.addonType === 'none' || !snap.addonName ? '단독' : String(snap.addonName)
+    productLabel = row.decide_after_consult || !snap.carrierName ? '상담 후 결정' : `인터넷 ${snap.carrierName} ${snap.speed} ${addon}`
+    rentalStatus = row.current_internet === 'using' ? `인터넷 사용 중(${row.current_carrier ?? '통신사 미확인'})` : row.current_internet === 'none' ? '신규' : '해피콜 확인'
+  } else {
+    productLabel = row.decide_after_consult || !snap.displayName ? '상담 후 결정' : `${snap.brand ?? ''} ${snap.displayName}`.trim()
+    rentalStatus = row.rental_status === '기존' ? `기존 사용 중${row.existing_rental_note ? `(${row.existing_rental_note})` : ''}` : row.rental_status === '신규' ? '신규' : '해피콜 확인'
+  }
+  return { refNo, customerName, productLabel: productLabel.slice(0, 60), rentalStatus: rentalStatus.slice(0, 40) }
 }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { routeError } from '@/lib/admin/route'
-import { sendApplicationLinkAlimtalk } from '@/lib/alimtalk-service'
+import { sendAdminNewLeadAlimtalk, sendApplicationLinkAlimtalk } from '@/lib/alimtalk-service'
 import { generateShortToken } from '@/lib/shortToken'
 
 // 상담 신청(명세서) 접수. 카드·인터넷·가전렌탈 공통.
@@ -139,6 +139,16 @@ export async function POST(request: NextRequest) {
     if (parsed.service === 'electronics' || parsed.service === 'internet') {
       await sendApplicationLinkAlimtalk({ id: data.id, phone_number: parsed.phoneNumber, short_token: data.short_token })
     }
+    // 관리자에게 인입 알림(알림을 켠 계정 전원). 실패해도 접수는 유효하다.
+    await sendAdminNewLeadAlimtalk({
+      id: data.id,
+      service: parsed.service,
+      applicant_name: parsed.applicantName || null,
+      product_label: (snapshot as { displayName?: string; brand?: string }).displayName
+        ? `${(snapshot as { brand?: string }).brand ?? ''} ${(snapshot as { displayName?: string }).displayName}`.trim()
+        : null,
+      submitted_at: new Date().toISOString(),
+    })
 
     return NextResponse.json({ id: data.id }, { status: 201 })
   } catch (error) {

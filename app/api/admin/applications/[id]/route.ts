@@ -36,6 +36,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         revealed: reveal,
 
         statementSentAt: a.statement_sent_at,
+        giftAmount: a.gift_amount,
         rentalStatus: a.rental_status,
         existingRentalNote: a.existing_rental_note,
 

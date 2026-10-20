@@ -47,6 +47,8 @@ export async function sendAlimtalk(opts: {
   to: string
   templateId: string
   variables?: AlimtalkVariables
+  /** 카톡 미수신(채널 차단·미설치) 시 이 문구로 문자(SMS/LMS) 대체 발송. 없으면 대체 발송 안 함 */
+  smsFallbackText?: string
 }): Promise<SolapiSendResult> {
   const { apiKey, apiSecret, pfId, from } = config()
   const to = opts.to.replace(/\D/g, '')
@@ -56,11 +58,12 @@ export async function sendAlimtalk(opts: {
       {
         to,
         from,
+        ...(opts.smsFallbackText ? { text: opts.smsFallbackText } : {}),
         kakaoOptions: {
           pfId,
           templateId: opts.templateId,
           variables: opts.variables ?? {},
-          disableSms: true,
+          disableSms: !opts.smsFallbackText,
         },
       },
     ],
