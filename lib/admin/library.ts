@@ -10,11 +10,18 @@ export type LibraryNode = {
   sortOrder: number
   isPublished: boolean
   updatedAt: string
+  createdAt: string
+  /** 본문 첫 이미지. 갤러리 카드 썸네일 */
+  thumbnail: string | null
+  /** 본문 앞부분 텍스트 */
+  excerpt: string
 }
 
-export const TREE_COLUMNS = 'id, parent_id, title, emoji, sort_order, is_published, updated_at'
+export const TREE_COLUMNS = 'id, parent_id, title, emoji, sort_order, is_published, updated_at, created_at, content, content_text'
 
 export function toNode(r: Record<string, unknown>): LibraryNode {
+  const html = (r.content as string) ?? ''
+  const img = html.match(/<img[^>]+src=["']([^"']+)["']/i)
   return {
     id: r.id as string,
     parentId: (r.parent_id as string | null) ?? null,
@@ -23,6 +30,9 @@ export function toNode(r: Record<string, unknown>): LibraryNode {
     sortOrder: r.sort_order as number,
     isPublished: r.is_published as boolean,
     updatedAt: r.updated_at as string,
+    createdAt: (r.created_at as string) ?? (r.updated_at as string),
+    thumbnail: img ? img[1] : null,
+    excerpt: ((r.content_text as string) ?? '').replace(/\s+/g, ' ').trim().slice(0, 90),
   }
 }
 
