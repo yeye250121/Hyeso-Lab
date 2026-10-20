@@ -6,10 +6,11 @@
  */
 export const ALIMTALK_TEMPLATES = {
   /**
-   * 상담 신청 접수 안내 — 상담 신청 직후 고객에게.
+   * 상담 신청 접수 안내 — 상담 신청 직후 고객에게. 강조표기형(제목 "상담 신청이 접수됐어요").
    * 본문 변수 없음. 버튼 "신청서 작성하기" → https://www.hyeso.kr/c/#{token}
+   * 기본형 버전(KA01TP261018133349593y1oLGSYst83)도 검수 중이라, 통과한 쪽을 환경변수로 고를 수 있다.
    */
-  APPLICATION_LINK: process.env.SOLAPI_TEMPLATE_APPLICATION_LINK || 'KA01TP261018133349593y1oLGSYst83',
+  APPLICATION_LINK: process.env.SOLAPI_TEMPLATE_APPLICATION_LINK || 'KA01TP2610201317516663CD1v7cEbHC',
 } as const
 
 export type AlimtalkTemplateKey = keyof typeof ALIMTALK_TEMPLATES
