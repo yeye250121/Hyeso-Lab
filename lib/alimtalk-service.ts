@@ -149,3 +149,25 @@ export async function sendVendorStatementAlimtalk(opts: {
     applicationRef: opts.applicationRef ?? null,
   })
 }
+
+/** 파트너스 가입 신청 접수 안내(신청자 본인). 카톡 미수신 시 문자 대체 */
+export async function sendPartnerSignupAlimtalk(phone: string, name: string): Promise<SendResult> {
+  return sendAndLog({
+    purpose: 'partner_signup',
+    to: phone,
+    templateId: ALIMTALK_TEMPLATES.PARTNER_SIGNUP_RECEIVED,
+    variables: { '#{이름}': name },
+    smsFallbackText: `[혜택연구소 파트너스] ${name}님, 가입 신청이 접수됐어요. 담당자 확인 후 승인되면 다시 안내드릴게요.`,
+  })
+}
+
+/** 파트너스 가입 승인 완료 안내(신청자 본인) */
+export async function sendPartnerApprovedAlimtalk(phone: string, name: string, loginId: string): Promise<SendResult> {
+  return sendAndLog({
+    purpose: 'partner_approved',
+    to: phone,
+    templateId: ALIMTALK_TEMPLATES.PARTNER_APPROVED,
+    variables: { '#{이름}': name, '#{아이디}': loginId },
+    smsFallbackText: `[혜택연구소 파트너스] ${name}님, 가입이 승인됐어요. 아이디 ${loginId} 로 로그인해 상담 링크를 받아보세요. https://www.hyeso.kr/admin/login`,
+  })
+}

@@ -47,7 +47,36 @@ export default function MarketerLeads() {
         ))}
       </div>
 
-      <div className="rounded-2xl bg-bg-card overflow-hidden">
+      {/* 모바일: 건당 카드 */}
+      <ul className="md:hidden space-y-2.5" data-testid="marketer-lead-cards">
+        {loading && <li className="rounded-2xl bg-bg-card px-5 py-10 text-center text-[13px] text-text-secondary">불러오는 중…</li>}
+        {!loading && rows.length === 0 && <li className="rounded-2xl bg-bg-card px-5 py-10 text-center text-[13px] text-text-secondary">조건에 맞는 상담이 없어요.</li>}
+        {!loading && rows.map((r) => {
+          const st = LEAD_STATUS[r.status] ?? LEAD_STATUS.new
+          return (
+            <li key={r.id} className="rounded-2xl bg-bg-card px-4 py-3.5">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[15px] font-semibold text-text-primary">{r.name}</span>
+                <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${st.cls}`}>{st.label}</span>
+              </div>
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-2 text-[12px] text-text-secondary">
+                <span>{SERVICE_LABEL[r.service] ?? r.service}{r.product ? ` · ${r.product}` : ''}</span>
+                <span className="text-text-tertiary">·</span>
+                <span>{formatDateTime(r.submittedAt)}</span>
+                {r.hasApplication && (
+                  <>
+                    <span className="text-text-tertiary">·</span>
+                    <span className="text-action-primary font-medium">신청서 작성됨</span>
+                  </>
+                )}
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+
+      {/* 데스크톱: 표 */}
+      <div className="hidden md:block rounded-2xl bg-bg-card overflow-hidden">
         <table className="w-full text-[14px]">
           <thead>
             <tr className="text-left text-[12px] text-text-secondary border-b border-border">

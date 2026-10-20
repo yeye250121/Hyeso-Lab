@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { randomBytes } from 'crypto'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
+import { sendPartnerSignupAlimtalk } from '@/lib/alimtalk-service'
 
 // 파트너스 가입 신청(공개). 초대키 없이 신청하면 승인 대기(pending)로 들어가고, 대표자가 승인해야 로그인된다.
 const schema = z.object({
@@ -49,6 +50,8 @@ export async function POST(request: NextRequest) {
       throw error
     }
     console.info(`[Partners] 가입 신청: ${v.loginId}`)
+    // 접수 안내는 가입과 별개. 실패해도 신청은 유효하다.
+    await sendPartnerSignupAlimtalk(v.phone, v.nickname)
     return NextResponse.json({ ok: true }, { status: 201 })
   } catch (error) {
     console.error('[Partners] 가입 신청 실패:', error)

@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin, routeError, unauthorizedResponse } from '@/lib/admin/route'
 import { ALL_ROLES } from '@/lib/admin/auth'
 import { maskName } from '@/lib/admin/mask'
+import { getCategoryTree } from '@/lib/electronicsApi'
 
 // 마케터의 내 상담 목록. 이름은 가운데 마스킹, 전화번호·주소·상품 상세는 내려주지 않는다.
 export async function GET(request: NextRequest) {
@@ -17,8 +18,9 @@ export async function GET(request: NextRequest) {
       .order('submitted_at', { ascending: false })
       .limit(500)
     if (status) q = q.eq('status', status)
-    const { data, error } = await q
+    const [{ data, error }, tree] = await Promise.all([q, getCategoryTree()])
     if (error) throw error
+    const categoryName = new Map(tree.flatMap((g) => g.children).map((c) => [c.slug, c.name]))
     return NextResponse.json({
       leads: (data ?? []).map((l) => {
         const snap = (l.product_snapshot ?? {}) as Record<string, unknown>
@@ -28,7 +30,7 @@ export async function GET(request: NextRequest) {
           status: l.status,
           name: maskName(l.applicant_name),
           // 상품은 카테고리 수준까지만
-          product: snap.categorySlug ? String(snap.categorySlug) : null,
+          product: snap.categorySlug ? categoryName.get(String(snap.categorySlug)) ?? String(snap.categorySlug) : null,
           hasApplication: !!l.application_id,
           submittedAt: l.submitted_at,
         }

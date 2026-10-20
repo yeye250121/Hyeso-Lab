@@ -8,7 +8,6 @@ import api from '@/lib/admin/api'
 import type { LibraryNode } from '@/lib/admin/library'
 import DocView from './DocView'
 import LibraryGallery from './LibraryGallery'
-import { useAuthStore } from '@/lib/admin/store'
 import { useConsole } from '@/lib/admin/useConsole'
 
 // 교육자료 라이브러리. 왼쪽 트리(문서 안에 하위 문서) + 오른쪽 문서.
@@ -17,9 +16,8 @@ import { useConsole } from '@/lib/admin/useConsole'
 type SearchHit = { id: string; title: string; emoji: string | null; snippet: string }
 
 export default function LibraryShell({ activeId }: { activeId: string | null }) {
-  const { path: cp } = useConsole()
+  const { path: cp, console: consoleName } = useConsole()
   const router = useRouter()
-  const role = useAuthStore((s) => s.admin?.role)
   const [docs, setDocs] = useState<LibraryNode[]>([])
   const [canEdit, setCanEdit] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -175,7 +173,7 @@ export default function LibraryShell({ activeId }: { activeId: string | null }) 
   )
 
   // 파트너스(열람 전용)는 트리 대신 갤러리로 본다. 문서를 열면 뒤로가기 한 줄 + 본문.
-  if (role === 'marketer') {
+  if (consoleName === 'partners') {
     if (!activeId) return loading ? <div className="rounded-2xl bg-bg-card h-[320px] animate-pulse" /> : <LibraryGallery docs={docs} />
     return (
       <div className="space-y-4">

@@ -8,7 +8,6 @@ import api from '@/lib/admin/api'
 import { LEAD_STATUS, SERVICE_LABEL, formatDateTime, monthsLabel } from '@/components/admin/labels'
 import StatementPanel from '@/components/admin/StatementPanel'
 import { useConsole } from '@/lib/admin/useConsole'
-import { useAuthStore } from '@/lib/admin/store'
 import MarketerLeads from '@/components/admin/marketer/MarketerLeads'
 
 interface Lead {
@@ -35,8 +34,10 @@ interface Lead {
 }
 
 export default function LeadsPage() {
-  const role = useAuthStore((s) => s.admin?.role)
-  if (role === 'marketer') {
+  // 역할은 주소의 콘솔로 판단한다(미들웨어가 보장). 스토어는 첫 렌더에 비어 있어 운영 화면이 먼저 그려지며
+  // 운영 API 를 불렀다가 401 로 로그아웃되는 문제가 있었다.
+  const { console: consoleName } = useConsole()
+  if (consoleName === 'partners') {
     return (
       <AdminLayout>
         <MarketerLeads />

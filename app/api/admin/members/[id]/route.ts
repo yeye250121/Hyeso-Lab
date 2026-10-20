@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin, routeError, unauthorizedResponse } from '@/lib/admin/route'
+import { sendPartnerApprovedAlimtalk } from '@/lib/alimtalk-service'
 
 const schema = z
   .object({
@@ -35,11 +36,20 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       patch.reviewed_at = new Date().toISOString()
       patch.reviewed_by = admin.id
     }
-    const { data, error } = await getSupabaseAdmin().from('admin_users').update(patch).eq('id', params.id).select('id').maybeSingle()
+    const db = getSupabaseAdmin()
+    const { data: before } = await db.from('admin_users').select('status, phone, nickname, login_id, role').eq('id', params.id).maybeSingle()
+    const { data, error } = await db.from('admin_users').update(patch).eq('id', params.id).select('id').maybeSingle()
     if (error) throw error
     if (!data) return NextResponse.json({ error: '구성원을 찾을 수 없습니다.' }, { status: 404 })
     console.info(`[Admin] 구성원 변경: member=${params.id} by=${admin.loginId} ${JSON.stringify(patch)}`)
-    return NextResponse.json({ ok: true })
+
+    // 승인 대기 → 사용 중으로 바뀐 파트너스에게 승인 안내
+    let notified: boolean | undefined
+    if (parsed.data.status === 'active' && before?.status === 'pending' && before.phone) {
+      const r = await sendPartnerApprovedAlimtalk(before.phone as string, before.nickname as string, before.login_id as string)
+      notified = r.success
+    }
+    return NextResponse.json({ ok: true, notified })
   } catch (error) {
     return routeError('Admin Member Update', error, '구성원을 수정하지 못했습니다.')
   }

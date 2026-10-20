@@ -15,6 +15,10 @@ export const ALIMTALK_TEMPLATES = {
   ADMIN_NEW_LEAD: process.env.SOLAPI_TEMPLATE_ADMIN_NEW_LEAD || 'KA01TP261020141539331S6vKh3MM46V',
   /** 담당자 접수 명세서 전달 — 변수 접수번호/고객명/상품/렌탈이용/사은품/token, 버튼 → /s/#{token} */
   VENDOR_STATEMENT: process.env.SOLAPI_TEMPLATE_VENDOR_STATEMENT || 'KA01TP261020141539494bQl5PBfFHIf',
+  /** 파트너스 가입 신청 접수 — 변수 이름 */
+  PARTNER_SIGNUP_RECEIVED: process.env.SOLAPI_TEMPLATE_PARTNER_SIGNUP || 'KA01TP26102017303576427EPV7mq5PH',
+  /** 파트너스 가입 승인 완료 — 변수 이름/아이디, 버튼 → 로그인 */
+  PARTNER_APPROVED: process.env.SOLAPI_TEMPLATE_PARTNER_APPROVED || 'KA01TP261020173035875ROcPNZHbK8I',
 } as const
 
 /** 협력업체 담당자(접수 대행) 알림톡 수신 번호. 서비스 공통 1명 */
