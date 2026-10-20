@@ -161,13 +161,46 @@ export async function sendPartnerSignupAlimtalk(phone: string, name: string): Pr
   })
 }
 
-/** 파트너스 가입 승인 완료 안내(신청자 본인) */
+/** 파트너스 가입 승인 완료 안내(신청자 본인). 템플릿은 변수가 없고, 문자 대체에만 이름·아이디를 쓴다 */
 export async function sendPartnerApprovedAlimtalk(phone: string, name: string, loginId: string): Promise<SendResult> {
   return sendAndLog({
     purpose: 'partner_approved',
     to: phone,
     templateId: ALIMTALK_TEMPLATES.PARTNER_APPROVED,
-    variables: { '#{이름}': name, '#{아이디}': loginId },
-    smsFallbackText: `[혜택연구소 파트너스] ${name}님, 가입이 승인됐어요. 아이디 ${loginId} 로 로그인해 상담 링크를 받아보세요. https://www.hyeso.kr/admin/login`,
+    variables: {},
+    smsFallbackText: `[혜택연구소 파트너스] ${name}님, 회원가입이 완료됐어요. 아이디 ${loginId} 로 로그인해 시작해 보세요. https://www.hyeso.kr/admin/login`,
+  })
+}
+
+export type PartnerEvent = 'new_lead' | 'contract' | 'cancelled'
+
+const PARTNER_EVENT = {
+  new_lead: { template: () => ALIMTALK_TEMPLATES.PARTNER_NEW_LEAD, sms: '[혜택연구소 파트너스] 새로운 상담 문의가 들어왔어요. 내 상담에서 확인해 보세요. https://www.hyeso.kr/partners/leads' },
+  contract: { template: () => ALIMTALK_TEMPLATES.PARTNER_CONTRACT, sms: '[혜택연구소 파트너스] 축하드려요! 연결한 상담이 계약으로 확정됐어요. https://www.hyeso.kr/partners/home' },
+  cancelled: { template: () => ALIMTALK_TEMPLATES.PARTNER_CANCELLED, sms: '[혜택연구소 파트너스] 아쉽게도 연결한 상담이 취소됐어요. 내 상담에서 확인해 보세요. https://www.hyeso.kr/partners/leads' },
+} as const
+
+/**
+ * 상담 신청에 연결된 파트너스에게 사건 알림(새 상담 / 계약 성공 / 상담 취소).
+ * 파트너 코드가 없거나 파트너가 승인 상태가 아니면 보내지 않는다.
+ */
+export async function notifyPartnerForLead(leadId: string, event: PartnerEvent): Promise<SendResult> {
+  const db = getSupabaseAdmin()
+  const { data: lead } = await db.from('leads').select('id, marketer_code').eq('id', leadId).maybeSingle()
+  if (!lead?.marketer_code) return { success: false, skipped: true, error: 'no partner' }
+  const { data: partner } = await db
+    .from('admin_users')
+    .select('phone, status, role')
+    .eq('unique_code', lead.marketer_code)
+    .maybeSingle()
+  if (!partner?.phone || partner.status !== 'active') return { success: false, skipped: true, error: 'partner inactive or no phone' }
+  const cfg = PARTNER_EVENT[event]
+  return sendAndLog({
+    purpose: `partner_${event}`,
+    to: partner.phone as string,
+    templateId: cfg.template(),
+    variables: {},
+    leadId,
+    smsFallbackText: cfg.sms,
   })
 }

@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin, routeError, unauthorizedResponse } from '@/lib/admin/route'
 import { maskAccount, maskBirth } from '@/lib/admin/mask'
+import { notifyPartnerForLead } from '@/lib/alimtalk-service'
 
 // 신청서 상세. 계좌번호·생년월일은 기본으로 가려서 내려가고,
 // ?reveal=1 로 요청했을 때만 전체 값을 내려보낸다(누가 언제 봤는지 서버 로그에 남긴다).
@@ -100,15 +101,18 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     if (parsed.data.status !== undefined) patch.status = parsed.data.status
     if (parsed.data.memo !== undefined) patch.admin_memo = parsed.data.memo.trim() || null
 
-    const { data, error } = await getSupabaseAdmin()
-      .from('electronics_applications')
-      .update(patch)
-      .eq('id', params.id)
-      .select('id')
-      .maybeSingle()
+    const db = getSupabaseAdmin()
+    const { data: before } = await db.from('electronics_applications').select('status, lead_id').eq('id', params.id).maybeSingle()
+    const { data, error } = await db.from('electronics_applications').update(patch).eq('id', params.id).select('id').maybeSingle()
     if (error) throw error
     if (!data) return NextResponse.json({ error: '신청서를 찾을 수 없습니다.' }, { status: 404 })
 
+    // 계약 완료/취소로 바뀌면 연결된 파트너에게 알림
+    const next = parsed.data.status
+    if (next && next !== before?.status && before?.lead_id) {
+      if (next === 'contracted') await notifyPartnerForLead(before.lead_id as string, 'contract')
+      if (next === 'cancelled') await notifyPartnerForLead(before.lead_id as string, 'cancelled')
+    }
     return NextResponse.json({ ok: true })
   } catch (error) {
     return routeError('Admin Application Update', error, '신청서를 수정하지 못했습니다.')

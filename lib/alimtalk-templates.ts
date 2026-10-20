@@ -17,8 +17,14 @@ export const ALIMTALK_TEMPLATES = {
   VENDOR_STATEMENT: process.env.SOLAPI_TEMPLATE_VENDOR_STATEMENT || 'KA01TP261020141539494bQl5PBfFHIf',
   /** 파트너스 가입 신청 접수 — 변수 이름 */
   PARTNER_SIGNUP_RECEIVED: process.env.SOLAPI_TEMPLATE_PARTNER_SIGNUP || 'KA01TP26102017303576427EPV7mq5PH',
-  /** 파트너스 가입 승인 완료 — 변수 이름/아이디, 버튼 → 로그인 */
-  PARTNER_APPROVED: process.env.SOLAPI_TEMPLATE_PARTNER_APPROVED || 'KA01TP261020173035875ROcPNZHbK8I',
+  /** 파트너스 가입 승인 완료(강조형, 변수 없음) — 버튼 "시작하기" → 로그인 */
+  PARTNER_APPROVED: process.env.SOLAPI_TEMPLATE_PARTNER_APPROVED || 'KA01TP261020173843644HetCzIjStfg',
+  /** 파트너스 새 상담 문의(강조형) — 버튼 → /partners/leads */
+  PARTNER_NEW_LEAD: process.env.SOLAPI_TEMPLATE_PARTNER_NEW_LEAD || 'KA01TP261020173843791XGK5UqyQDBb',
+  /** 파트너스 계약 성공(강조형) — 버튼 → /partners/home */
+  PARTNER_CONTRACT: process.env.SOLAPI_TEMPLATE_PARTNER_CONTRACT || 'KA01TP261020173843918J7xqg1Cko2o',
+  /** 파트너스 상담 취소(강조형) — 버튼 → /partners/leads */
+  PARTNER_CANCELLED: process.env.SOLAPI_TEMPLATE_PARTNER_CANCELLED || 'KA01TP2610201738440150jzyrAoKuPR',
 } as const
 
 /** 협력업체 담당자(접수 대행) 알림톡 수신 번호. 서비스 공통 1명 */
