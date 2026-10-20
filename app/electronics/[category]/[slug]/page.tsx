@@ -10,12 +10,10 @@ import PdpHeader from '@/components/electronics/toss/PdpHeader';
 import RecordRecentProduct from '@/components/electronics/toss/RecordRecentProduct';
 import PdpPurchaseBar from '@/components/electronics/toss/PdpPurchaseBar';
 import ProductTabs from '@/components/electronics/ProductTabs';
-import SpecSummary from '@/components/electronics/SpecSummary';
 import PlanBreakdown from '@/components/electronics/PlanBreakdown';
 import Recommendations from '@/components/electronics/Recommendations';
 
 const TABS = [
-  { id: 'spec', label: '스펙분석' },
   { id: 'detail', label: '상세정보' },
   { id: 'recommend', label: '추천' },
 ];
@@ -198,12 +196,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         {/* 하단 정보 제공 탭 */}
         <div className="mt-16 lg:mt-24">
           <ProductTabs tabs={TABS}>
-            <section id="spec" className="scroll-mt-20 pt-10">
-              <h2 className="text-xl font-bold text-[#333d4b] mb-6">스펙분석</h2>
-              <SpecSummary product={product} insights={insights} minFee={minFee} />
-            </section>
-
-            <section id="detail" className="scroll-mt-20 pt-14">
+            <section id="detail" className="scroll-mt-20 pt-10">
               <h2 className="text-xl font-bold text-[#333d4b] mb-6">상세정보</h2>
               <PlanBreakdown product={product} insights={insights} specRows={specRows} />
 
