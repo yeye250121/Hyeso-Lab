@@ -26,6 +26,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [isChecking, setIsChecking] = useState(true)
 
   useEffect(() => {
+    // 다크모드는 없앴다. 예전에 저장된 설정이 남아 있어도 적용하지 않는다.
+    document.documentElement.classList.remove('dark')
+    try { localStorage.removeItem('theme') } catch { /* ignore */ }
     const verifySession = async () => {
       try {
         const response = await api.get('/admin/auth/session')
@@ -61,7 +64,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           onClick={() => setCollapsed(false)}
           title="메뉴 펼치기"
           data-testid="sidebar-open"
-          className="hidden lg:flex fixed top-4 left-4 z-40 w-10 h-10 items-center justify-center rounded-xl bg-bg-card border border-border text-text-secondary hover:text-text-primary shadow-sm"
+          className="hidden lg:flex fixed top-5 left-5 z-40 w-8 h-8 items-center justify-center text-text-secondary hover:text-text-primary"
         >
           <Menu className="w-5 h-5" />
         </button>

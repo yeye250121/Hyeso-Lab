@@ -26,7 +26,6 @@ import Avatar from '@/components/admin/Avatar'
 import { useAuthStore } from '@/lib/admin/store'
 import { useConsole } from '@/lib/admin/useConsole'
 import { useSidebarStore } from '@/lib/admin/sidebarStore'
-import ThemeToggle from '@/components/shared/ThemeToggle'
 
 const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-mark.png'
 
@@ -228,10 +227,9 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
       </nav>
 
       {/* 하단 */}
-      <div className={`py-3 border-t border-border flex items-center ${collapsed ? 'flex-col gap-2 px-2' : 'justify-between px-4'}`}>
-        <ThemeToggle />
-        <button onClick={handleLogout} title="로그아웃" className="inline-flex items-center gap-1.5 text-[13px] text-text-secondary hover:text-text-primary">
-          <LogOut className="w-4 h-4" /> {!collapsed && '로그아웃'}
+      <div className="py-3 px-4 border-t border-border">
+        <button onClick={handleLogout} className="inline-flex items-center gap-1.5 text-[13px] text-text-secondary hover:text-text-primary">
+          <LogOut className="w-4 h-4" /> 로그아웃
         </button>
       </div>
     </aside>

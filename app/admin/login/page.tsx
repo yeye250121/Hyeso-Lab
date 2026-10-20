@@ -6,7 +6,6 @@ import Image from 'next/image'
 import { useAuthStore } from '@/lib/admin/store'
 import api from '@/lib/admin/api'
 import { consoleHome } from '@/lib/admin/console'
-import ThemeToggle from '@/components/shared/ThemeToggle'
 
 const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-mark.png'
 
@@ -41,7 +40,6 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4">
       {/* 테마 토글 버튼 */}
       <div className="fixed top-4 right-4">
-        <ThemeToggle />
       </div>
 
       <div className="w-full max-w-md">
