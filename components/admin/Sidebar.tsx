@@ -17,6 +17,8 @@ import {
   Home,
   Users,
   Headset,
+  PanelLeftClose,
+  PanelLeftOpen,
   type LucideIcon,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -24,6 +26,7 @@ import api from '@/lib/admin/api'
 import Avatar from '@/components/admin/Avatar'
 import { useAuthStore } from '@/lib/admin/store'
 import { useConsole } from '@/lib/admin/useConsole'
+import { useSidebarStore } from '@/lib/admin/sidebarStore'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 
 const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-mark.png'
@@ -90,6 +93,9 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   const router = useRouter()
   const { admin, logout } = useAuthStore()
   const { path: cp } = useConsole()
+  const { collapsed: storedCollapsed, toggle } = useSidebarStore()
+  // 모바일 서랍에서는 항상 펼친다
+  const collapsed = !isMobile && storedCollapsed
 
   const [profile, setProfile] = useState<{ nickname: string; avatarUrl: string | null } | null>(null)
   const [unread, setUnread] = useState(0)
@@ -132,38 +138,65 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   }
 
   return (
-    <aside className={`${isMobile ? 'h-full w-full' : 'fixed left-0 top-0 h-full w-[248px]'} bg-bg-card border-r border-border flex flex-col`}>
-      {/* 브랜드 + 역할 */}
-      <div className="px-5 pt-5 pb-4">
-        <Link href={cp('/')} className="flex items-center gap-2">
-          <Image src={LOGO_URL} alt="혜택 연구소" width={512} height={512} className="h-6 w-6" />
-          <span className="text-[15px] font-bold text-text-primary tracking-[-0.01em]">혜택연구소</span>
-          <span className="ml-auto px-2 py-0.5 rounded-md bg-action-primary/10 text-[11px] font-semibold text-action-primary">
-            {ROLE_LABEL[role ?? 'admin']}
-          </span>
-        </Link>
-
-        <Link href={cp('/profile')} className="mt-4 flex items-center gap-2.5 rounded-xl bg-bg-primary px-3 py-2.5 group" data-testid="sidebar-profile">
-          <Avatar name={displayName} url={profile?.avatarUrl} size={32} />
-          <span className="min-w-0">
-            <span className="block text-[13px] font-semibold text-text-primary truncate">{displayName}</span>
-            <span className="block text-[11px] text-text-tertiary">내 정보 · 비밀번호</span>
-          </span>
-        </Link>
-
-        <div className="mt-3 flex items-center justify-between text-[12px]">
-          <Link href={cp('/library')} className="text-text-secondary hover:text-text-primary">사용 가이드</Link>
-          <a href="tel:01074694385" className="inline-flex items-center gap-1 text-text-secondary hover:text-text-primary">
-            <Headset className="w-3.5 h-3.5" /> 010-7469-4385
-          </a>
+    <aside
+      className={`${isMobile ? 'h-full w-full' : `fixed left-0 top-0 h-full ${collapsed ? 'w-[72px]' : 'w-[224px]'} transition-[width] duration-200`} bg-bg-card border-r border-border flex flex-col`}
+      data-collapsed={collapsed ? '1' : '0'}
+    >
+      {/* 브랜드 + 역할 + 접기 */}
+      <div className={`${collapsed ? 'px-3' : 'px-4'} pt-4 pb-3`}>
+        <div className="flex items-center gap-2 h-8">
+          <Link href={cp('/')} className="flex items-center gap-2 min-w-0" title="혜택연구소">
+            <Image src={LOGO_URL} alt="혜택 연구소" width={512} height={512} className="h-6 w-6 shrink-0" />
+            {!collapsed && <span className="text-[14px] font-bold text-text-primary tracking-[-0.02em] whitespace-nowrap">혜택연구소</span>}
+          </Link>
+          {!collapsed && (
+            <span className="ml-auto px-1.5 py-0.5 rounded-md bg-action-primary/10 text-[10px] font-semibold text-action-primary shrink-0">
+              {ROLE_LABEL[role ?? 'admin']}
+            </span>
+          )}
+          {!isMobile && (
+            <button
+              type="button"
+              onClick={toggle}
+              title={collapsed ? '메뉴 펼치기' : '메뉴 접기'}
+              data-testid="sidebar-toggle"
+              className={`${collapsed ? 'ml-auto' : 'ml-0.5'} w-6 h-6 flex items-center justify-center rounded-md text-text-tertiary hover:text-text-primary hover:bg-bg-primary shrink-0`}
+            >
+              {collapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+            </button>
+          )}
         </div>
+
+        <Link
+          href={cp('/profile')}
+          title={displayName}
+          className={`mt-3 flex items-center gap-2.5 rounded-xl bg-bg-primary group ${collapsed ? 'justify-center p-1.5' : 'px-3 py-2.5'}`}
+          data-testid="sidebar-profile"
+        >
+          <Avatar name={displayName} url={profile?.avatarUrl} size={collapsed ? 30 : 32} />
+          {!collapsed && (
+            <span className="min-w-0">
+              <span className="block text-[13px] font-semibold text-text-primary truncate">{displayName}</span>
+              <span className="block text-[11px] text-text-tertiary">내 정보 · 비밀번호</span>
+            </span>
+          )}
+        </Link>
+
+        {!collapsed && (
+          <div className="mt-3 flex items-center justify-between text-[12px]">
+            <Link href={cp('/library')} className="text-text-secondary hover:text-text-primary">사용 가이드</Link>
+            <a href="tel:01074694385" className="inline-flex items-center gap-1 text-text-secondary hover:text-text-primary">
+              <Headset className="w-3.5 h-3.5" /> 010-7469-4385
+            </a>
+          </div>
+        )}
       </div>
 
       {/* 메뉴 */}
-      <nav className="flex-1 overflow-y-auto px-3 pb-3">
+      <nav className={`flex-1 overflow-y-auto ${collapsed ? 'px-2.5' : 'px-3'} pb-3`}>
         {sections.map((section, i) => (
-          <div key={i} className={i === 0 ? '' : 'mt-4'}>
-            {section.label && <p className="px-3 mb-1 text-[11px] font-semibold text-text-tertiary tracking-wide">{section.label}</p>}
+          <div key={i} className={i === 0 ? '' : collapsed ? 'mt-2 pt-2 border-t border-border' : 'mt-4'}>
+            {section.label && !collapsed && <p className="px-3 mb-1 text-[11px] font-semibold text-text-tertiary tracking-wide">{section.label}</p>}
             <ul className="space-y-0.5">
               {section.items.map((item) => {
                 const href = cp(`/${item.page}`)
@@ -174,14 +207,18 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
                     <Link
                       href={href}
                       data-testid={`nav-${item.page}`}
-                      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                      title={collapsed ? item.label : undefined}
+                      className={`relative flex items-center gap-2.5 rounded-lg text-[14px] transition-colors ${collapsed ? 'justify-center h-10' : 'px-3 py-2'} ${
                         isActive ? 'bg-action-primary/10 text-action-primary font-semibold' : 'text-text-secondary hover:bg-bg-primary hover:text-text-primary'
                       }`}
                     >
-                      <Icon className="w-[18px] h-[18px]" strokeWidth={isActive ? 2.2 : 1.8} />
-                      <span>{item.label}</span>
+                      <Icon className="w-[18px] h-[18px] shrink-0" strokeWidth={isActive ? 2.2 : 1.8} />
+                      {!collapsed && <span>{item.label}</span>}
                       {item.page === 'chat' && unread > 0 && !isActive && (
-                        <span data-testid="chat-unread" className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-action-primary text-white text-[11px] font-semibold flex items-center justify-center">
+                        <span
+                          data-testid="chat-unread"
+                          className={`${collapsed ? 'absolute top-1 right-1 min-w-[16px] h-4 px-1 text-[10px]' : 'ml-auto min-w-[20px] h-5 px-1.5 text-[11px]'} rounded-full bg-action-primary text-white font-semibold flex items-center justify-center`}
+                        >
                           {unread > 99 ? '99+' : unread}
                         </span>
                       )}
@@ -195,10 +232,10 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
       </nav>
 
       {/* 하단 */}
-      <div className="px-4 py-3 border-t border-border flex items-center justify-between">
+      <div className={`py-3 border-t border-border flex items-center ${collapsed ? 'flex-col gap-2 px-2' : 'justify-between px-4'}`}>
         <ThemeToggle />
-        <button onClick={handleLogout} className="inline-flex items-center gap-1.5 text-[13px] text-text-secondary hover:text-text-primary">
-          <LogOut className="w-4 h-4" /> 로그아웃
+        <button onClick={handleLogout} title="로그아웃" className="inline-flex items-center gap-1.5 text-[13px] text-text-secondary hover:text-text-primary">
+          <LogOut className="w-4 h-4" /> {!collapsed && '로그아웃'}
         </button>
       </div>
     </aside>

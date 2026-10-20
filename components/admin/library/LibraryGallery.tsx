@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { BookOpen } from 'lucide-react'
+import { BookOpen, Search } from 'lucide-react'
 import type { LibraryNode } from '@/lib/admin/library'
 import { useConsole } from '@/lib/admin/useConsole'
 
@@ -19,6 +19,7 @@ function dateLabel(iso: string) {
 export default function LibraryGallery({ docs }: { docs: LibraryNode[] }) {
   const { path: cp } = useConsole()
   const [tab, setTab] = useState<string>('')
+  const [q, setQ] = useState('')
 
   const { categories, articles } = useMemo(() => {
     const byId = new Map(docs.map((d) => [d.id, d]))
@@ -41,13 +42,18 @@ export default function LibraryGallery({ docs }: { docs: LibraryNode[] }) {
     return { categories, articles }
   }, [docs])
 
-  const shown = tab ? articles.filter((a) => a.categoryId === tab) : articles
+  const term = q.trim().toLowerCase()
+  const shown = articles.filter((a) => (!tab || a.categoryId === tab) && (!term || `${a.title} ${a.excerpt}`.toLowerCase().includes(term)))
+  const isNew = (iso: string) => Date.now() - new Date(iso).getTime() < 7 * 24 * 3600 * 1000
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-[24px] font-bold text-text-primary tracking-[-0.01em]">라이브러리</h1>
-        <p className="mt-1 text-[13px] text-text-secondary">영업·블로그 작성에 필요한 가이드를 모았어요.</p>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <h1 className="text-[26px] font-bold text-text-primary tracking-[-0.02em]">라이브러리</h1>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="가이드 검색" className="w-56 pl-9 pr-3 h-10 rounded-xl bg-bg-card border border-transparent focus:border-action-primary/40 focus:outline-none text-[13px] text-text-primary placeholder:text-text-tertiary" />
+        </div>
       </div>
 
       <div className="flex gap-1.5 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]" data-testid="library-tabs">
@@ -70,8 +76,9 @@ export default function LibraryGallery({ docs }: { docs: LibraryNode[] }) {
         <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-5 gap-y-8" data-testid="library-gallery">
           {shown.map((a, i) => (
             <li key={a.id}>
-              <Link href={cp(`/library/${a.id}`)} className="group block">
-                <div className="relative aspect-[16/10] rounded-2xl overflow-hidden" style={{ background: a.thumbnail ? '#f2f4f6' : PASTELS[i % PASTELS.length] }}>
+              <Link href={cp(`/library/${a.id}`)} className="group block transition-transform duration-200 hover:-translate-y-0.5">
+                <div className="relative aspect-[16/10] rounded-2xl overflow-hidden ring-1 ring-black/[0.04] dark:ring-white/10" style={{ background: a.thumbnail ? '#f2f4f6' : PASTELS[i % PASTELS.length] }}>
+                  {isNew(a.updatedAt) && <span className="absolute top-3 left-3 z-10 px-2 py-0.5 rounded-full bg-action-primary text-white text-[10px] font-bold">NEW</span>}
                   {a.thumbnail ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={a.thumbnail} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" loading="lazy" />
@@ -82,9 +89,10 @@ export default function LibraryGallery({ docs }: { docs: LibraryNode[] }) {
                     </div>
                   )}
                 </div>
-                <p className="mt-3 text-[12px] text-text-secondary">{a.categoryName}</p>
-                <p className="mt-1 text-[16px] font-semibold text-text-primary leading-snug line-clamp-2 group-hover:underline underline-offset-4">{a.title}</p>
-                <p className="mt-1 text-[12px] text-text-tertiary">{dateLabel(a.updatedAt)}</p>
+                <p className="mt-3 text-[12px] font-medium text-action-primary">{a.categoryName}</p>
+                <p className="mt-1 text-[16px] font-semibold text-text-primary leading-snug line-clamp-2">{a.title}</p>
+                {a.excerpt && <p className="mt-1 text-[13px] text-text-secondary line-clamp-1">{a.excerpt}</p>}
+                <p className="mt-1.5 text-[12px] text-text-tertiary">{dateLabel(a.updatedAt)}</p>
               </Link>
             </li>
           ))}

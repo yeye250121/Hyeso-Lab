@@ -8,6 +8,7 @@ import { useAuthStore } from '@/lib/admin/store'
 import api from '@/lib/admin/api'
 import Sidebar from './Sidebar'
 import { useConsole } from '@/lib/admin/useConsole'
+import { useSidebarStore } from '@/lib/admin/sidebarStore'
 import { Menu, X } from 'lucide-react'
 
 const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-mark.png'
@@ -20,6 +21,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter()
   const { setAdmin } = useAuthStore()
   const { path: cp } = useConsole()
+  const collapsed = useSidebarStore((s) => s.collapsed)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isChecking, setIsChecking] = useState(true)
 
@@ -80,7 +82,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       )}
 
       {/* 메인 콘텐츠 */}
-      <main className="lg:ml-[248px] pt-16 lg:pt-0 min-h-screen">
+      <main className={`${collapsed ? 'lg:ml-[72px]' : 'lg:ml-[224px]'} pt-16 lg:pt-0 min-h-screen transition-[margin] duration-200`}>
         <div className="max-w-[1240px] mx-auto p-5 lg:px-10 lg:py-8">{children}</div>
       </main>
     </div>
