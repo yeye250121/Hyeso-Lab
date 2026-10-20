@@ -8,7 +8,7 @@ import { formatDateTime } from '@/components/admin/labels'
 
 // 구성원 관리(오너 전용). 역할·전화번호·인입 알림, 초대키 발급.
 type Member = { id: string; loginId: string; nickname: string; code: string; role: 'owner' | 'admin' | 'marketer'; phone: string | null; notifyLeads: boolean; avatarUrl: string | null; leadCount: number; createdAt: string; isSelf: boolean }
-const ROLE_LABEL = { owner: '대표자', admin: '관리자', marketer: '마케터' } as const
+const ROLE_LABEL = { owner: '대표자', admin: '관리자', marketer: '파트너스' } as const
 
 export default function MembersPage() {
   const [members, setMembers] = useState<Member[]>([])
@@ -38,7 +38,7 @@ export default function MembersPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-[24px] font-bold text-text-primary tracking-[-0.01em]">구성원 관리</h1>
-        <p className="mt-1 text-[13px] text-text-secondary">대표자는 모든 권한, 관리자는 구성원 관리 제외 전체, 마케터는 본인 상담과 자료만 봅니다.</p>
+        <p className="mt-1 text-[13px] text-text-secondary">대표자는 모든 권한, 관리자는 구성원 관리 제외 전체, 파트너스는 본인 상담과 자료만 봅니다.</p>
       </div>
 
       <div className="grid lg:grid-cols-[1fr_360px] gap-5 items-start">

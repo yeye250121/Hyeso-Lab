@@ -43,7 +43,7 @@ export default function DashboardPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <h1 className="text-headline text-text-primary">대시보드</h1>
+        <h1 className="text-headline text-text-primary">홈</h1>
 
         {/* 지금 처리할 것 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">

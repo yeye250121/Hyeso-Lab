@@ -11,6 +11,6 @@ export function useConsole(): { console: ConsoleName; path: (p: string) => strin
   const role = useAuthStore((s) => s.admin?.role)
   const fromUrl = params?.console
   const name: ConsoleName =
-    fromUrl === 'owner' || fromUrl === 'admin' || fromUrl === 'marketer' ? fromUrl : consoleForRole(role ?? 'admin')
+    fromUrl === 'owner' || fromUrl === 'admin' || fromUrl === 'partners' ? fromUrl : consoleForRole(role ?? 'admin')
   return { console: name, path: (p: string) => `/${name}${p.startsWith('/') ? p : `/${p}`}` }
 }

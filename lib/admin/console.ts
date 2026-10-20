@@ -1,16 +1,17 @@
 import type { AdminRole } from './auth'
 
 // 역할별 콘솔. 주소 첫 조각(/owner, /admin, /marketer)이 콘솔이고, 메뉴와 권한은 역할이 정한다.
-export type ConsoleName = 'owner' | 'admin' | 'marketer'
-export const CONSOLES: ConsoleName[] = ['owner', 'admin', 'marketer']
+// 외부 마케터는 화면·주소에서 '파트너스'로 부른다(역할 키는 marketer 그대로).
+export type ConsoleName = 'owner' | 'admin' | 'partners'
+export const CONSOLES: ConsoleName[] = ['owner', 'admin', 'partners']
 
 export function consoleForRole(role: AdminRole): ConsoleName {
-  return role === 'owner' ? 'owner' : role === 'marketer' ? 'marketer' : 'admin'
+  return role === 'owner' ? 'owner' : role === 'marketer' ? 'partners' : 'admin'
 }
 
 /** 콘솔 첫 화면 */
 export function consoleHome(role: AdminRole): string {
-  return role === 'marketer' ? '/marketer/home' : `/${consoleForRole(role)}/dashboard`
+  return role === 'marketer' ? '/partners/home' : `/${consoleForRole(role)}/dashboard`
 }
 
 /** 외부 마케터가 열 수 있는 페이지(콘솔 아래 첫 조각) */

@@ -12,16 +12,16 @@ function decodeBase64Url(value: string): ArrayBuffer {
 }
 
 type Role = 'owner' | 'admin' | 'marketer'
-const CONSOLES = ['owner', 'admin', 'marketer']
+const CONSOLES = ['owner', 'admin', 'partners']
 const MARKETER_PAGES = ['home', 'link', 'leads', 'library', 'images', 'profile', 'chat']
 const MARKETER_ONLY_PAGES = ['home']
 const OWNER_ONLY_PAGES = ['members']
 
 function consoleForRole(role: Role) {
-  return role === 'owner' ? 'owner' : role === 'marketer' ? 'marketer' : 'admin'
+  return role === 'owner' ? 'owner' : role === 'marketer' ? 'partners' : 'admin'
 }
 function consoleHome(role: Role) {
-  return role === 'marketer' ? '/marketer/home' : `/${consoleForRole(role)}/dashboard`
+  return role === 'marketer' ? '/partners/home' : `/${consoleForRole(role)}/dashboard`
 }
 function pageAllowed(role: Role, page: string) {
   if (role === 'marketer') return MARKETER_PAGES.includes(page)
@@ -115,5 +115,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/owner/:path*', '/admin/:path*', '/marketer/:path*'],
+  matcher: ['/owner/:path*', '/admin/:path*', '/partners/:path*'],
 }

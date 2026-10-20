@@ -32,7 +32,7 @@ const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/pub
 type Item = { page: string; label: string; icon: LucideIcon }
 type Section = { label?: string; items: Item[] }
 
-const ROLE_LABEL: Record<string, string> = { owner: '대표자', admin: '관리자', marketer: '마케터' }
+const ROLE_LABEL: Record<string, string> = { owner: '대표자', admin: '관리자', marketer: '파트너스' }
 
 function sectionsFor(role: string | undefined): Section[] {
   if (role === 'marketer') {
@@ -56,7 +56,7 @@ function sectionsFor(role: string | undefined): Section[] {
     ]
   }
   const sections: Section[] = [
-    { items: [{ page: 'dashboard', label: '대시보드', icon: LayoutDashboard }] },
+    { items: [{ page: 'dashboard', label: '홈', icon: LayoutDashboard }] },
     {
       label: '영업',
       items: [
