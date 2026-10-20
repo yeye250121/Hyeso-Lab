@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useAuthStore } from '@/lib/admin/store'
 import api from '@/lib/admin/api'
+import { consoleHome } from '@/lib/admin/console'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 
 const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-mark.png'
@@ -28,7 +29,7 @@ export default function AdminLoginPage() {
       const { admin } = response.data
 
       setAdmin(admin)
-      router.push('/admin/dashboard')
+      router.push(consoleHome(admin.role))
     } catch (err: any) {
       setError(err.response?.data?.error || '로그인에 실패했습니다')
     } finally {

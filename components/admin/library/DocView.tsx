@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Check, Eye, EyeOff, Pencil, Trash2 } from 'lucide-react'
 import api from '@/lib/admin/api'
 import { formatDateTime } from '@/components/admin/labels'
+import { useConsole } from '@/lib/admin/useConsole'
 
 // 문서 한 장. 읽기 모드는 서버가 준 HTML 을 그대로 그리고(편집기 안 불러옴),
 // 편집을 눌렀을 때만 TipTap 을 동적으로 불러온다.
@@ -26,6 +27,7 @@ type Doc = {
 }
 
 export default function DocView({ id, onChanged }: { id: string; onChanged: () => void }) {
+  const { path: cp } = useConsole()
   const router = useRouter()
   const params = useSearchParams()
   const [doc, setDoc] = useState<Doc | null>(null)
@@ -85,7 +87,7 @@ export default function DocView({ id, onChanged }: { id: string; onChanged: () =
   const finishEditing = async () => {
     await save()
     setEditing(false)
-    router.replace(`/admin/library/${id}`)
+    router.replace(cp(`/library/${id}`))
   }
 
   const togglePublish = async () => {
@@ -98,7 +100,7 @@ export default function DocView({ id, onChanged }: { id: string; onChanged: () =
     if (!confirm('이 문서와 하위 문서를 모두 삭제할까요? 되돌릴 수 없어요.')) return
     await api.delete(`/admin/library/${doc.id}`)
     onChanged()
-    router.replace('/admin/library')
+    router.replace(cp('/library'))
   }
 
   const hasToc = useMemo(() => toc.length >= 2, [toc])

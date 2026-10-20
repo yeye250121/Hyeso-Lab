@@ -7,6 +7,7 @@ import { ChevronDown, ChevronRight, FileText, FolderTree, Plus, Search, X } from
 import api from '@/lib/admin/api'
 import type { LibraryNode } from '@/lib/admin/library'
 import DocView from './DocView'
+import { useConsole } from '@/lib/admin/useConsole'
 
 // 교육자료 라이브러리. 왼쪽 트리(문서 안에 하위 문서) + 오른쪽 문서.
 // 트리는 한 번 받아 클라이언트에서 접고 펴고, 문서 본문은 열 때마다 받는다.
@@ -14,6 +15,7 @@ import DocView from './DocView'
 type SearchHit = { id: string; title: string; emoji: string | null; snippet: string }
 
 export default function LibraryShell({ activeId }: { activeId: string | null }) {
+  const { path: cp } = useConsole()
   const router = useRouter()
   const [docs, setDocs] = useState<LibraryNode[]>([])
   const [canEdit, setCanEdit] = useState(false)
@@ -74,7 +76,7 @@ export default function LibraryShell({ activeId }: { activeId: string | null }) 
     const res = await api.post('/admin/library', { parentId })
     await loadTree()
     if (parentId) setOpen((o) => ({ ...o, [parentId]: true }))
-    router.push(`/admin/library/${res.data.doc.id}?edit=1`)
+    router.push(cp(`/library/${res.data.doc.id}?edit=1`))
   }
 
   const Tree = ({ parentId, depth }: { parentId: string | null; depth: number }) => {
@@ -98,7 +100,7 @@ export default function LibraryShell({ activeId }: { activeId: string | null }) 
                   {isOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                 </button>
                 <Link
-                  href={`/admin/library/${d.id}`}
+                  href={cp(`/library/${d.id}`)}
                   onClick={() => setTreeOpenMobile(false)}
                   className={`flex-1 min-w-0 flex items-center gap-1.5 py-1.5 text-small truncate ${active ? 'font-semibold text-text-primary' : 'text-text-secondary'} ${!d.isPublished ? 'opacity-60' : ''}`}
                 >
@@ -142,7 +144,7 @@ export default function LibraryShell({ activeId }: { activeId: string | null }) 
           {hits.length === 0 && <li className="px-2 py-6 text-center text-small text-text-tertiary">검색 결과가 없어요</li>}
           {hits.map((h) => (
             <li key={h.id}>
-              <Link href={`/admin/library/${h.id}`} onClick={() => { setQ(''); setTreeOpenMobile(false) }} className="block px-2 py-2 rounded-button hover:bg-bg-primary">
+              <Link href={cp(`/library/${h.id}`)} onClick={() => { setQ(''); setTreeOpenMobile(false) }} className="block px-2 py-2 rounded-button hover:bg-bg-primary">
                 <p className="text-small font-medium text-text-primary truncate">{h.emoji ? `${h.emoji} ` : ''}{h.title}</p>
                 {h.snippet && <p className="text-xs text-text-secondary line-clamp-2 mt-0.5">{h.snippet}</p>}
               </Link>

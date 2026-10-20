@@ -103,6 +103,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // 마케터 코드는 실제 구성원 코드일 때만 남긴다(아무 값이나 붙여 정산을 노리는 걸 막는다)
+    let marketerCode = ''
+    if (parsed.marketerCode) {
+      const { data: m } = await supabaseAdmin.from('admin_users').select('unique_code').eq('unique_code', parsed.marketerCode).maybeSingle()
+      if (m) marketerCode = m.unique_code as string
+    }
+
     const row = {
         service: parsed.service,
         category_slug: parsed.service === 'electronics' ? parsed.categorySlug ?? null : null,
@@ -116,7 +123,7 @@ export async function POST(request: NextRequest) {
         agreed_required: true,
         agreed_marketing: parsed.agreedMarketing,
         referrer_url: parsed.referrerUrl || null,
-        marketer_code: parsed.marketerCode || '',
+        marketer_code: marketerCode,
     }
 
     // 짧은 토큰은 유일해야 한다. 충돌(23505)하면 새로 뽑아 다시 넣는다.

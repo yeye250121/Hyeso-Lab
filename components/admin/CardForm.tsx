@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import TipTapEditor from '@/components/admin/TipTapEditor';
-import { saveCard } from '@/app/admin/cards/actions';
+import { saveCard } from '@/app/[console]/cards/actions';
 import api from '@/lib/admin/api';
 
 export default function CardForm({ initialData }: { initialData?: any }) {

@@ -1,17 +1,16 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useAuthStore } from '@/lib/admin/store'
 import api from '@/lib/admin/api'
 import Sidebar from './Sidebar'
+import { useConsole } from '@/lib/admin/useConsole'
 import { Menu, X } from 'lucide-react'
 
 const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-mark.png'
-
-const MARKETER_PATHS = ['/admin/library', '/admin/profile', '/admin/chat']
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -19,8 +18,8 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter()
-  const pathname = usePathname()
   const { setAdmin } = useAuthStore()
+  const { path: cp } = useConsole()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isChecking, setIsChecking] = useState(true)
 
@@ -29,11 +28,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       try {
         const response = await api.get('/admin/auth/session')
         setAdmin(response.data.admin)
-        // 외부 마케터는 라이브러리·프로필·채팅만 쓴다
-        if (response.data.admin?.role === 'marketer' && !MARKETER_PATHS.some((p) => pathname?.startsWith(p))) {
-          router.replace('/admin/library')
-          return
-        }
         setIsChecking(false)
       } catch {
         router.replace('/admin/login')
@@ -60,9 +54,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* 모바일 헤더 */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-bg-card border-b border-border flex items-center justify-between px-4 z-40">
-        <Link href="/admin/library" className="flex items-center gap-2">
+        <Link href={cp('/')} className="flex items-center gap-2">
           <Image src={LOGO_URL} alt="혜택 연구소" width={512} height={512} className="h-6 w-6" />
-          <span className="text-body font-semibold text-text-primary">Admin</span>
+          <span className="text-body font-semibold text-text-primary">혜택연구소</span>
         </Link>
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -79,15 +73,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             className="absolute inset-0 bg-overlay"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="absolute right-0 top-0 bottom-0 w-64 bg-bg-card animate-slide-left shadow-xl">
+          <div className="absolute right-0 top-0 bottom-0 w-[280px] bg-bg-card animate-slide-left shadow-xl">
             <Sidebar isMobile />
           </div>
         </div>
       )}
 
       {/* 메인 콘텐츠 */}
-      <main className="lg:ml-64 pt-16 lg:pt-0 min-h-screen">
-        <div className="p-6 lg:p-8">{children}</div>
+      <main className="lg:ml-[248px] pt-16 lg:pt-0 min-h-screen">
+        <div className="max-w-[1240px] mx-auto p-5 lg:px-10 lg:py-8">{children}</div>
       </main>
     </div>
   )

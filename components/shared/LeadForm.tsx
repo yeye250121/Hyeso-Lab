@@ -48,6 +48,15 @@ export function isValidPhone(v: string): boolean {
   return /^01[016789]-\d{3,4}-\d{4}$/.test(v);
 }
 
+/** 마케터 링크(/m/<코드>)로 들어온 고객의 코드. 주소의 ?m= 가 우선, 없으면 쿠키 */
+function readMarketerCode(): string {
+  if (typeof window === 'undefined') return '';
+  const fromQuery = new URLSearchParams(window.location.search).get('m');
+  if (fromQuery) return fromQuery.trim().slice(0, 40);
+  const m = document.cookie.match(/(?:^|;\s*)hl_m=([^;]+)/);
+  return m ? decodeURIComponent(m[1]).slice(0, 40) : '';
+}
+
 function monthsLabel(m: number) {
   return m % 12 === 0 ? `${m / 12}년 약정` : `${m}개월 약정`;
 }
@@ -115,6 +124,7 @@ export default function LeadForm({
           careType: withProduct ? initialCareType ?? null : null,
           agreedMarketing: !!agreements.marketing,
           referrerUrl: typeof window !== 'undefined' ? window.location.href : null,
+          marketerCode: readMarketerCode(),
         }),
       });
       const json = await res.json().catch(() => ({}));

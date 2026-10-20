@@ -5,6 +5,7 @@
 import { getSupabaseAdmin } from './supabase-admin'
 import { isSolapiConfigured, sendAlimtalk, type AlimtalkVariables } from './solapi'
 import { ALIMTALK_TEMPLATES, VENDOR_ALIMTALK_PHONE } from './alimtalk-templates'
+import { maskName } from './admin/mask'
 
 export type SendResult = { success: boolean; skipped?: boolean; groupId?: string | null; error?: string }
 
@@ -81,14 +82,6 @@ function kstTime(iso: string): string {
   const d = new Date(new Date(iso).getTime() + 9 * 3600 * 1000)
   const p = (n: number) => String(n).padStart(2, '0')
   return `${p(d.getUTCMonth() + 1)}/${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`
-}
-
-/** 이름 가운데 글자 마스킹. 홍길동 → 홍*동 */
-function maskName(name: string | null | undefined): string {
-  const n = (name ?? '').trim()
-  if (!n) return '이름 미입력'
-  if (n.length <= 2) return n[0] + '*'
-  return n[0] + '*'.repeat(n.length - 2) + n[n.length - 1]
 }
 
 /**

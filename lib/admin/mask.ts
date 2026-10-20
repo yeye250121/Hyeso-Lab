@@ -12,3 +12,11 @@ export function maskAccount(v: string | null): string | null {
 export function maskBirth(v: string | null): string | null {
   return v ? `${v.slice(0, 4)}-**-**` : v
 }
+
+/** 홍길동 → 홍*동. 마케터 화면처럼 고객 이름을 다 보여주면 안 되는 곳에서 쓴다 */
+export function maskName(name: string | null | undefined): string {
+  const n = (name ?? '').trim()
+  if (!n) return '이름 미입력'
+  if (n.length <= 2) return n[0] + '*'
+  return n[0] + '*'.repeat(n.length - 2) + n[n.length - 1]
+}
