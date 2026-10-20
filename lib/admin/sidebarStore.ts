@@ -22,4 +22,3 @@ export const useSidebarStore = create<SidebarState>()(
 )
 
 export const SIDEBAR_WIDTH = 224
-export const SIDEBAR_RAIL = 72

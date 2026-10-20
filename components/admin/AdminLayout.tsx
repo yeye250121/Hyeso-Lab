@@ -21,7 +21,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter()
   const { setAdmin } = useAuthStore()
   const { path: cp } = useConsole()
-  const collapsed = useSidebarStore((s) => s.collapsed)
+  const { collapsed, setCollapsed } = useSidebarStore()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isChecking, setIsChecking] = useState(true)
 
@@ -49,10 +49,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen bg-bg-primary">
-      {/* 데스크탑 사이드바 */}
-      <div className="hidden lg:block">
-        <Sidebar />
-      </div>
+      {/* 데스크탑 사이드바. 접으면 아예 그리지 않고, 왼쪽 위 햄버거로 다시 연다 */}
+      {!collapsed && (
+        <div className="hidden lg:block">
+          <Sidebar />
+        </div>
+      )}
+      {collapsed && (
+        <button
+          type="button"
+          onClick={() => setCollapsed(false)}
+          title="메뉴 펼치기"
+          data-testid="sidebar-open"
+          className="hidden lg:flex fixed top-4 left-4 z-40 w-10 h-10 items-center justify-center rounded-xl bg-bg-card border border-border text-text-secondary hover:text-text-primary shadow-sm"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      )}
 
       {/* 모바일 헤더 */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-bg-card border-b border-border flex items-center justify-between px-4 z-40">
@@ -82,8 +95,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       )}
 
       {/* 메인 콘텐츠 */}
-      <main className={`${collapsed ? 'lg:ml-[72px]' : 'lg:ml-[224px]'} pt-16 lg:pt-0 min-h-screen transition-[margin] duration-200`}>
-        <div className="max-w-[1240px] mx-auto p-5 lg:px-10 lg:py-8">{children}</div>
+      <main className={`${collapsed ? 'lg:ml-0' : 'lg:ml-[224px]'} pt-16 lg:pt-0 min-h-screen`}>
+        <div className={`max-w-[1240px] mx-auto p-5 lg:px-10 lg:py-8 ${collapsed ? 'lg:pt-[72px]' : ''}`}>{children}</div>
       </main>
     </div>
   )

@@ -18,7 +18,6 @@ import {
   Users,
   Headset,
   PanelLeftClose,
-  PanelLeftOpen,
   type LucideIcon,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -93,9 +92,9 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   const router = useRouter()
   const { admin, logout } = useAuthStore()
   const { path: cp } = useConsole()
-  const { collapsed: storedCollapsed, toggle } = useSidebarStore()
-  // 모바일 서랍에서는 항상 펼친다
-  const collapsed = !isMobile && storedCollapsed
+  const { setCollapsed } = useSidebarStore()
+  // 접힌 상태는 레이아웃이 아예 그리지 않으므로 여기서는 항상 펼친 모양이다
+  const collapsed = false
 
   const [profile, setProfile] = useState<{ nickname: string; avatarUrl: string | null } | null>(null)
   const [unread, setUnread] = useState(0)
@@ -138,10 +137,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   }
 
   return (
-    <aside
-      className={`${isMobile ? 'h-full w-full' : `fixed left-0 top-0 h-full ${collapsed ? 'w-[72px]' : 'w-[224px]'} transition-[width] duration-200`} bg-bg-card border-r border-border flex flex-col`}
-      data-collapsed={collapsed ? '1' : '0'}
-    >
+    <aside className={`${isMobile ? 'h-full w-full' : 'fixed left-0 top-0 h-full w-[224px]'} bg-bg-card border-r border-border flex flex-col`}>
       {/* 브랜드 + 역할 + 접기 */}
       <div className={`${collapsed ? 'px-3' : 'px-4'} pt-4 pb-3`}>
         <div className="flex items-center gap-2 h-8">
@@ -157,12 +153,12 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
           {!isMobile && (
             <button
               type="button"
-              onClick={toggle}
-              title={collapsed ? '메뉴 펼치기' : '메뉴 접기'}
+              onClick={() => setCollapsed(true)}
+              title="메뉴 접기"
               data-testid="sidebar-toggle"
-              className={`${collapsed ? 'ml-auto' : 'ml-0.5'} w-6 h-6 flex items-center justify-center rounded-md text-text-tertiary hover:text-text-primary hover:bg-bg-primary shrink-0`}
+              className="ml-0.5 w-6 h-6 flex items-center justify-center rounded-md text-text-tertiary hover:text-text-primary hover:bg-bg-primary shrink-0"
             >
-              {collapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+              <PanelLeftClose className="w-4 h-4" />
             </button>
           )}
         </div>
