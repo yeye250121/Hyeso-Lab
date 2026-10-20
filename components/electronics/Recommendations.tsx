@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import type { ProductInsights } from '@/lib/electronicsApi';
-import ProductCard from './ProductCard';
+import ProductCardV2 from './toss/ProductCardV2';
 
 // 추천. 세트 -> 유사 가격대 -> 동일 브랜드 순으로, 비어 있는 묶음은 통째로 생략한다.
+// 카드는 목록·홈과 같은 ProductCardV2 를 써서 생김새를 통일한다.
 //
 // 모바일에서는 좌우 스와이프로 한 줄을 유지한다. 격자로 두면 4개가 두 줄로
 // 접히면서 화면을 잡아먹는다. 데스크톱은 4열 격자.
@@ -42,10 +43,7 @@ export default function Recommendations({
           >
             {group.items.map((p) => (
               <li key={p.id} className="snap-start shrink-0 w-[46%] sm:w-[31%] lg:w-auto">
-                <ProductCard
-                  product={{ ...p, plans: [] }}
-                  categorySlug={p.category_slug}
-                />
+                <ProductCardV2 product={p} />
               </li>
             ))}
           </ul>
