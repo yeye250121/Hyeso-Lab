@@ -77,7 +77,7 @@ export default function MembersPage() {
                 <th className="px-5 py-3 font-medium">구성원</th>
                 <th className="px-5 py-3 font-medium">역할</th>
                 <th className="px-5 py-3 font-medium">전화번호</th>
-                <th className="px-5 py-3 font-medium">인입 알림</th>
+                <th className="px-5 py-3 font-medium whitespace-nowrap">인입 알림</th>
                 <th className="px-5 py-3 font-medium">코드 · 인입</th>
                 <th className="px-5 py-3 font-medium">상태</th>
               </tr>
@@ -110,7 +110,7 @@ export default function MembersPage() {
                     />
                   </td>
                   <td className="px-5 py-3">
-                    <label className="inline-flex items-center gap-2 cursor-pointer">
+                    <label className="inline-flex items-center gap-2 cursor-pointer whitespace-nowrap">
                       <input type="checkbox" checked={m.notifyLeads} onChange={(e) => patch(m.id, { notifyLeads: e.target.checked })} className="w-4 h-4 accent-[var(--action-primary)]" />
                       <span className="text-[12px] text-text-secondary">알림톡</span>
                     </label>
