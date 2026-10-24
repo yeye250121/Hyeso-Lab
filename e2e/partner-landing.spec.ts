@@ -20,7 +20,6 @@ test.describe('파트너 랜딩 (모바일)', () => {
 
     await page.goto(`/m/${code}?preview=1`)
     await expect(page.getByTestId('landing-120')).toHaveText('120%')
-    await expect(page.getByTestId('landing-partner')).toContainText('님 추천')
     await expect(page.getByTestId('landing-why')).toContainText('광고 모델을')
     await expect(page.getByTestId('landing-gifts')).toBeVisible()
     const { sw, vw } = await page.evaluate(() => ({ sw: document.scrollingElement!.scrollWidth, vw: innerWidth }))

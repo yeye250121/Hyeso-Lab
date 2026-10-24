@@ -24,6 +24,8 @@ interface FooterProps {
   };
   linkSections?: FooterLinkSection[];
   showCopyright?: boolean;
+  /** 좁은 한 컬럼(파트너 랜딩 등)에서는 데스크톱에서도 세로로 쌓는다 */
+  compact?: boolean;
 }
 
 const defaultCompanyInfo = {
@@ -57,11 +59,12 @@ export default function Footer({
   companyInfo = defaultCompanyInfo,
   linkSections = defaultLinkSections,
   showCopyright = true,
+  compact = false,
 }: FooterProps) {
   return (
-    <footer className="bg-[#f8f9fa] py-12 lg:py-16">
+    <footer className={`bg-[#f8f9fa] py-12 ${compact ? '' : 'lg:py-16'}`}>
       <div className="max-w-[1100px] mx-auto px-6">
-        <div className="flex flex-col lg:flex-row justify-between gap-10">
+        <div className={`flex flex-col justify-between gap-10 ${compact ? '' : 'lg:flex-row'}`}>
           {/* Company Info */}
           <div className="space-y-4">
             <Image
@@ -83,7 +86,7 @@ export default function Footer({
           </div>
 
           {/* Links */}
-          <div className="flex gap-16">
+          <div className={`flex ${compact ? 'gap-10' : 'gap-16'}`}>
             {linkSections.map((section, index) => (
               <div key={index}>
                 <h4 className="text-gray-800 font-semibold mb-4">{section.title}</h4>

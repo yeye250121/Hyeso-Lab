@@ -17,7 +17,7 @@ const SERVICES: LandingService[] = ['internet', 'electronics']
 export default async function PartnerLandingPage({ params, searchParams }: { params: { code: string }; searchParams?: Record<string, string | string[] | undefined> }) {
   const code = params.code.trim().slice(0, 40)
   const db = getSupabaseAdmin()
-  const { data: partner, error: partnerError } = await db.from('admin_users').select('unique_code, nickname, avatar_url, status').eq('unique_code', code).maybeSingle()
+  const { data: partner, error: partnerError } = await db.from('admin_users').select('unique_code, status').eq('unique_code', code).maybeSingle()
   if (partnerError) console.error('[landing] partner lookup failed:', partnerError.message)
   const serviceParam = Array.isArray(searchParams?.service) ? searchParams?.service[0] : searchParams?.service
   const service = SERVICES.includes(serviceParam as LandingService) ? (serviceParam as LandingService) : null
@@ -50,7 +50,6 @@ export default async function PartnerLandingPage({ params, searchParams }: { par
   return (
     <PartnerLanding
       code={partner.unique_code as string}
-      partner={{ nickname: partner.nickname as string, avatarUrl: (partner.avatar_url as string | null) ?? null }}
       initialService={service}
       maxGift={maxGift}
       carriers={carriers}

@@ -10,6 +10,7 @@ import Footer from '@/components/shared/Footer'
 import { pushMyLead } from '@/components/shared/localActivity'
 
 // 파트너 랜딩. 약속 한 줄(차액 120% 보상) → 번호 폼 → 왜 가능한가(광고비 0) → 사은품 표 → 절차 → 조건 → 공통 푸터.
+// 데스크톱에서도 모바일 폭(480px) 한 컬럼으로 보여준다. 추천인은 코드로만 잡고 화면엔 안 보인다.
 // 토스식: 흰/연회색 섹션을 번갈아 쓰고, 큰 숫자는 120% 하나, 분홍 CTA 하나. 글자는 작고 무게는 가볍게.
 export type LandingService = 'internet' | 'electronics'
 type Carrier = { name: string; gift: number; voucher: number }
@@ -24,13 +25,11 @@ const man = (n: number) => (n % 10000 === 0 ? `${n / 10000}만원` : won(n))
 
 export default function PartnerLanding({
   code,
-  partner,
   initialService,
   maxGift,
   carriers,
 }: {
   code: string
-  partner: { nickname: string; avatarUrl: string | null }
   initialService: LandingService | null
   maxGift: number
   carriers: Carrier[]
@@ -101,7 +100,8 @@ export default function PartnerLanding({
   const chip = (active: boolean) => `h-16 rounded-2xl text-left px-4 transition-colors ${active ? 'bg-[var(--action-primary)]/10 ring-[1.5px] ring-[var(--action-primary)]' : 'bg-[#f2f4f6] hover:bg-[#eceef1]'}`
 
   return (
-    <div className="min-h-screen bg-white text-[#191f28]" data-testid="partner-landing">
+    <div className="min-h-screen bg-[#f2f4f6] text-[#191f28]" data-testid="partner-landing">
+      <div className="max-w-[480px] mx-auto min-h-screen bg-white md:shadow-[0_0_40px_rgba(0,0,0,0.06)]">
       {(submitting || done) && (
         <SuccessOverlay
           done={done}
@@ -136,15 +136,6 @@ export default function PartnerLanding({
       {/* 히어로 */}
       <section className="px-6 pt-10 pb-9 text-center">
         <Image src={LOGO} alt="혜택연구소" width={720} height={264} priority className="h-6 w-auto mx-auto" />
-        <p className="mt-4 inline-flex items-center gap-1.5 h-7 pl-1 pr-2.5 rounded-full bg-[#f2f4f6] text-[12px] text-[#6b7684]" data-testid="landing-partner">
-          {partner.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={partner.avatarUrl} alt="" className="w-5 h-5 rounded-full object-cover" />
-          ) : (
-            <span className="w-5 h-5 rounded-full bg-[var(--action-primary)]/15 text-[var(--action-primary)] text-[10px] font-bold flex items-center justify-center">{partner.nickname.slice(0, 1)}</span>
-          )}
-          <span className="font-medium text-[#4e5968]">{partner.nickname}</span>님 추천
-        </p>
         <p className="mt-6 text-[16px] font-medium text-[#8b95a1]">혜소보다 더 주면</p>
         <p className="mt-1 leading-none">
           <span className="text-[18px] font-semibold text-[#333d4b] align-middle">차액의</span>{' '}
@@ -321,13 +312,14 @@ export default function PartnerLanding({
 
       {/* 공통 푸터 */}
       <div className="pb-24">
-        <Footer />
+        <Footer compact />
+      </div>
       </div>
 
       {/* 하단 고정 CTA (폼이 안 보일 때만) */}
       {!formInView && !done && (
-        <div className="fixed bottom-0 inset-x-0 z-30 px-5 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 bg-gradient-to-t from-white via-white/95 to-transparent">
-          <div className="max-w-[520px] mx-auto flex gap-2">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-30 px-5 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 bg-gradient-to-t from-white via-white/95 to-transparent">
+          <div className="flex gap-2">
             <a href="tel:01074694385" aria-label="전화하기" className="w-[52px] h-[52px] shrink-0 rounded-2xl bg-[#f2f4f6] flex items-center justify-center text-[#333d4b]">
               <Phone className="w-5 h-5" />
             </a>
