@@ -165,31 +165,15 @@ export default function PartnerLanding({
           그래서 더 줄 수 있고, 더 주는 곳이 있으면 차액까지 얹어드려요.
         </p>
 
-        {/* 비교 막대 */}
-        <div className="mt-7 grid grid-cols-2 gap-3 items-end">
-          <div>
-            <div className="flex flex-col gap-1">
-              <div className="h-9 rounded-xl bg-white border border-[#e5e8eb] flex items-center justify-center text-[12px] text-[#b0b8c1]">광고비</div>
-              <div className="h-7 rounded-xl bg-white border border-[#e5e8eb] flex items-center justify-center text-[12px] text-[#b0b8c1]">중간 마진</div>
-              <div className="h-12 rounded-xl bg-[#e5e8eb] flex items-center justify-center text-[13px] font-medium text-[#4e5968]">지원금</div>
-            </div>
-            <p className="mt-2 text-center text-[12px] text-[#8b95a1]">다른 곳</p>
-          </div>
-          <div>
-            <div className="flex flex-col gap-1">
-              <div className="h-7 rounded-xl border border-dashed border-[var(--action-primary)] flex items-center justify-center text-[12px] text-[var(--action-primary)] font-medium">+ 차액 × 120%</div>
-              <div className="h-[76px] rounded-xl bg-[var(--action-primary)] flex items-center justify-center text-[13px] font-semibold text-white">지원금</div>
-            </div>
-            <p className="mt-2 text-center text-[12px] text-[#333d4b] font-medium">혜택연구소</p>
-          </div>
-        </div>
-        <p className="mt-5 text-[12px] leading-relaxed text-[#8b95a1]">월 요금은 어디서 가입해도 같아요. 본사 정책가 그대로예요. 다른 건 사은품뿐이에요.</p>
+        <CompareChart />
+
+        <p className="mt-5 text-[12px] leading-relaxed text-[#8b95a1]">월 요금은 어디서 가입해도 같아요. 다른 건 사은품뿐이에요.</p>
       </section>
 
       {/* 폼 */}
       <section ref={formRef} id="form" className="px-6 pt-10 pb-8 scroll-mt-10" data-testid="landing-form">
         <h2 className="text-[20px] font-semibold tracking-[-0.02em]">내 사은품 확인하기</h2>
-        <p className="mt-1 text-[14px] text-[#8b95a1]">번호만 남기면 혜택연구소 이름으로 한 번 전화드려요.</p>
+        <p className="mt-1 text-[14px] text-[#8b95a1]">번호만 남겨주시면 전화드려요.</p>
 
         <p className="mt-6 text-[13px] font-medium text-[#6b7684]">어떤 혜택을 찾으세요?</p>
         <div className="mt-2 grid grid-cols-2 gap-2">
@@ -333,59 +317,107 @@ export default function PartnerLanding({
   )
 }
 
-// 통신사별 최대 지원금. 화면에 들어오면 줄마다 금액이 차례로 뿅 하고 나타난다(반짝이 6개와 함께).
+// 광고비·마진 vs 지원금 비교 그래프. 화면에 들어오면 막대가 아래에서 자라고, 120% 배지가 떠오른다.
+function CompareChart() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [grow, setGrow] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setGrow(true); io.disconnect() } }, { threshold: 0.4 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  const seg = (h: number, cls: string, label: string, delay: number) => (
+    <div className={`${grow ? 'landing-grow' : 'scale-y-0'} w-full rounded-[10px] flex items-center justify-center text-[12px] ${cls}`} style={{ height: h, animationDelay: `${delay}ms` }}>
+      <span className={`${grow ? 'landing-fade' : 'opacity-0'}`} style={{ animationDelay: `${delay + 350}ms` }}>{label}</span>
+    </div>
+  )
+  return (
+    <div ref={ref} className="mt-7 rounded-[20px] bg-white p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)]" data-testid="landing-chart" data-grown={grow ? '1' : '0'}>
+      <div className="grid grid-cols-2 gap-5 items-end h-[196px]">
+        {/* 다른 곳: 광고비·마진이 위를 차지하고 지원금은 아래 조금 */}
+        <div className="flex flex-col justify-end gap-1 h-full">
+          {seg(52, 'bg-[#f2f4f6] text-[#b0b8c1]', '광고비', 0)}
+          {seg(36, 'bg-[#f2f4f6] text-[#b0b8c1]', '중간 마진', 80)}
+          {seg(64, 'bg-[#d1d6db] text-[#4e5968] font-medium', '지원금', 160)}
+        </div>
+        {/* 혜택연구소: 전부 지원금 + 보상 배지 */}
+        <div className="relative flex flex-col justify-end gap-1 h-full">
+          <div className={`${grow ? 'landing-pop landing-float' : 'opacity-0'} absolute -top-1 left-1/2 -translate-x-1/2 whitespace-nowrap px-2.5 h-7 rounded-full bg-[#191f28] text-white text-[11px] font-semibold flex items-center gap-1 shadow-md`} style={{ animationDelay: '700ms, 1200ms' }}>
+            <span className="text-[var(--action-primary)]">+</span> 차액 × 120%
+            <span className="absolute left-1/2 -bottom-1 -translate-x-1/2 w-2 h-2 rotate-45 bg-[#191f28]" />
+          </div>
+          {seg(152, 'bg-gradient-to-t from-[#ff7096] to-[#ff9fb8] text-white font-semibold text-[13px] shadow-[0_8px_20px_rgba(255,143,171,0.35)]', '지원금', 240)}
+        </div>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-5 text-center text-[12px]">
+        <span className="text-[#8b95a1]">다른 곳</span>
+        <span className="text-[#333d4b] font-medium">혜택연구소</span>
+      </div>
+      <div className="mt-4 pt-3 border-t border-[#f2f4f6] flex items-center justify-center gap-4 text-[11px] text-[#8b95a1]">
+        <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-[3px] bg-[#f2f4f6] border border-[#e5e8eb]" /> 광고비 · 마진</span>
+        <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-[3px] bg-[#d1d6db]" /> 지원금</span>
+        <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-[3px] bg-[var(--action-primary)]" /> 혜택연구소 지원금</span>
+      </div>
+    </div>
+  )
+}
+
+// 통신사별 최대 지원금. 줄마다 "확인하기" 를 누르면 금액이 뿅 하고 나타난다(반짝이 6개와 함께).
 const SPARKS = [
   { x: -18, y: -14 }, { x: 16, y: -16 }, { x: 22, y: 4 }, { x: -22, y: 6 }, { x: 6, y: 18 }, { x: -8, y: 16 },
 ]
 function GiftTable({ carriers }: { carriers: Carrier[] }) {
-  const ref = useRef<HTMLElement>(null)
-  const [shown, setShown] = useState(false)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          setShown(true)
-          io.disconnect()
-        }
-      },
-      { threshold: 0.35 }
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [])
+  const [revealed, setRevealed] = useState<Record<number, boolean>>({})
+  const allRevealed = carriers.every((_, i) => revealed[i])
 
   return (
-    <section ref={ref} className="bg-[#f9fafb] px-6 py-10" data-testid="landing-gifts" data-shown={shown ? '1' : '0'}>
-      <h2 className="text-[18px] font-semibold tracking-[-0.02em]">통신사별 최대 지원금</h2>
-      <p className="mt-1 text-[13px] text-[#8b95a1]">지금 정책표 기준이에요. 상품·약정에 따라 달라져요.</p>
-      <ul className="mt-4 rounded-2xl bg-white divide-y divide-[#f2f4f6]">
+    <section className="bg-[#f9fafb] px-6 py-10" data-testid="landing-gifts">
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <h2 className="text-[18px] font-semibold tracking-[-0.02em]">통신사별 최대 지원금</h2>
+          <p className="mt-1 text-[13px] text-[#8b95a1]">눌러서 확인해 보세요. 지금 정책표 기준이에요.</p>
+        </div>
+        {!allRevealed && (
+          <button type="button" onClick={() => setRevealed(Object.fromEntries(carriers.map((_, i) => [i, true])))} className="shrink-0 text-[12px] font-medium text-[#8b95a1] underline underline-offset-2" data-testid="landing-gift-reveal-all">
+            전부 보기
+          </button>
+        )}
+      </div>
+      <ul className="mt-4 rounded-2xl bg-white divide-y divide-[#f2f4f6] shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
         {carriers.map((c, i) => (
           <li key={c.name} className="flex items-center justify-between px-4 h-[52px]">
             <span className="text-[14px] font-medium text-[#333d4b]">{c.name}</span>
-            <span className="relative inline-flex items-baseline gap-1 min-w-[72px] justify-end">
-              {shown ? (
+            <span className="relative inline-flex items-baseline gap-1 justify-end">
+              {revealed[i] ? (
                 <>
                   {SPARKS.map((s, j) => (
                     <i
                       key={j}
                       aria-hidden
                       className="landing-spark absolute right-6 top-1/2 w-1.5 h-1.5 rounded-full bg-[var(--action-primary)]"
-                      style={{ ['--sx' as string]: `${s.x}px`, ['--sy' as string]: `${s.y}px`, animationDelay: `${i * 110 + 80}ms` }}
+                      style={{ ['--sx' as string]: `${s.x}px`, ['--sy' as string]: `${s.y}px`, animationDelay: '80ms' }}
                     />
                   ))}
-                  <span className="landing-pop text-[15px] font-semibold tabular-nums text-[#191f28]" style={{ animationDelay: `${i * 110}ms` }} data-testid="landing-gift-amount">
+                  <span className="landing-pop text-[15px] font-semibold tabular-nums text-[#191f28]" data-testid="landing-gift-amount">
                     {man(c.gift)}
                   </span>
                   {c.voucher > 0 && (
-                    <span className="landing-pop text-[11px] font-medium text-[#8b95a1]" style={{ animationDelay: `${i * 110 + 120}ms` }}>
+                    <span className="landing-pop text-[11px] font-medium text-[#8b95a1]" style={{ animationDelay: '120ms' }}>
                       + 상품권 {man(c.voucher)}
                     </span>
                   )}
                 </>
               ) : (
-                <span className="h-4 w-14 rounded-md bg-[#f2f4f6]" aria-hidden />
+                <button
+                  type="button"
+                  onClick={() => setRevealed((r) => ({ ...r, [i]: true }))}
+                  data-testid="landing-gift-reveal"
+                  className="h-8 px-3.5 rounded-full bg-[#fff1f5] text-[13px] font-semibold text-[var(--action-primary)] active:scale-95 transition-transform"
+                >
+                  확인하기
+                </button>
               )}
             </span>
           </li>

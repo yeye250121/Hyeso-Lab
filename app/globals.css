@@ -505,3 +505,18 @@ body {
 }
 .landing-pop { animation: landingPop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .landing-spark { animation: landingSpark 0.7s ease-out both; }
+@keyframes landingGrow {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+@keyframes landingFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes landingFade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.landing-grow { transform-origin: bottom; animation: landingGrow 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.landing-float { animation: landingFloat 2.4s ease-in-out infinite; }
+.landing-fade { animation: landingFade 0.4s ease-out both; }

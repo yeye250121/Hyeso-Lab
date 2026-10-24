@@ -22,10 +22,16 @@ test.describe('파트너 랜딩 (모바일)', () => {
     await expect(page.getByTestId('landing-120')).toHaveText('120%')
     await expect(page.getByTestId('landing-why')).toContainText('광고 모델을')
     await expect(page.getByTestId('landing-gifts')).toBeVisible()
+    // 지원금은 확인하기를 눌러야 보인다
+    await expect(page.getByTestId('landing-gift-amount')).toHaveCount(0)
+    await page.getByTestId('landing-gift-reveal').first().click()
+    await expect(page.getByTestId('landing-gift-amount')).toHaveCount(1)
+    await expect(page.getByTestId('landing-gift-amount').first()).toContainText('만원')
     const { sw, vw } = await page.evaluate(() => ({ sw: document.scrollingElement!.scrollWidth, vw: innerWidth }))
     expect(sw).toBeLessThanOrEqual(vw)
 
-    // 하단 고정 CTA → 폼으로
+    // 하단 고정 CTA → 폼으로 (폼이 안 보일 때만 뜨므로 맨 위로 올린 뒤)
+    await page.evaluate(() => window.scrollTo(0, 0))
     await page.getByTestId('landing-cta-sticky').click()
     await expect(page.getByTestId('landing-form')).toBeInViewport()
 
