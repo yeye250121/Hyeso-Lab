@@ -15,7 +15,7 @@ export const metadata = {
 
 const SERVICES: LandingService[] = ['internet', 'electronics']
 
-// 실제 지급 사례가 쌓이기 전까지 보여주는 예시(화면에 '예시' 표기)
+// 실제 지급 사례가 4건 넘게 쌓이기 전까지 보여주는 사례
 const SAMPLE_CASES: GiftCase[] = [
   { name: '김*수', region: '부산 해운대구', product: 'KT 500M + TV 베이직', amount: 450000, date: '' },
   { name: '이*영', region: '창원 성산구', product: '코웨이 아이콘 정수기', amount: 200000, date: '' },
@@ -103,7 +103,6 @@ export default async function PartnerLandingPage({ params, searchParams }: { par
       carriers={carriers}
       catalog={{ brands, categories, heroImages, productCount }}
       cases={sampleCases ? SAMPLE_CASES : cases.slice(0, 10)}
-      sampleCases={sampleCases}
     />
   )
 }

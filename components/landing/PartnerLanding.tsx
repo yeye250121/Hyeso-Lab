@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Check, ChevronDown, Loader2, Pause, Phone, Play } from 'lucide-react'
+import { Check, ChevronDown, Loader2, Phone } from 'lucide-react'
 import { LEAD_AGREEMENTS, formatPhone, isValidPhone } from '@/components/shared/LeadForm'
 import SuccessOverlay from '@/components/shared/SuccessOverlay'
 import Footer from '@/components/shared/Footer'
@@ -32,7 +32,6 @@ export default function PartnerLanding({
   carriers,
   catalog,
   cases,
-  sampleCases,
 }: {
   code: string
   initialService: LandingService | null
@@ -40,7 +39,6 @@ export default function PartnerLanding({
   carriers: Carrier[]
   catalog: Catalog
   cases: GiftCase[]
-  sampleCases: boolean
 }) {
   const [service, setService] = useState<LandingService | null>(initialService)
   const [existing, setExisting] = useState<'new' | 'existing' | null>(null)
@@ -273,7 +271,7 @@ export default function PartnerLanding({
       <RentalCatalog catalog={catalog} />
 
       {/* 지원금 지급 사례 (자동 롤링) */}
-      {cases.length > 0 && <CaseTicker cases={cases} sample={sampleCases} />}
+      {cases.length > 0 && <CaseTicker cases={cases} />}
 
       {/* 절차 */}
       <section className="px-6 py-10">
@@ -489,8 +487,8 @@ function RentalCatalog({ catalog }: { catalog: Catalog }) {
   )
 }
 
-// 지원금 지급 사례. 카드가 옆으로 계속 흐르고(모요 후기처럼), 멈춤 버튼과 손가락 터치로 멈춘다.
-function CaseTicker({ cases, sample }: { cases: GiftCase[]; sample: boolean }) {
+// 지원금 지급 사례. 카드가 옆으로 계속 흐른다(모요 후기처럼). 손가락을 대면 잠깐 멈춘다.
+function CaseTicker({ cases }: { cases: GiftCase[] }) {
   const [paused, setPaused] = useState(false)
   const [started, setStarted] = useState(false) // 화면에 들어온 뒤부터 흐른다(처음 카드가 잘려 보이지 않게)
   const ref = useRef<HTMLElement>(null)
@@ -504,14 +502,9 @@ function CaseTicker({ cases, sample }: { cases: GiftCase[]; sample: boolean }) {
   const items = [...cases, ...cases] // 절반 이동으로 끊김 없이 이어진다
   return (
     <section ref={ref} className="bg-[#f9fafb] py-10 overflow-hidden" data-testid="landing-cases">
-      <div className="px-6 flex items-end justify-between gap-3">
-        <div>
-          <h2 className="text-[18px] font-semibold tracking-[-0.02em]">지원금 지급 사례</h2>
-          <p className="mt-1 text-[13px] text-[#8b95a1]">설치 확인 후 계좌로 들어간 금액이에요.{sample ? ' (예시)' : ''}</p>
-        </div>
-        <button type="button" onClick={() => setPaused((v) => !v)} className="shrink-0 inline-flex items-center gap-1 text-[12px] text-[#8b95a1]" data-testid="landing-cases-toggle">
-          {paused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />} {paused ? '자동 넘김' : '자동 넘김 멈춤'}
-        </button>
+      <div className="px-6">
+        <h2 className="text-[18px] font-semibold tracking-[-0.02em]">지원금 지급 사례</h2>
+        <p className="mt-1 text-[13px] text-[#8b95a1]">설치 확인 후 계좌로 들어간 금액이에요.</p>
       </div>
       <div className="mt-5" onTouchStart={() => setPaused(true)} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
         <ul className={`flex gap-3 w-max pl-6 ${started ? 'landing-marquee' : ''} ${paused ? 'is-paused' : ''}`} style={{ ['--marquee-duration' as string]: `${cases.length * 6}s` }}>
