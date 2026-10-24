@@ -2,13 +2,16 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Phone, RefreshCw, Search } from 'lucide-react'
+import { ChevronRight, Phone, RefreshCw } from 'lucide-react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import api from '@/lib/admin/api'
 import { LEAD_STATUS, SERVICE_LABEL, formatDateTime, monthsLabel } from '@/components/admin/labels'
 import StatementPanel from '@/components/admin/StatementPanel'
 import { useConsole } from '@/lib/admin/useConsole'
 import MarketerLeads from '@/components/admin/marketer/MarketerLeads'
+import Sheet from '@/components/admin/ui/Sheet'
+import StatusSelect from '@/components/admin/ui/StatusSelect'
+import { FilterRow, SearchForm, selectCls } from '@/components/admin/ui/Filters'
 
 interface Lead {
   id: string
@@ -114,6 +117,16 @@ function AdminLeadsPage() {
   }
 
   const unprocessed = leads.filter((l) => l.status === 'new').length
+  const openLead = leads.find((l) => l.id === openId) ?? null
+  const detailProps = (l: Lead) => ({
+    lead: l,
+    memoDraft,
+    setMemoDraft,
+    onSaveMemo: () => saveMemo(l.id),
+    saving,
+    onResend: () => resendAlimtalk(l.id),
+    resending: resending === l.id,
+  })
 
   return (
     <AdminLayout>
@@ -130,32 +143,52 @@ function AdminLeadsPage() {
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <select value={service} onChange={(e) => setService(e.target.value)} className="px-3 py-2 rounded-button bg-bg-card border border-border text-small text-text-primary">
+        <FilterRow>
+          <select value={service} onChange={(e) => setService(e.target.value)} className={selectCls} data-testid="lead-filter-service">
             <option value="">전체 서비스</option>
             {Object.entries(SERVICE_LABEL).map(([k, v]) => (
               <option key={k} value={k}>{v}</option>
             ))}
           </select>
-          <select value={status} onChange={(e) => setStatus(e.target.value)} className="px-3 py-2 rounded-button bg-bg-card border border-border text-small text-text-primary">
+          <select value={status} onChange={(e) => setStatus(e.target.value)} className={selectCls} data-testid="lead-filter-status">
             <option value="">전체 상태</option>
             {Object.entries(LEAD_STATUS).map(([k, v]) => (
               <option key={k} value={k}>{v.label}</option>
             ))}
           </select>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              load()
-            }}
-            className="relative flex-1 min-w-[200px] max-w-[320px]"
-          >
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="이름·전화번호 검색" className="w-full pl-9 pr-3 py-2 rounded-button bg-bg-card border border-border text-small text-text-primary" />
-          </form>
-        </div>
+          <SearchForm value={q} onChange={setQ} onSubmit={load} placeholder="이름·전화번호 검색" />
+        </FilterRow>
 
-        <div className="bg-bg-card rounded-card overflow-x-auto">
+        {/* 모바일: 건당 카드. 누르면 상세 시트 */}
+        <ul className="md:hidden space-y-2.5" data-testid="lead-cards">
+          {loading && <li className="rounded-card bg-bg-card px-5 py-10 text-center text-small text-text-secondary">불러오는 중…</li>}
+          {!loading && leads.length === 0 && <li className="rounded-card bg-bg-card px-5 py-10 text-center text-small text-text-secondary">조건에 맞는 상담 신청이 없습니다.</li>}
+          {!loading &&
+            leads.map((l) => (
+              <li key={l.id} className="rounded-card bg-bg-card">
+                <button type="button" onClick={() => toggle(l)} className="w-full text-left px-4 pt-3.5 pb-2.5" data-testid="lead-card">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[15px] font-semibold text-text-primary truncate">{l.name || <span className="text-text-tertiary font-normal">이름 미입력</span>}</span>
+                    <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-bg-primary text-[11px] text-text-secondary">{SERVICE_LABEL[l.service] ?? l.service}</span>
+                    <ChevronRight className="ml-auto w-4 h-4 text-text-tertiary shrink-0" />
+                  </div>
+                  <p className="mt-1 text-[13px] text-text-primary truncate">
+                    {l.product ? `${l.product}${[monthsLabel(l.contractMonths), l.careType].filter(Boolean).length ? ` · ${[monthsLabel(l.contractMonths), l.careType].filter(Boolean).join(' ')}` : ''}` : <span className="text-text-tertiary">상담 후 결정</span>}
+                  </p>
+                  <p className="mt-0.5 text-[12px] text-text-tertiary">{formatDateTime(l.submittedAt)} 접수{l.memo ? ` · ${l.memo}` : ''}</p>
+                </button>
+                <div className="px-4 pb-3 flex items-center justify-between gap-2">
+                  <a href={`tel:${l.phone}`} className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-bg-primary text-[13px] font-medium text-text-primary">
+                    <Phone className="w-3.5 h-3.5" /> {l.phone}
+                  </a>
+                  <StatusSelect value={l.status} options={LEAD_STATUS} onChange={(s) => changeStatus(l.id, s)} testId="lead-status" />
+                </div>
+              </li>
+            ))}
+        </ul>
+
+        {/* 데스크톱: 표 + 펼침 행 */}
+        <div className="hidden md:block bg-bg-card rounded-card overflow-x-auto">
           <table className="w-full min-w-[860px] text-small">
             <thead>
               <tr className="text-left text-text-secondary border-b border-border">
@@ -176,54 +209,46 @@ function AdminLeadsPage() {
                 <tr><td colSpan={7} className="px-4 py-12 text-center text-text-secondary">조건에 맞는 상담 신청이 없습니다.</td></tr>
               )}
               {!loading &&
-                leads.map((l) => (
-                  <LeadRows
-                    key={l.id}
-                    lead={l}
-                    open={openId === l.id}
-                    onToggle={() => toggle(l)}
-                    onStatus={(s) => changeStatus(l.id, s)}
-                    memoDraft={memoDraft}
-                    setMemoDraft={setMemoDraft}
-                    onSaveMemo={() => saveMemo(l.id)}
-                    saving={saving}
-                    onResend={() => resendAlimtalk(l.id)}
-                    resending={resending === l.id}
-                  />
-                ))}
+                leads.map((l) => {
+                  const open = openId === l.id
+                  return (
+                    <LeadRow key={l.id} lead={l} open={open} onToggle={() => toggle(l)} onStatus={(s) => changeStatus(l.id, s)}>
+                      {open && <LeadDetail {...detailProps(l)} />}
+                    </LeadRow>
+                  )
+                })}
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* 모바일 상세 시트 (데스크톱은 펼침 행을 쓴다) */}
+      <div className="md:hidden">
+        <Sheet
+          open={!!openLead}
+          onClose={() => setOpenId(null)}
+          title={openLead?.name || '이름 미입력'}
+          subtitle={openLead ? `${SERVICE_LABEL[openLead.service] ?? openLead.service} · ${formatDateTime(openLead.submittedAt)} 접수` : undefined}
+          testId="lead-sheet"
+        >
+          {openLead && (
+            <div className="space-y-5">
+              <div className="flex items-center justify-between gap-2">
+                <a href={`tel:${openLead.phone}`} className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-bg-primary text-[14px] font-medium text-text-primary">
+                  <Phone className="w-4 h-4" /> {openLead.phone}
+                </a>
+                <StatusSelect value={openLead.status} options={LEAD_STATUS} onChange={(s) => changeStatus(openLead.id, s)} />
+              </div>
+              <LeadDetail {...detailProps(openLead)} />
+            </div>
+          )}
+        </Sheet>
       </div>
     </AdminLayout>
   )
 }
 
-function LeadRows({
-  lead: l,
-  open,
-  onToggle,
-  onStatus,
-  memoDraft,
-  setMemoDraft,
-  onSaveMemo,
-  saving,
-  onResend,
-  resending,
-}: {
-  lead: Lead
-  open: boolean
-  onToggle: () => void
-  onStatus: (s: string) => void
-  memoDraft: string
-  setMemoDraft: (v: string) => void
-  onSaveMemo: () => void
-  onResend: () => void
-  resending: boolean
-  saving: boolean
-}) {
-  const { path: cp } = useConsole()
-  const st = LEAD_STATUS[l.status] ?? LEAD_STATUS.new
+function LeadRow({ lead: l, open, onToggle, onStatus, children }: { lead: Lead; open: boolean; onToggle: () => void; onStatus: (s: string) => void; children?: React.ReactNode }) {
   return (
     <>
       <tr className={`border-b border-border last:border-0 cursor-pointer hover:bg-bg-primary ${open ? 'bg-bg-primary' : ''}`} onClick={onToggle}>
@@ -246,75 +271,93 @@ function LeadRows({
           )}
         </td>
         <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-          <select value={l.status} onChange={(e) => onStatus(e.target.value)} className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${st.cls}`}>
-            {Object.entries(LEAD_STATUS).map(([k, v]) => (
-              <option key={k} value={k}>{v.label}</option>
-            ))}
-          </select>
+          <StatusSelect value={l.status} options={LEAD_STATUS} onChange={onStatus} />
         </td>
         <td className="px-4 py-3 text-text-secondary max-w-[220px] truncate">{l.memo}</td>
       </tr>
       {open && (
         <tr className="border-b border-border bg-bg-primary">
-          <td colSpan={7} className="px-4 py-4">
-            <div className="grid md:grid-cols-2 gap-5">
-              <dl className="space-y-1.5 text-small">
-                <Row k="모델코드" v={l.modelCode} />
-                <Row k="예상 월 렌탈료" v={l.monthlyFee ? `${l.monthlyFee.toLocaleString()}원` : null} />
-                <Row k="마케팅 수신" v={l.agreedMarketing ? '동의' : '미동의'} />
-                <div className="flex gap-3">
-                  <dt className="w-28 shrink-0 text-text-secondary">알림톡</dt>
-                  <dd className="text-text-primary flex flex-wrap items-center gap-2">
-                    <span>{l.alimtalkSentAt ? `${formatDateTime(l.alimtalkSentAt)} 발송` : '미발송'}</span>
-                    {l.alimtalkError && <span className="text-xs text-red-500">실패: {l.alimtalkError}</span>}
-                    {l.service !== 'card' && (
-                      <button onClick={onResend} disabled={resending} className="px-2 py-0.5 rounded-full border border-border text-xs text-text-secondary hover:text-text-primary disabled:opacity-40">
-                        {resending ? '발송 중…' : l.alimtalkSentAt ? '다시 보내기' : '보내기'}
-                      </button>
-                    )}
-                    {l.shortToken && <span className="text-xs text-text-tertiary">/c/{l.shortToken}</span>}
-                  </dd>
-                </div>
-                <Row k="유입 경로" v={l.referrerUrl} />
-                <div className="flex gap-3">
-                  <dt className="w-28 shrink-0 text-text-secondary">신청서</dt>
-                  <dd className="text-text-primary">
-                    {l.applicationId ? (
-                      <Link href={cp(`/applications?open=${l.applicationId}`)} className="text-action-primary underline">작성됨 — 보기</Link>
-                    ) : (
-                      '미작성'
-                    )}
-                  </dd>
-                </div>
-              </dl>
-              <div className="space-y-4">
-                <StatementPanel endpoint={`/admin/leads/${l.id}/statement`} sentAt={l.statementSentAt} giftAmount={l.giftAmount} />
-                <div>
-                <textarea
-                  value={memoDraft}
-                  onChange={(e) => setMemoDraft(e.target.value)}
-                  rows={4}
-                  placeholder="통화 결과, 전달 여부 등 내부 메모"
-                  className="w-full px-3 py-2 rounded-button bg-bg-card border border-border text-small text-text-primary resize-none"
-                />
-                <button onClick={onSaveMemo} disabled={saving || memoDraft.trim() === l.memo} className="mt-2 px-4 py-2 rounded-button bg-action-primary text-white text-small font-medium disabled:opacity-40">
-                  {saving ? '저장 중…' : '메모 저장'}
-                </button>
-                </div>
-              </div>
-            </div>
-          </td>
+          <td colSpan={7} className="px-4 py-4">{children}</td>
         </tr>
       )}
     </>
   )
 }
 
+// 상세 내용. 데스크톱 펼침 행과 모바일 시트에서 같이 쓴다.
+function LeadDetail({
+  lead: l,
+  memoDraft,
+  setMemoDraft,
+  onSaveMemo,
+  saving,
+  onResend,
+  resending,
+}: {
+  lead: Lead
+  memoDraft: string
+  setMemoDraft: (v: string) => void
+  onSaveMemo: () => void
+  onResend: () => void
+  resending: boolean
+  saving: boolean
+}) {
+  const { path: cp } = useConsole()
+  return (
+    <div className="grid md:grid-cols-2 gap-5" data-testid="lead-detail">
+      <dl className="space-y-1.5 text-small">
+        <Row k="모델코드" v={l.modelCode} />
+        <Row k="예상 월 렌탈료" v={l.monthlyFee ? `${l.monthlyFee.toLocaleString()}원` : null} />
+        <Row k="마케팅 수신" v={l.agreedMarketing ? '동의' : '미동의'} />
+        <div className="flex gap-3">
+          <dt className="w-24 md:w-28 shrink-0 text-text-secondary">알림톡</dt>
+          <dd className="text-text-primary flex flex-wrap items-center gap-2 min-w-0">
+            <span>{l.alimtalkSentAt ? `${formatDateTime(l.alimtalkSentAt)} 발송` : '미발송'}</span>
+            {l.alimtalkError && <span className="text-xs text-red-500 break-all">실패: {l.alimtalkError}</span>}
+            {l.service !== 'card' && (
+              <button onClick={onResend} disabled={resending} className="px-2 py-0.5 rounded-full border border-border text-xs text-text-secondary hover:text-text-primary disabled:opacity-40">
+                {resending ? '발송 중…' : l.alimtalkSentAt ? '다시 보내기' : '보내기'}
+              </button>
+            )}
+            {l.shortToken && <span className="text-xs text-text-tertiary">/c/{l.shortToken}</span>}
+          </dd>
+        </div>
+        <Row k="유입 경로" v={l.referrerUrl} />
+        <div className="flex gap-3">
+          <dt className="w-24 md:w-28 shrink-0 text-text-secondary">신청서</dt>
+          <dd className="text-text-primary">
+            {l.applicationId ? (
+              <Link href={cp(`/applications?open=${l.applicationId}`)} className="text-action-primary underline">작성됨 — 보기</Link>
+            ) : (
+              '미작성'
+            )}
+          </dd>
+        </div>
+      </dl>
+      <div className="space-y-4">
+        <StatementPanel endpoint={`/admin/leads/${l.id}/statement`} sentAt={l.statementSentAt} giftAmount={l.giftAmount} />
+        <div>
+          <textarea
+            value={memoDraft}
+            onChange={(e) => setMemoDraft(e.target.value)}
+            rows={4}
+            placeholder="통화 결과, 전달 여부 등 내부 메모"
+            className="w-full px-3 py-2 rounded-button bg-bg-card border border-border text-small text-text-primary resize-none"
+          />
+          <button onClick={onSaveMemo} disabled={saving || memoDraft.trim() === l.memo} className="mt-2 px-4 py-2 rounded-button bg-action-primary text-white text-small font-medium disabled:opacity-40">
+            {saving ? '저장 중…' : '메모 저장'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Row({ k, v }: { k: string; v: string | null }) {
   return (
     <div className="flex gap-3">
-      <dt className="w-28 shrink-0 text-text-secondary">{k}</dt>
-      <dd className="text-text-primary break-all">{v || <span className="text-text-tertiary">-</span>}</dd>
+      <dt className="w-24 md:w-28 shrink-0 text-text-secondary">{k}</dt>
+      <dd className="text-text-primary break-all min-w-0">{v || <span className="text-text-tertiary">-</span>}</dd>
     </div>
   )
 }

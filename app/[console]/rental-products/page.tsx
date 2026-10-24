@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
-import { ExternalLink, ImagePlus, RefreshCw, Search } from 'lucide-react'
+import { ExternalLink, ImagePlus, RefreshCw } from 'lucide-react'
+import { FilterRow, SearchForm, selectCls } from '@/components/admin/ui/Filters'
 import AdminLayout from '@/components/admin/AdminLayout'
 import api from '@/lib/admin/api'
 
@@ -131,37 +132,69 @@ export default function RentalProductsPage() {
               판매 중 {counts.active}개 · 판매 중지 {counts.inactive}개 · 사진 없음 {counts.noimage}개
             </p>
           </div>
-          <button onClick={revalidate} className="flex items-center gap-1.5 px-4 py-2 rounded-button bg-action-primary text-white text-small font-medium">
+          <button onClick={revalidate} className="flex items-center gap-1.5 h-10 px-4 rounded-button bg-action-primary text-white text-small font-medium">
             <RefreshCw className="w-4 h-4" /> 사이트에 바로 반영
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <select value={state} onChange={(e) => setState(e.target.value)} className="px-3 py-2 rounded-button bg-bg-card border border-border text-small text-text-primary">
+        <FilterRow>
+          <select value={state} onChange={(e) => setState(e.target.value)} className={selectCls} data-testid="product-filter-state">
             <option value="active">판매 중</option>
             <option value="noimage">사진 없음</option>
             <option value="inactive">판매 중지</option>
             <option value="">전체</option>
           </select>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} className="px-3 py-2 rounded-button bg-bg-card border border-border text-small text-text-primary">
+          <select value={category} onChange={(e) => setCategory(e.target.value)} className={selectCls} data-testid="product-filter-category">
             <option value="">전체 카테고리</option>
             {categories.map((c) => (
               <option key={c.slug} value={c.slug}>{c.name}</option>
             ))}
           </select>
-          <select value={brand} onChange={(e) => setBrand(e.target.value)} className="px-3 py-2 rounded-button bg-bg-card border border-border text-small text-text-primary">
+          <select value={brand} onChange={(e) => setBrand(e.target.value)} className={`${selectCls} col-span-2`} data-testid="product-filter-brand">
             <option value="">전체 브랜드</option>
             {brands.map((b) => (
               <option key={b} value={b}>{b}</option>
             ))}
           </select>
-          <div className="relative flex-1 min-w-[200px] max-w-[320px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="상품명·모델코드 검색" className="w-full pl-9 pr-3 py-2 rounded-button bg-bg-card border border-border text-small text-text-primary" />
-          </div>
-        </div>
+          <SearchForm value={q} onChange={setQ} placeholder="상품명·모델코드 검색" />
+        </FilterRow>
 
-        <div className="bg-bg-card rounded-card overflow-x-auto">
+        {/* 모바일: 건당 카드 */}
+        <ul className="md:hidden space-y-2.5" data-testid="product-cards">
+          {loading && <li className="rounded-card bg-bg-card px-5 py-10 text-center text-small text-text-secondary">불러오는 중…</li>}
+          {!loading && filtered.length === 0 && <li className="rounded-card bg-bg-card px-5 py-10 text-center text-small text-text-secondary">조건에 맞는 상품이 없습니다.</li>}
+          {!loading &&
+            filtered.slice(0, visible).map((p) => (
+              <li key={p.id} className={`rounded-card bg-bg-card p-3.5 ${p.isActive ? '' : 'opacity-60'}`} data-testid="product-card">
+                <div className="flex gap-3">
+                  <button onClick={() => pickImage(p.id)} disabled={busyId === p.id} title="사진 교체" className="relative w-16 h-16 shrink-0 rounded-lg bg-white border border-border overflow-hidden flex items-center justify-center">
+                    {p.image ? <Image src={p.image} alt="" fill sizes="64px" className="object-contain p-1" /> : <ImagePlus className="w-5 h-5 text-text-tertiary" />}
+                    <span className="absolute inset-x-0 bottom-0 bg-black/45 text-white text-[10px] text-center py-0.5">교체</span>
+                  </button>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start gap-2">
+                      <p className="text-[14px] font-medium text-text-primary leading-snug line-clamp-2">{p.brand} {p.name}</p>
+                      <span className={`ml-auto shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium ${p.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>{p.isActive ? '판매 중' : '중지'}</span>
+                    </div>
+                    <p className="mt-0.5 text-xs text-text-secondary">{p.modelCode} · {p.categoryName ?? '-'}</p>
+                    <p className="mt-0.5 text-[13px] text-text-primary">{p.minFee ? `월 ${p.minFee.toLocaleString()}원~` : '요금 미정'}</p>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  {p.isActive && p.categorySlug && (
+                    <a href={`/electronics/${p.categorySlug}/${p.slug}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 h-8 px-3 rounded-full bg-bg-primary text-[12px] text-text-secondary">
+                      <ExternalLink className="w-3.5 h-3.5" /> 사이트에서 보기
+                    </a>
+                  )}
+                  <button onClick={() => toggleActive(p)} disabled={busyId === p.id} className={`ml-auto h-8 px-3 rounded-full text-[12px] font-medium border border-border disabled:opacity-40 ${p.isActive ? 'text-error' : 'text-text-primary'}`}>
+                    {p.isActive ? '판매 중지' : '판매 재개'}
+                  </button>
+                </div>
+              </li>
+            ))}
+        </ul>
+
+        <div className="hidden md:block bg-bg-card rounded-card overflow-x-auto">
           <table className="w-full min-w-[820px] text-small">
             <thead>
               <tr className="text-left text-text-secondary border-b border-border">

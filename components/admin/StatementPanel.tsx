@@ -117,7 +117,7 @@ export default function StatementPanel({
                 onChange={(e) => setGift(e.target.value.replace(/[^\d]/g, ''))}
                 inputMode="numeric"
                 placeholder="사은품 안내 금액 (원)"
-                className="flex-1 px-3 py-2 rounded-button bg-bg-primary border border-border text-small text-text-primary"
+                className="flex-1 min-w-0 px-3 py-2 rounded-button bg-bg-primary border border-border text-small text-text-primary"
               />
               <button onClick={sendToVendor} disabled={sending} className="px-4 py-2 rounded-button bg-action-primary text-white text-small font-medium disabled:opacity-50 whitespace-nowrap">
                 {sending ? '보내는 중…' : sentAt ? '다시 보내기' : '보내기'}

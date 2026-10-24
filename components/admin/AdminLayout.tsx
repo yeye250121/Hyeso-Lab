@@ -78,6 +78,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </Link>
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label={isMobileMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
+          data-testid="mobile-menu-open"
           className="p-2 text-text-secondary"
         >
           {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -91,7 +93,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             className="absolute inset-0 bg-overlay"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="absolute right-0 top-0 bottom-0 w-[280px] bg-bg-card animate-slide-left shadow-xl">
+          <div className="absolute right-0 top-0 bottom-0 w-[280px] bg-bg-card animate-slide-left shadow-xl" data-testid="mobile-menu">
             <Sidebar isMobile />
           </div>
         </div>

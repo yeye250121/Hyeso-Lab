@@ -2,10 +2,13 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Eye, EyeOff, RefreshCw, Search, X } from 'lucide-react'
+import { ChevronRight, Eye, EyeOff, RefreshCw } from 'lucide-react'
 import api from '@/lib/admin/api'
 import { APPLICATION_STATUS, formatDateTime } from '@/components/admin/labels'
 import StatementPanel from '@/components/admin/StatementPanel'
+import Sheet from '@/components/admin/ui/Sheet'
+import StatusSelect from '@/components/admin/ui/StatusSelect'
+import { FilterRow, SearchForm, selectCls } from '@/components/admin/ui/Filters'
 
 // 인터넷 신청서 목록·상세. 가전렌탈 신청서 화면과 같은 구성이고,
 // 고객이 건너뛴 항목(사은품 계좌·납부 계좌·상품)은 "보완 필요" 로 표시해 해피콜에서 채운다.
@@ -97,27 +100,53 @@ export default function InternetApplications() {
         <div className="flex items-end justify-between flex-wrap gap-3">
           <p className="text-small text-text-secondary">
             총 {rows.length}건 · 미처리 <span className="text-action-primary font-semibold">{unprocessed}</span>건 · 보완 필요{' '}
-            <span className="text-yellow-700 font-semibold">{followup}</span>건 · 계좌번호는 상세에서 민감정보 보기를 눌러야 보입니다
+            <span className="text-yellow-700 font-semibold">{followup}</span>건<span className="hidden md:inline"> · 계좌번호는 상세에서 민감정보 보기를 눌러야 보입니다</span>
           </p>
           <button onClick={load} className="flex items-center gap-1.5 px-3 py-2 rounded-button bg-bg-card text-small text-text-secondary hover:text-text-primary">
             <RefreshCw className="w-4 h-4" /> 새로고침
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <select value={status} onChange={(e) => setStatus(e.target.value)} className="px-3 py-2 rounded-button bg-bg-card border border-border text-small text-text-primary">
+        <FilterRow>
+          <select value={status} onChange={(e) => setStatus(e.target.value)} className={selectCls} data-testid="app-filter-status">
             <option value="">전체 상태</option>
             {Object.entries(APPLICATION_STATUS).map(([k, v]) => (
               <option key={k} value={k}>{v.label}</option>
             ))}
           </select>
-          <form onSubmit={(e) => { e.preventDefault(); load() }} className="relative flex-1 min-w-[200px] max-w-[320px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="이름·전화번호 검색" className="w-full pl-9 pr-3 py-2 rounded-button bg-bg-card border border-border text-small text-text-primary" />
-          </form>
-        </div>
+          <SearchForm value={q} onChange={setQ} onSubmit={load} placeholder="이름·전화번호 검색" />
+        </FilterRow>
 
-        <div className="bg-bg-card rounded-card overflow-x-auto">
+        {/* 모바일: 건당 카드 */}
+        <ul className="md:hidden space-y-2.5" data-testid="app-cards">
+          {loading && <li className="rounded-card bg-bg-card px-5 py-10 text-center text-small text-text-secondary">불러오는 중…</li>}
+          {!loading && rows.length === 0 && <li className="rounded-card bg-bg-card px-5 py-10 text-center text-small text-text-secondary">조건에 맞는 신청서가 없습니다.</li>}
+          {!loading &&
+            rows.map((r) => (
+              <li key={r.id} className="rounded-card bg-bg-card">
+                <button type="button" onClick={() => openDetail(r.id)} className="w-full text-left px-4 pt-3.5 pb-2.5" data-testid="app-card">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[15px] font-semibold text-text-primary truncate">{r.name}</span>
+                    <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-bg-primary text-[11px] text-text-secondary">{r.customerType}</span>
+                    {r.needsFollowup && <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-yellow-100 text-yellow-700 text-[11px] font-medium">보완 필요</span>}
+                    <ChevronRight className="ml-auto w-4 h-4 text-text-tertiary shrink-0" />
+                  </div>
+                  <p className="mt-1 text-[13px] text-text-primary truncate">
+                    {r.product ? `${r.product}${r.monthlyFee != null ? ` · 월 ${r.monthlyFee.toLocaleString()}원` : ''}` : <span className="text-text-tertiary">상담 후 결정</span>}
+                  </p>
+                  <p className="mt-0.5 text-[12px] text-text-tertiary">
+                    {formatDateTime(r.submittedAt)} 접수{r.region ? ` · ${r.region}` : ''} · {r.statementSentAt ? <span className="text-green-600">명세서 전달</span> : '명세서 미전달'}
+                  </p>
+                </button>
+                <div className="px-4 pb-3 flex items-center justify-between gap-2">
+                  <a href={`tel:${r.phone}`} className="inline-flex items-center h-8 px-3 rounded-full bg-bg-primary text-[13px] font-medium text-text-primary">{r.phone}</a>
+                  <StatusSelect value={r.status} options={APPLICATION_STATUS} onChange={(s) => changeStatus(r.id, s)} testId="app-status" />
+                </div>
+              </li>
+            ))}
+        </ul>
+
+        <div className="hidden md:block bg-bg-card rounded-card overflow-x-auto">
           <table className="w-full min-w-[920px] text-small">
             <thead>
               <tr className="text-left text-text-secondary border-b border-border">
@@ -137,7 +166,6 @@ export default function InternetApplications() {
               {!loading && rows.length === 0 && <tr><td colSpan={9} className="px-4 py-12 text-center text-text-secondary">조건에 맞는 신청서가 없습니다.</td></tr>}
               {!loading &&
                 rows.map((r) => {
-                  const st = APPLICATION_STATUS[r.status] ?? APPLICATION_STATUS.new
                   return (
                     <tr key={r.id} onClick={() => openDetail(r.id)} className="border-b border-border last:border-0 cursor-pointer hover:bg-bg-primary">
                       <td className="px-4 py-3 text-text-secondary whitespace-nowrap">{formatDateTime(r.submittedAt)}</td>
@@ -168,11 +196,7 @@ export default function InternetApplications() {
                         {r.statementSentAt ? <span className="text-xs text-green-600">{formatDateTime(r.statementSentAt)} 전달</span> : <span className="text-xs text-text-tertiary">미전달</span>}
                       </td>
                       <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                        <select value={r.status} onChange={(e) => changeStatus(r.id, e.target.value)} className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${st.cls}`}>
-                          {Object.entries(APPLICATION_STATUS).map(([k, v]) => (
-                            <option key={k} value={k}>{v.label}</option>
-                          ))}
-                        </select>
+                        <StatusSelect value={r.status} options={APPLICATION_STATUS} onChange={(s) => changeStatus(r.id, s)} />
                       </td>
                     </tr>
                   )
@@ -182,25 +206,25 @@ export default function InternetApplications() {
         </div>
       </div>
 
-      {detail && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <button aria-label="닫기" className="absolute inset-0 bg-overlay" onClick={() => setDetail(null)} />
-          <aside className="relative w-full max-w-[520px] h-full bg-bg-card overflow-y-auto shadow-xl">
-            <header className="sticky top-0 bg-bg-card border-b border-border px-6 py-4 flex items-center justify-between">
-              <div>
-                <p className="text-title text-text-primary">{detail.name as string} 님 인터넷 신청서</p>
-                <p className="text-small text-text-secondary">{formatDateTime(detail.submittedAt as string)} 접수</p>
+      <Sheet
+        open={!!detail}
+        onClose={() => setDetail(null)}
+        title={detail ? `${detail.name as string} 님 인터넷 신청서` : ''}
+        subtitle={detail ? `${formatDateTime(detail.submittedAt as string)} 접수` : undefined}
+        testId="app-sheet"
+      >
+        {detail && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-small text-text-secondary">상태</span>
+                <StatusSelect value={detail.status} options={APPLICATION_STATUS} onChange={(s) => changeStatus(detail.id, s)} />
               </div>
-              <button onClick={() => setDetail(null)} className="p-1 text-text-secondary"><X className="w-5 h-5" /></button>
-            </header>
-
-            <div className="px-6 py-5 space-y-6">
               {detail.needsFollowup && (
                 <p className="rounded-button bg-yellow-50 border border-yellow-200 px-4 py-3 text-small text-yellow-800">
                   고객이 일부 항목을 건너뛰었습니다. 해피콜에서 아래 (미입력) 항목을 확인해주세요.
                 </p>
               )}
-              <button onClick={() => openDetail(detail.id, !detail.revealed)} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-button border border-border text-small font-medium text-text-primary hover:bg-bg-primary">
+              <button onClick={() => openDetail(detail.id, !detail.revealed)} data-testid="reveal-sensitive" className="w-full flex items-center justify-center gap-2 py-2.5 rounded-button border border-border text-small font-medium text-text-primary hover:bg-bg-primary">
                 {detail.revealed ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 {detail.revealed ? '민감정보 다시 가리기' : '민감정보 보기 (열람 기록이 남습니다)'}
               </button>
@@ -277,9 +301,8 @@ export default function InternetApplications() {
                 </button>
               </div>
             </div>
-          </aside>
-        </div>
-      )}
+        )}
+      </Sheet>
     </>
   )
 }
@@ -297,7 +320,7 @@ function Item({ k, v, sensitive }: { k: string; v: unknown; sensitive?: boolean 
   const text = v === null || v === undefined || v === '' ? null : String(v)
   return (
     <div className="flex gap-3">
-      <dt className="w-28 shrink-0 text-text-secondary">{k}</dt>
+      <dt className="w-24 md:w-28 shrink-0 text-text-secondary">{k}</dt>
       <dd className={`break-all ${sensitive ? 'font-mono' : ''} text-text-primary`}>{text ?? <span className="text-text-tertiary">-</span>}</dd>
     </div>
   )

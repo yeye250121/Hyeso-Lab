@@ -189,17 +189,24 @@ export default function LibraryShell({ activeId }: { activeId: string | null }) 
 
   return (
     <div className="lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-6 lg:items-start">
-      {/* 모바일: 트리 토글 */}
-      <div className="lg:hidden mb-3">
-        <button type="button" onClick={() => setTreeOpenMobile((v) => !v)} className="flex items-center gap-2 px-3 py-2 rounded-button bg-bg-card border border-border text-small text-text-primary">
-          <FolderTree className="w-4 h-4" /> {treeOpenMobile ? '목록 닫기' : '문서 목록'}
-        </button>
-        {treeOpenMobile && <div className="mt-2 rounded-card bg-bg-card p-3 max-h-[60vh] flex flex-col">{sidebar}</div>}
-      </div>
+      {/* 모바일: 문서를 안 열었으면 목록이 곧 본문, 열었으면 위에 토글 버튼 */}
+      {activeId ? (
+        <div className="lg:hidden mb-3">
+          <button type="button" onClick={() => setTreeOpenMobile((v) => !v)} data-testid="library-tree-toggle" className="flex items-center gap-2 h-10 px-3 rounded-button bg-bg-card border border-border text-small text-text-primary">
+            <FolderTree className="w-4 h-4" /> {treeOpenMobile ? '목록 닫기' : '문서 목록'}
+          </button>
+          {treeOpenMobile && <div className="mt-2 rounded-card bg-bg-card p-3 max-h-[60vh] flex flex-col">{sidebar}</div>}
+        </div>
+      ) : (
+        <div className="lg:hidden rounded-card bg-bg-card p-3 flex flex-col min-h-[50vh]" data-testid="library-tree-mobile">
+          <p className="px-1 pb-2 text-[17px] font-bold text-text-primary">교육자료 라이브러리</p>
+          {sidebar}
+        </div>
+      )}
 
       <aside className="hidden lg:flex flex-col rounded-card bg-bg-card p-3 sticky top-6 h-[calc(100vh-3rem)]">{sidebar}</aside>
 
-      <section className="min-w-0">
+      <section className={`min-w-0 ${activeId ? '' : 'hidden lg:block'}`}>
         {activeId ? (
           <DocView id={activeId} onChanged={loadTree} />
         ) : (

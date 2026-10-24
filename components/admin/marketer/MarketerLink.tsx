@@ -53,8 +53,8 @@ export default function MarketerLink() {
         <p className="mt-1 text-[13px] text-text-secondary">이 링크로 들어온 상담은 자동으로 내 실적으로 기록돼요.</p>
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_340px] gap-5 items-start">
-        <div className="space-y-5">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-5 items-start">
+        <div className="space-y-5 min-w-0">
           <section className="rounded-2xl bg-bg-card p-5">
             <p className="text-[15px] font-semibold text-text-primary">내 링크</p>
             <div className="mt-3 flex items-center gap-2">
@@ -63,7 +63,7 @@ export default function MarketerLink() {
                 {copied === 'link' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />} {copied === 'link' ? '복사됨' : '복사'}
               </button>
             </div>
-            <p className="mt-2 text-[12px] text-text-tertiary">서비스를 정해서 보내려면 뒤에 <code>?service=internet</code> 또는 <code>?service=electronics</code> 를 붙이세요.</p>
+            <p className="mt-2 text-[12px] text-text-tertiary break-all">서비스를 정해서 보내려면 뒤에 <code>?service=internet</code> 또는 <code>?service=electronics</code> 를 붙이세요.</p>
           </section>
 
           <section className="rounded-2xl bg-bg-card p-5">
@@ -75,7 +75,7 @@ export default function MarketerLink() {
               {TEMPLATES.map((t) => {
                 const text = t.body.replace('{link}', link)
                 return (
-                  <div key={t.title} className="rounded-xl bg-bg-primary p-4 flex gap-4 items-start">
+                  <div key={t.title} className="rounded-xl bg-bg-primary p-4 flex gap-3 md:gap-4 items-start min-w-0">
                     <div className="flex-1 min-w-0">
                       <p className="text-[13px] font-semibold text-text-primary">{t.title}</p>
                       <p className="mt-1.5 text-[12px] text-text-secondary whitespace-pre-line leading-relaxed break-all">{text}</p>
@@ -91,7 +91,7 @@ export default function MarketerLink() {
         </div>
 
         {/* 고객이 보게 될 화면 */}
-        <aside className="rounded-2xl bg-bg-card p-4">
+        <aside className="rounded-2xl bg-bg-card p-4 min-w-0 overflow-hidden">
           <div className="flex items-center justify-between">
             <p className="text-[13px] font-semibold text-text-primary">고객이 보는 화면</p>
             <a href={link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[12px] text-text-secondary hover:text-text-primary">열어보기 <ExternalLink className="w-3.5 h-3.5" /></a>

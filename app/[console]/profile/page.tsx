@@ -131,7 +131,7 @@ export default function AdminProfilePage() {
         {loading ? (
           <p className="text-small text-text-secondary">불러오는 중…</p>
         ) : (
-          <div className="rounded-2xl bg-bg-card border border-border p-6 space-y-6">
+          <div className="rounded-2xl bg-bg-card border border-border p-5 md:p-6 space-y-6">
             <div className="flex items-center gap-5">
               <Avatar name={nickname || loginId} url={avatarUrl} size={88} />
               <div className="space-y-2">
@@ -172,7 +172,7 @@ export default function AdminProfilePage() {
                   onChange={(e) => setNickname(e.target.value)}
                   maxLength={20}
                   data-testid="profile-nickname"
-                  className="flex-1 px-4 py-2.5 rounded-button bg-bg-primary border border-border text-body text-text-primary focus:outline-none focus:border-action-primary"
+                  className="flex-1 min-w-0 px-4 py-2.5 rounded-button bg-bg-primary border border-border text-body text-text-primary focus:outline-none focus:border-action-primary"
                 />
                 <button
                   type="button"
@@ -193,7 +193,7 @@ export default function AdminProfilePage() {
 
         {!loading && (
           <form
-            className="rounded-2xl bg-bg-card border border-border p-6 space-y-3"
+            className="rounded-2xl bg-bg-card border border-border p-5 md:p-6 space-y-3"
             onSubmit={(e) => {
               e.preventDefault()
               changePassword()

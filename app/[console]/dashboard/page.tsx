@@ -53,9 +53,9 @@ export default function DashboardPage() {
           <Card href={cp('/rental-products')} icon={stats.products.withoutImage ? ImageOff : Package} tone="purple" label="판매 중 렌탈 상품" value={stats.products.active} sub={`사진 없음 ${stats.products.withoutImage}개 · 판매 중지 ${stats.products.inactive}개`} />
         </div>
 
-        <div className="grid xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 [&>*]:min-w-0">
           {/* 최근 7일 유입 */}
-          <section className="bg-bg-card rounded-card p-6">
+          <section className="bg-bg-card rounded-card p-5 md:p-6">
             <h2 className="text-title text-text-primary mb-5">최근 7일 상담 신청</h2>
             <div className="flex items-end gap-2 h-36">
               {stats.leads.daily.map((d) => (
@@ -69,7 +69,7 @@ export default function DashboardPage() {
           </section>
 
           {/* 최근 신청 */}
-          <section className="bg-bg-card rounded-card p-6 xl:col-span-2">
+          <section className="bg-bg-card rounded-card p-5 md:p-6 xl:col-span-2">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-title text-text-primary">최근 상담 신청</h2>
               <Link href={cp('/leads')} className="text-small text-action-primary">전체 보기</Link>
@@ -81,13 +81,25 @@ export default function DashboardPage() {
                 {stats.recentLeads.map((l) => {
                   const st = LEAD_STATUS[l.status] ?? LEAD_STATUS.new
                   return (
-                    <li key={l.id} className="flex items-center gap-3 py-2.5 text-small">
-                      <span className="w-20 shrink-0 text-text-secondary">{formatDateTime(l.submittedAt)}</span>
-                      <span className="w-16 shrink-0 text-text-primary">{SERVICE_LABEL[l.service] ?? l.service}</span>
-                      <span className="w-20 shrink-0 text-text-primary truncate">{l.name}</span>
-                      <span className="w-32 shrink-0 text-text-primary">{l.phone}</span>
-                      <span className="flex-1 min-w-0 truncate text-text-secondary">{l.product ?? '상담 후 결정'}</span>
-                      <span className={`shrink-0 px-2 py-0.5 rounded-full text-xs font-medium ${st.cls}`}>{st.label}</span>
+                    <li key={l.id}>
+                      <Link href={cp('/leads')} className="flex items-center gap-3 py-2.5 text-small">
+                        {/* 모바일: 두 줄 */}
+                        <div className="md:hidden min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-text-primary truncate">{l.name || '이름 미입력'}</span>
+                            <span className="shrink-0 text-xs text-text-secondary">{SERVICE_LABEL[l.service] ?? l.service}</span>
+                            <span className={`ml-auto shrink-0 px-2 py-0.5 rounded-full text-xs font-medium ${st.cls}`}>{st.label}</span>
+                          </div>
+                          <p className="mt-0.5 text-xs text-text-tertiary truncate">{formatDateTime(l.submittedAt)} · {l.phone} · {l.product ?? '상담 후 결정'}</p>
+                        </div>
+                        {/* 데스크톱: 한 줄 */}
+                        <span className="hidden md:inline w-20 shrink-0 text-text-secondary">{formatDateTime(l.submittedAt)}</span>
+                        <span className="hidden md:inline w-16 shrink-0 text-text-primary">{SERVICE_LABEL[l.service] ?? l.service}</span>
+                        <span className="hidden md:inline w-20 shrink-0 text-text-primary truncate">{l.name}</span>
+                        <span className="hidden md:inline w-32 shrink-0 text-text-primary">{l.phone}</span>
+                        <span className="hidden md:inline flex-1 min-w-0 truncate text-text-secondary">{l.product ?? '상담 후 결정'}</span>
+                        <span className={`hidden md:inline shrink-0 px-2 py-0.5 rounded-full text-xs font-medium ${st.cls}`}>{st.label}</span>
+                      </Link>
                     </li>
                   )
                 })}
@@ -109,7 +121,7 @@ const TONES: Record<string, string> = {
 
 function Card({ href, icon: Icon, tone, label, value, sub }: { href: string; icon: typeof Package; tone: string; label: string; value: number; sub: string }) {
   return (
-    <Link href={href} className="bg-bg-card rounded-card p-6 hover:shadow-md transition-shadow">
+    <Link href={href} className="bg-bg-card rounded-card p-5 md:p-6 hover:shadow-md transition-shadow">
       <div className="flex items-center gap-4">
         <div className={`w-12 h-12 rounded-full flex items-center justify-center ${TONES[tone]}`}>
           <Icon className="w-6 h-6" />
@@ -119,7 +131,7 @@ function Card({ href, icon: Icon, tone, label, value, sub }: { href: string; ico
           <p className="text-headline text-text-primary">{value.toLocaleString()}</p>
         </div>
       </div>
-      <p className="mt-3 text-xs text-text-secondary truncate">{sub}</p>
+      <p className="mt-3 text-xs text-text-secondary md:truncate">{sub}</p>
     </Link>
   )
 }
