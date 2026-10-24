@@ -526,3 +526,33 @@ body {
 }
 .landing-marquee { animation: landingMarquee var(--marquee-duration, 36s) linear infinite; }
 .landing-marquee.is-paused { animation-play-state: paused; }
+/* 지원금 확인하기: 토스 포인트 연출. 배지가 크게 튀어나왔다가 제자리, 색종이가 사방으로 터지고 링이 퍼진다 */
+@keyframes landingBadge {
+  0% { transform: scale(0.2) translateY(10px); opacity: 0; }
+  35% { transform: scale(1.45) translateY(-10px); opacity: 1; }
+  55% { transform: scale(0.92) translateY(2px); }
+  75% { transform: scale(1.06) translateY(-1px); }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+@keyframes landingConfetti {
+  0% { transform: translate(0, 0) rotate(0deg) scale(0.4); opacity: 0; }
+  12% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translate(var(--cx), calc(var(--cy) + 14px)) rotate(var(--cr)) scale(1); opacity: 0; }
+}
+@keyframes landingRing {
+  0% { transform: scale(0.4); opacity: 0.55; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+@keyframes landingRowFlash {
+  0% { background-color: #fff1f5; }
+  100% { background-color: #ffffff; }
+}
+@keyframes landingButtonOut {
+  to { transform: scale(0.6); opacity: 0; }
+}
+.landing-badge { animation: landingBadge 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.landing-confetti { animation: landingConfetti 0.95s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+.landing-ring { animation: landingRing 0.7s ease-out both; }
+.landing-row-flash { animation: landingRowFlash 1.1s ease-out both; }
+.landing-button-out { animation: landingButtonOut 0.18s ease-in both; }

@@ -376,13 +376,29 @@ function CompareChart() {
   )
 }
 
-// 통신사별 최대 지원금. 줄마다 "확인하기" 를 누르면 금액이 뿅 하고 나타난다(반짝이 6개와 함께).
-const SPARKS = [
-  { x: -18, y: -14 }, { x: 16, y: -16 }, { x: 22, y: 4 }, { x: -22, y: 6 }, { x: 6, y: 18 }, { x: -8, y: 16 },
-]
+// 통신사별 최대 지원금. 줄마다 "확인하기" 를 누르면 배지가 크게 튀어나오고 색종이가 터진다(토스 포인트 연출).
+const CONFETTI = Array.from({ length: 16 }, (_, i) => {
+  const angle = (i / 16) * Math.PI * 2 + (i % 2 ? 0.25 : 0)
+  const dist = 34 + (i % 4) * 11
+  return {
+    x: Math.round(Math.cos(angle) * dist),
+    y: Math.round(Math.sin(angle) * dist * 0.8),
+    r: (i * 47) % 360,
+    delay: (i % 5) * 25,
+    color: ['#ff8fab', '#ffd166', '#6fb1ff', '#7ee2b8', '#ff7096', '#c9a7ff'][i % 6],
+    shape: i % 3, // 0 원, 1 네모, 2 막대
+    size: 5 + (i % 3) * 2,
+  }
+})
 function GiftTable({ carriers }: { carriers: Carrier[] }) {
   const [revealed, setRevealed] = useState<Record<number, boolean>>({})
+  const [leaving, setLeaving] = useState<Record<number, boolean>>({})
   const allRevealed = carriers.every((_, i) => revealed[i])
+  const reveal = (i: number) => {
+    if (revealed[i] || leaving[i]) return
+    setLeaving((l) => ({ ...l, [i]: true }))
+    setTimeout(() => setRevealed((r) => ({ ...r, [i]: true })), 160)
+  }
 
   return (
     <section className="bg-[#f9fafb] px-6 py-10" data-testid="landing-gifts">
@@ -392,41 +408,49 @@ function GiftTable({ carriers }: { carriers: Carrier[] }) {
           <p className="mt-1 text-[13px] text-[#8b95a1]">눌러서 확인해 보세요. 지금 정책표 기준이에요.</p>
         </div>
         {!allRevealed && (
-          <button type="button" onClick={() => setRevealed(Object.fromEntries(carriers.map((_, i) => [i, true])))} className="shrink-0 text-[12px] font-medium text-[#8b95a1] underline underline-offset-2" data-testid="landing-gift-reveal-all">
+          <button type="button" onClick={() => carriers.forEach((_, i) => setTimeout(() => reveal(i), i * 140))} className="shrink-0 text-[12px] font-medium text-[#8b95a1] underline underline-offset-2" data-testid="landing-gift-reveal-all">
             전부 보기
           </button>
         )}
       </div>
       <ul className="mt-4 rounded-2xl bg-white divide-y divide-[#f2f4f6] shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
         {carriers.map((c, i) => (
-          <li key={c.name} className="flex items-center justify-between px-4 h-[52px]">
+          <li key={c.name} className={`relative flex items-center justify-between px-4 h-[56px] ${revealed[i] ? 'landing-row-flash' : ''}`}>
             <span className="text-[14px] font-medium text-[#333d4b]">{c.name}</span>
-            <span className="relative inline-flex items-baseline gap-1 justify-end">
+            <span className="relative inline-flex items-center justify-end min-w-[88px] h-9">
               {revealed[i] ? (
                 <>
-                  {SPARKS.map((s, j) => (
+                  {/* 링 + 색종이 */}
+                  <i aria-hidden className="landing-ring absolute right-8 top-1/2 -mt-3 w-6 h-6 rounded-full border-2 border-[var(--action-primary)]" />
+                  {CONFETTI.map((p, j) => (
                     <i
                       key={j}
                       aria-hidden
-                      className="landing-spark absolute right-6 top-1/2 w-1.5 h-1.5 rounded-full bg-[var(--action-primary)]"
-                      style={{ ['--sx' as string]: `${s.x}px`, ['--sy' as string]: `${s.y}px`, animationDelay: '80ms' }}
+                      className="landing-confetti absolute right-8 top-1/2"
+                      style={{
+                        ['--cx' as string]: `${p.x}px`,
+                        ['--cy' as string]: `${p.y}px`,
+                        ['--cr' as string]: `${p.r}deg`,
+                        animationDelay: `${p.delay}ms`,
+                        width: p.shape === 2 ? 3 : p.size,
+                        height: p.shape === 2 ? p.size + 4 : p.size,
+                        borderRadius: p.shape === 0 ? '50%' : 2,
+                        background: p.color,
+                      }}
                     />
                   ))}
-                  <span className="landing-pop text-[15px] font-semibold tabular-nums text-[#191f28]" data-testid="landing-gift-amount">
-                    {man(c.gift)}
+                  {/* 금액 배지: 크게 튀어나왔다가 제자리 */}
+                  <span className="landing-badge relative inline-flex items-baseline gap-1 h-9 px-3 rounded-full bg-[var(--action-primary)] text-white shadow-[0_6px_18px_rgba(255,143,171,0.45)]" data-testid="landing-gift-amount">
+                    <span className="text-[15px] font-bold tabular-nums leading-9">{man(c.gift)}</span>
+                    {c.voucher > 0 && <span className="text-[11px] font-medium opacity-90">+ 상품권 {man(c.voucher)}</span>}
                   </span>
-                  {c.voucher > 0 && (
-                    <span className="landing-pop text-[11px] font-medium text-[#8b95a1]" style={{ animationDelay: '120ms' }}>
-                      + 상품권 {man(c.voucher)}
-                    </span>
-                  )}
                 </>
               ) : (
                 <button
                   type="button"
-                  onClick={() => setRevealed((r) => ({ ...r, [i]: true }))}
+                  onClick={() => reveal(i)}
                   data-testid="landing-gift-reveal"
-                  className="h-8 px-3.5 rounded-full bg-[#fff1f5] text-[13px] font-semibold text-[var(--action-primary)] active:scale-95 transition-transform"
+                  className={`h-8 px-3.5 rounded-full bg-[#fff1f5] text-[13px] font-semibold text-[var(--action-primary)] active:scale-95 transition-transform ${leaving[i] ? 'landing-button-out' : ''}`}
                 >
                   확인하기
                 </button>
