@@ -29,6 +29,8 @@ const bodySchema = z.object({
 
   referrerUrl: z.string().trim().max(500).nullable().optional(),
   marketerCode: z.string().trim().max(40).optional(),
+  /** 파트너 랜딩 1차 여과 답변: 처음(new) / 쓰는 중(existing) */
+  existingService: z.enum(['new', 'existing']).nullable().optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -124,6 +126,7 @@ export async function POST(request: NextRequest) {
         agreed_marketing: parsed.agreedMarketing,
         referrer_url: parsed.referrerUrl || null,
         marketer_code: marketerCode,
+        existing_service: parsed.existingService ?? null,
     }
 
     // 짧은 토큰은 유일해야 한다. 충돌(23505)하면 새로 뽑아 다시 넣는다.

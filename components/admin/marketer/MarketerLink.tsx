@@ -97,9 +97,9 @@ export default function MarketerLink() {
             <a href={link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[12px] text-text-secondary hover:text-text-primary">열어보기 <ExternalLink className="w-3.5 h-3.5" /></a>
           </div>
           <div className="mt-3 mx-auto w-[260px] rounded-[28px] border-[6px] border-[#1b1d21] bg-white overflow-hidden shadow-lg">
-            <iframe title="상담 신청 미리보기" src="/apply?service=electronics" className="w-[390px] h-[640px] origin-top-left pointer-events-none" style={{ transform: 'scale(0.6385)', marginBottom: '-231px', marginRight: '-141px' }} />
+            <iframe title="상담 신청 미리보기" src={code ? `/m/${code}?preview=1` : '/apply'} className="w-[390px] h-[640px] origin-top-left pointer-events-none" style={{ transform: 'scale(0.6385)', marginBottom: '-231px', marginRight: '-141px' }} />
           </div>
-          <p className="mt-3 text-[11px] text-text-tertiary text-center">실제 링크를 열면 이 화면이 뜨고, 접수 시 내 코드가 함께 저장돼요.</p>
+          <p className="mt-3 text-[11px] text-text-tertiary text-center">실제 링크를 열면 이 랜딩이 뜨고, 접수 시 내 코드가 함께 저장돼요.</p>
         </aside>
       </div>
     </div>

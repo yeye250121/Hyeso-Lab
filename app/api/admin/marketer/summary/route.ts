@@ -18,6 +18,9 @@ export async function GET(request: NextRequest) {
     if (error) throw error
     const rows = data ?? []
     const now = new Date()
+    // 랜딩 방문(이번 달·전체). 실패해도 현황은 보여준다
+    const views = await getSupabaseAdmin().from('landing_views').select('created_at').eq('marketer_code', admin.uniqueCode).order('created_at', { ascending: false }).limit(5000)
+    const viewRows = views.data ?? []
     const kst = new Date(now.getTime() + 9 * 3600 * 1000)
     const monthStart = new Date(Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth(), 1) - 9 * 3600 * 1000)
     const thisMonth = rows.filter((r) => new Date(r.submitted_at) >= monthStart)
@@ -34,8 +37,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       code: admin.uniqueCode,
-      month: { total: thisMonth.length, new: count(thisMonth, 'new'), contacted: count(thisMonth, 'contacted'), applied: count(thisMonth, 'applied'), closed: count(thisMonth, 'closed') },
-      all: { total: rows.length, applied: count(rows, 'applied'), closed: count(rows, 'closed') },
+      month: { total: thisMonth.length, new: count(thisMonth, 'new'), contacted: count(thisMonth, 'contacted'), applied: count(thisMonth, 'applied'), closed: count(thisMonth, 'closed'), views: viewRows.filter((v) => new Date(v.created_at) >= monthStart).length },
+      all: { total: rows.length, applied: count(rows, 'applied'), closed: count(rows, 'closed'), views: viewRows.length },
       weekly,
       recent: rows.slice(0, 5).map((r) => ({ id: r.id, service: r.service, status: r.status, name: maskName(r.applicant_name), hasApplication: !!r.application_id, submittedAt: r.submitted_at })),
     })

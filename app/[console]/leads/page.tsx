@@ -33,6 +33,7 @@ interface Lead {
   applicationId: string | null
   statementSentAt: string | null
   giftAmount: number | null
+  existingService: 'new' | 'existing' | null
   submittedAt: string
 }
 
@@ -170,6 +171,7 @@ function AdminLeadsPage() {
                   <div className="flex items-center gap-2">
                     <span className="text-[15px] font-semibold text-text-primary truncate">{l.name || <span className="text-text-tertiary font-normal">이름 미입력</span>}</span>
                     <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-bg-primary text-[11px] text-text-secondary">{SERVICE_LABEL[l.service] ?? l.service}</span>
+                    {l.existingService && <span className={`shrink-0 px-1.5 py-0.5 rounded-md text-[11px] font-medium ${l.existingService === 'existing' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>{l.existingService === 'existing' ? '기존 이용' : '신규'}</span>}
                     <ChevronRight className="ml-auto w-4 h-4 text-text-tertiary shrink-0" />
                   </div>
                   <p className="mt-1 text-[13px] text-text-primary truncate">
@@ -308,6 +310,7 @@ function LeadDetail({
       <dl className="space-y-1.5 text-small">
         <Row k="모델코드" v={l.modelCode} />
         <Row k="예상 월 렌탈료" v={l.monthlyFee ? `${l.monthlyFee.toLocaleString()}원` : null} />
+        <Row k="이용 여부" v={l.existingService === 'existing' ? '기존 이용 중 (고객 답변)' : l.existingService === 'new' ? '신규 (고객 답변)' : null} />
         <Row k="마케팅 수신" v={l.agreedMarketing ? '동의' : '미동의'} />
         <div className="flex gap-3">
           <dt className="w-24 md:w-28 shrink-0 text-text-secondary">알림톡</dt>

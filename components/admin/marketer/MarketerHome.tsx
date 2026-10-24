@@ -11,8 +11,8 @@ import { useAuthStore } from '@/lib/admin/store'
 // 마케터 홈 = 내 성과판. 토스플레이스 파트너 홈(프로모션·설치 현황)을 우리 식으로 옮긴 것.
 type Summary = {
   code: string
-  month: { total: number; new: number; contacted: number; applied: number; closed: number }
-  all: { total: number; applied: number; closed: number }
+  month: { total: number; new: number; contacted: number; applied: number; closed: number; views?: number }
+  all: { total: number; applied: number; closed: number; views?: number }
   weekly: { label: string; count: number }[]
   recent: { id: string; service: string; status: string; name: string; hasApplication: boolean; submittedAt: string }[]
 }
@@ -65,6 +65,11 @@ export default function MarketerHome() {
           <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-action-primary"><Sparkles className="w-3.5 h-3.5" /> 내 상담 링크</span>
           <p className="mt-2 text-[17px] font-bold text-text-primary leading-snug">링크로 들어온 상담은<br />자동으로 내 실적이 돼요</p>
           <p className="mt-1.5 text-[13px] text-text-secondary">블로그·SNS 글에 이 링크만 넣으면 돼요.</p>
+          {data?.month.views !== undefined && (
+            <p className="mt-2 text-[13px] text-text-primary" data-testid="marketer-views">
+              이번 달 링크 방문 <span className="font-bold tabular-nums">{data.month.views}</span>회 → 접수 <span className="font-bold tabular-nums">{data.month.total}</span>건
+            </p>
+          )}
           <Link href={cp('/link')} className="mt-auto inline-flex items-center justify-center gap-1.5 h-11 rounded-xl bg-action-primary text-white text-[14px] font-semibold hover:bg-action-primary-hover">
             <Link2 className="w-4 h-4" /> 링크 복사하러 가기
           </Link>

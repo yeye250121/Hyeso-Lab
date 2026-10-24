@@ -81,6 +81,13 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const [, first, second] = pathname.split('/')
 
+  // 파트너 랜딩(/m/<코드>): 코드를 30일 쿠키로 남기고 그대로 보여준다. 이후 /apply 등으로 가도 실적이 이어진다
+  if (first === 'm' && second) {
+    const res = NextResponse.next()
+    res.cookies.set('hl_m', second.slice(0, 40), { path: '/', maxAge: 60 * 60 * 24 * 30, sameSite: 'lax' })
+    return res
+  }
+
   // 로그인·가입 신청은 누구나. 예전 초대키 가입 주소는 가입 신청으로 보낸다
   if (pathname.startsWith('/admin/register')) {
     return NextResponse.redirect(new URL('/partners/register', request.url))
@@ -118,5 +125,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/owner/:path*', '/admin/:path*', '/partners/:path*'],
+  matcher: ['/owner/:path*', '/admin/:path*', '/partners/:path*', '/m/:path*'],
 }

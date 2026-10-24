@@ -130,7 +130,10 @@ export function buildLeadStatement(l: Row): string {
     '■ 희망 상품',
     productLines(snap, l.contract_months, l.care_type),
     '',
-    lines([['사은품', giftText(l.gift_amount)]]),
+    lines([
+      ['사은품', giftText(l.gift_amount)],
+      ['이용 여부', l.existing_service === 'existing' ? '기존 이용 중(고객 답변)' : l.existing_service === 'new' ? '신규(고객 답변)' : '미확인'],
+    ]),
     '',
     '※ 신청서 미작성 고객입니다. 렌탈 신규/기존 여부, 설치 주소 등은 통화로 확인 부탁드립니다.',
   ].join('\n')
