@@ -18,9 +18,9 @@ export type GiftCase = { name: string; region: string | null; product: string; a
 type Catalog = { brands: string[]; categories: string[]; heroImages: string[]; productCount: number }
 
 const LOGO = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso.png'
-const SERVICES: { key: LandingService; label: string; desc: string }[] = [
-  { key: 'internet', label: '인터넷·TV', desc: 'KT · SK · LG U+' },
-  { key: 'electronics', label: '가전렌탈', desc: '정수기 · 비데 · 공기청정기' },
+const SERVICES: { key: LandingService; label: string }[] = [
+  { key: 'internet', label: '인터넷·TV' },
+  { key: 'electronics', label: '가전렌탈' },
 ]
 const won = (n: number) => `${n.toLocaleString('ko-KR')}원`
 const man = (n: number) => (n % 10000 === 0 ? `${n / 10000}만원` : won(n))
@@ -103,7 +103,7 @@ export default function PartnerLanding({
 
   const done = doneId !== null
   const applicationHref = service === 'internet' ? `/internet/application?lead=${doneId}` : `/electronics/application?lead=${doneId}`
-  const chip = (active: boolean) => `h-16 rounded-2xl text-left px-4 transition-colors ${active ? 'bg-[var(--action-primary)]/10 ring-[1.5px] ring-[var(--action-primary)]' : 'bg-[#f2f4f6] hover:bg-[#eceef1]'}`
+  const chip = (active: boolean) => `h-14 rounded-2xl text-center px-4 transition-colors ${active ? 'bg-[var(--action-primary)]/10 ring-[1.5px] ring-[var(--action-primary)]' : 'bg-[#f2f4f6] hover:bg-[#eceef1]'}`
 
   return (
     <div className="min-h-screen bg-[#f2f4f6] text-[#191f28]" data-testid="partner-landing">
@@ -113,12 +113,12 @@ export default function PartnerLanding({
           done={done}
           testId="landing-done"
           caption="접수 완료"
-          title="혜택연구소 이름으로 전화드릴게요"
+          title="혜택연구소에서 전화 드릴게요"
           description={
             <p>
-              <span className="font-semibold text-[#333d4b]">{phone}</span> 로 한 번만 전화드려요.
+              <span className="font-semibold text-[#333d4b]">{phone}</span> 로 전화 드려요.
               <br />
-              카카오톡으로 신청서 링크도 보내드렸어요.
+              카카오톡으로 신청서 링크도 보냈어요.
             </p>
           }
           actions={
@@ -140,7 +140,7 @@ export default function PartnerLanding({
       </div>
 
       {/* 히어로 */}
-      <section className="px-6 pt-10 pb-9 text-center">
+      <section className="px-6 pt-14 pb-16 text-center">
         <Image src={LOGO} alt="혜택연구소" width={720} height={264} priority className="h-6 w-auto mx-auto" />
         <p className="mt-6 text-[16px] font-medium text-[#8b95a1]">혜소보다 더 주면</p>
         <p className="mt-1 leading-none">
@@ -160,59 +160,57 @@ export default function PartnerLanding({
       </section>
 
       {/* 왜 가능한가: 광고 모델을 쓰지 않는다 (연회색 섹션) */}
-      <section className="bg-[#f9fafb] px-6 py-10" data-testid="landing-why">
+      <section className="bg-[#f9fafb] px-6 py-16" data-testid="landing-why">
         <p className="text-[12px] font-medium text-[var(--action-primary)]">어떻게 가능할까요?</p>
         <h2 className="mt-1.5 text-[22px] leading-[1.35] font-semibold tracking-[-0.02em] text-[#191f28]">
           광고 모델을 쓰지 않아요.
         </h2>
         <p className="mt-3 text-[14px] leading-relaxed text-[#6b7684]">
-          연예인 광고, TV 광고에 들어갈 돈을 <span className="text-[#333d4b] font-medium">전부 고객 지원금으로</span> 돌려드려요.
+          광고에 쓸 돈을 <span className="text-[#333d4b] font-medium">전부 고객에게</span> 돌려드려요.
           <br />
-          그래서 더 줄 수 있고, 더 주는 곳이 있으면 차액까지 얹어드려요.
+          그래서 더 드릴 수 있어요.
         </p>
 
         <CompareChart />
 
-        <p className="mt-5 text-[12px] leading-relaxed text-[#8b95a1]">월 요금은 어디서 가입해도 같아요. 다른 건 사은품뿐이에요.</p>
+        <p className="mt-5 text-[12px] text-[#8b95a1]">월 요금은 어디나 같아요. 다른 건 사은품뿐.</p>
       </section>
 
       {/* 폼 */}
-      <section ref={formRef} id="form" className="px-6 pt-10 pb-8 scroll-mt-10" data-testid="landing-form">
+      <section ref={formRef} id="form" className="px-6 py-16 scroll-mt-10" data-testid="landing-form">
         <h2 className="text-[20px] font-semibold tracking-[-0.02em]">내 사은품 확인하기</h2>
-        <p className="mt-1 text-[14px] text-[#8b95a1]">번호만 남겨주시면 전화드려요.</p>
+        <p className="mt-1 text-[14px] text-[#8b95a1]">번호만 남기면 혜택연구소에서 전화 드려요.</p>
 
-        <p className="mt-6 text-[13px] font-medium text-[#6b7684]">어떤 혜택을 찾으세요?</p>
+        <p className="mt-8 text-[13px] font-medium text-[#6b7684]">찾는 혜택</p>
         <div className="mt-2 grid grid-cols-2 gap-2">
           {SERVICES.map((s) => {
             const active = service === s.key
             return (
               <button key={s.key} type="button" onClick={() => setService(s.key)} data-testid={`landing-service-${s.key}`} className={chip(active)}>
                 <span className={`block text-[15px] font-semibold ${active ? 'text-[var(--action-primary)]' : 'text-[#333d4b]'}`}>{s.label}</span>
-                <span className="block mt-0.5 text-[12px] text-[#8b95a1]">{s.desc}</span>
               </button>
             )
           })}
         </div>
 
-        <p className="mt-5 text-[13px] font-medium text-[#6b7684]">지금 쓰고 있는 게 있나요?</p>
+        <p className="mt-5 text-[13px] font-medium text-[#6b7684]">지금 쓰는 게 있나요?</p>
         <div className="mt-2 grid grid-cols-2 gap-2">
           {(
             [
-              ['new', '처음이에요', '신규 가입 혜택'],
-              ['existing', '쓰는 중이에요', '약정 만료 · 이사 · 교체'],
+              ['new', '처음이에요'],
+              ['existing', '쓰는 중이에요'],
             ] as const
-          ).map(([k, label, desc]) => {
+          ).map(([k, label]) => {
             const active = existing === k
             return (
               <button key={k} type="button" onClick={() => setExisting(k)} data-testid={`landing-existing-${k}`} className={chip(active)}>
                 <span className={`block text-[15px] font-semibold ${active ? 'text-[var(--action-primary)]' : 'text-[#333d4b]'}`}>{label}</span>
-                <span className="block mt-0.5 text-[12px] text-[#8b95a1]">{desc}</span>
               </button>
             )
           })}
         </div>
 
-        <label className="block mt-5 text-[13px] font-medium text-[#6b7684]" htmlFor="landing-phone">휴대폰 번호</label>
+        <label className="sr-only" htmlFor="landing-phone">휴대폰 번호</label>
         <input
           id="landing-phone"
           type="tel"
@@ -220,9 +218,9 @@ export default function PartnerLanding({
           autoComplete="tel"
           value={phone}
           onChange={(e) => setPhone(formatPhone(e.target.value))}
-          placeholder="010-0000-0000"
+          placeholder="휴대폰 번호"
           data-testid="landing-phone"
-          className={`mt-2 w-full h-[52px] px-4 rounded-2xl bg-[#f2f4f6] text-[16px] font-medium tracking-wide placeholder:font-normal placeholder:text-[#b0b8c1] focus:outline-none focus:ring-[1.5px] ${touched && !isValidPhone(phone) ? 'ring-[1.5px] ring-[#f04452]' : 'focus:ring-[var(--action-primary)]'}`}
+          className={`mt-5 w-full h-[52px] px-4 rounded-2xl bg-[#f2f4f6] text-[16px] font-medium tracking-wide placeholder:font-normal placeholder:text-[#b0b8c1] focus:outline-none focus:ring-[1.5px] ${touched && !isValidPhone(phone) ? 'ring-[1.5px] ring-[#f04452]' : 'focus:ring-[var(--action-primary)]'}`}
         />
 
         {/* 동의 */}
@@ -261,7 +259,6 @@ export default function PartnerLanding({
         <button type="button" onClick={submit} disabled={submitting} data-testid="landing-submit" className={`mt-4 w-full h-[52px] rounded-2xl text-[16px] font-semibold text-white transition-colors flex items-center justify-center gap-2 ${canSubmit ? 'bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)]' : 'bg-[var(--action-primary)]/50'}`}>
           {submitting && <Loader2 className="w-5 h-5 animate-spin" />} 무료로 사은품 확인하기
         </button>
-        <p className="mt-3 text-center text-[12px] text-[#b0b8c1]">가입 강요 없음 · 전화 한 번으로 끝 · 설치 후 현금 지급</p>
       </section>
 
       {/* 사은품 표 (연회색 섹션, 금액은 보일 때 뿅) */}
@@ -274,13 +271,13 @@ export default function PartnerLanding({
       {cases.length > 0 && <CaseTicker cases={cases} />}
 
       {/* 절차 */}
-      <section className="px-6 py-10">
+      <section className="px-6 py-16">
         <h2 className="text-[18px] font-semibold tracking-[-0.02em]">이렇게 진행돼요</h2>
         <ol className="mt-4 space-y-2.5">
           {[
-            ['번호를 남겨요', '이름도 필요 없어요. 번호 하나면 돼요.'],
-            ['혜택연구소 이름으로 전화드려요', '조건 확인 후 사은품 금액을 먼저 확정해 드려요.'],
-            ['설치 후 현금으로 받아요', '설치 확인되면 정해진 금액이 계좌로 들어가요.'],
+            ['번호를 남겨요', '이름은 필요 없어요.'],
+            ['혜택연구소에서 전화 드려요', '사은품 금액을 먼저 확정해 드려요.'],
+            ['설치 후 현금으로 받아요', '정해진 금액이 계좌로 들어가요.'],
           ].map(([t, d], i) => (
             <li key={t} className="flex gap-3.5 rounded-2xl bg-[#f9fafb] px-4 py-4">
               <span className="w-6 h-6 shrink-0 rounded-full bg-[var(--action-primary)]/10 text-[var(--action-primary)] text-[12px] font-semibold flex items-center justify-center">{i + 1}</span>
@@ -401,11 +398,11 @@ function GiftTable({ carriers }: { carriers: Carrier[] }) {
   }
 
   return (
-    <section className="bg-[#f9fafb] px-6 py-10" data-testid="landing-gifts">
+    <section className="bg-[#f9fafb] px-6 py-16" data-testid="landing-gifts">
       <div className="flex items-end justify-between gap-3">
         <div>
           <h2 className="text-[18px] font-semibold tracking-[-0.02em]">통신사별 최대 지원금</h2>
-          <p className="mt-1 text-[13px] text-[#8b95a1]">눌러서 확인해 보세요. 지금 정책표 기준이에요.</p>
+          <p className="mt-1 text-[13px] text-[#8b95a1]">눌러서 확인해 보세요.</p>
         </div>
         {!allRevealed && (
           <button type="button" onClick={() => carriers.forEach((_, i) => setTimeout(() => reveal(i), i * 140))} className="shrink-0 text-[12px] font-medium text-[#8b95a1] underline underline-offset-2" data-testid="landing-gift-reveal-all">
@@ -459,7 +456,7 @@ function GiftTable({ carriers }: { carriers: Carrier[] }) {
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-[12px] text-[#b0b8c1]">가전렌탈은 제품·약정마다 달라 상담 때 금액을 먼저 확정해 알려드려요.</p>
+      <p className="mt-3 text-[12px] text-[#b0b8c1]">가전렌탈 사은품은 상담 때 알려드려요.</p>
     </section>
   )
 }
@@ -469,9 +466,9 @@ function RentalCatalog({ catalog }: { catalog: Catalog }) {
   const [open, setOpen] = useState(false)
   const visible = open ? catalog.categories : catalog.categories.slice(0, 8)
   return (
-    <section className="px-6 py-10" data-testid="landing-catalog">
+    <section className="px-6 py-16" data-testid="landing-catalog">
       <h2 className="text-[18px] font-semibold tracking-[-0.02em]">어떤 가전을 렌탈할 수 있나요?</h2>
-      <p className="mt-1 text-[13px] text-[#8b95a1]">정수기부터 생활가전까지, {catalog.productCount}종을 비교해요.</p>
+      <p className="mt-1 text-[13px] text-[#8b95a1]">{catalog.productCount}종을 비교해요.</p>
       {catalog.heroImages.length > 0 && (
         <div className="mt-5 flex items-end justify-center gap-4">
           {catalog.heroImages.map((src) => (
@@ -525,10 +522,10 @@ function CaseTicker({ cases }: { cases: GiftCase[] }) {
   }, [])
   const items = [...cases, ...cases] // 절반 이동으로 끊김 없이 이어진다
   return (
-    <section ref={ref} className="bg-[#f9fafb] py-10 overflow-hidden" data-testid="landing-cases">
+    <section ref={ref} className="bg-[#f9fafb] py-16 overflow-hidden" data-testid="landing-cases">
       <div className="px-6">
         <h2 className="text-[18px] font-semibold tracking-[-0.02em]">지원금 지급 사례</h2>
-        <p className="mt-1 text-[13px] text-[#8b95a1]">설치 확인 후 계좌로 들어간 금액이에요.</p>
+        <p className="mt-1 text-[13px] text-[#8b95a1]">설치 후 계좌로 들어간 금액이에요.</p>
       </div>
       <div className="mt-5" onTouchStart={() => setPaused(true)} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
         <ul className={`flex gap-3 w-max pl-6 ${started ? 'landing-marquee' : ''} ${paused ? 'is-paused' : ''}`} style={{ ['--marquee-duration' as string]: `${cases.length * 6}s` }}>
