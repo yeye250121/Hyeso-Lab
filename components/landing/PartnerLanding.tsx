@@ -103,7 +103,7 @@ export default function PartnerLanding({
 
   const done = doneId !== null
   const applicationHref = service === 'internet' ? `/internet/application?lead=${doneId}` : `/electronics/application?lead=${doneId}`
-  const chip = (active: boolean) => `h-14 rounded-2xl text-center px-4 transition-colors ${active ? 'bg-[var(--action-primary)]/10 ring-[1.5px] ring-[var(--action-primary)]' : 'bg-[#f2f4f6] hover:bg-[#eceef1]'}`
+  const chip = (active: boolean) => `h-14 rounded-2xl text-center px-4 transition-colors ${active ? 'bg-[#fff1f5] ring-[1.5px] ring-[var(--action-primary)]' : 'bg-[#f2f4f6] hover:bg-[#eceef1]'}`
 
   return (
     <div className="min-h-screen bg-[#f2f4f6] text-[#191f28]" data-testid="partner-landing">
@@ -256,7 +256,7 @@ export default function PartnerLanding({
         {touched && !canSubmit && <p className="mt-2 text-[13px] text-[#f04452]" data-testid="landing-error">{!service ? '찾는 혜택을 골라주세요.' : !existing ? '지금 쓰고 있는지 알려주세요.' : !isValidPhone(phone) ? '휴대폰 번호를 확인해주세요.' : '필수 약관에 동의해주세요.'}</p>}
         {error && <p className="mt-2 text-[13px] text-[#f04452]">{error}</p>}
 
-        <button type="button" onClick={submit} disabled={submitting} data-testid="landing-submit" className={`mt-4 w-full h-[52px] rounded-2xl text-[16px] font-semibold text-white transition-colors flex items-center justify-center gap-2 ${canSubmit ? 'bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)]' : 'bg-[var(--action-primary)]/50'}`}>
+        <button type="button" onClick={submit} disabled={submitting} data-testid="landing-submit" className={`mt-4 w-full h-[52px] rounded-2xl text-[16px] font-semibold text-white transition-colors flex items-center justify-center gap-2 ${canSubmit ? 'bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)]' : 'bg-[#ffc7d6]'}`}>
           {submitting && <Loader2 className="w-5 h-5 animate-spin" />} 무료로 사은품 확인하기
         </button>
       </section>
@@ -280,7 +280,7 @@ export default function PartnerLanding({
             ['설치 후 현금으로 받아요', '정해진 금액이 계좌로 들어가요.'],
           ].map(([t, d], i) => (
             <li key={t} className="flex gap-3.5 rounded-2xl bg-[#f9fafb] px-4 py-4">
-              <span className="w-6 h-6 shrink-0 rounded-full bg-[var(--action-primary)]/10 text-[var(--action-primary)] text-[12px] font-semibold flex items-center justify-center">{i + 1}</span>
+              <span className="w-6 h-6 shrink-0 rounded-full bg-[#fff1f5] text-[var(--action-primary)] text-[12px] font-semibold flex items-center justify-center">{i + 1}</span>
               <div>
                 <p className="text-[14px] font-medium text-[#333d4b]">{t}</p>
                 <p className="mt-0.5 text-[13px] text-[#8b95a1]">{d}</p>
