@@ -490,3 +490,18 @@ body {
 .library-doc .callout::before, .tiptap-editor .callout::before { content: '💡'; flex: 0 0 auto; }
 .library-doc .callout > div { flex: 1 1 auto; }
 .library-doc .callout p:last-child, .tiptap-editor .callout p:last-child { margin-bottom: 0; }
+
+/* 파트너 랜딩: 금액이 뿅 하고 나타나는 연출(토스 포인트 애니메이션 참고) */
+@keyframes landingPop {
+  0% { transform: scale(0.4) translateY(6px); opacity: 0; }
+  60% { transform: scale(1.12) translateY(-2px); opacity: 1; }
+  80% { transform: scale(0.96) translateY(0); }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+@keyframes landingSpark {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(var(--sx), var(--sy)) scale(0); opacity: 0; }
+}
+.landing-pop { animation: landingPop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.landing-spark { animation: landingSpark 0.7s ease-out both; }
