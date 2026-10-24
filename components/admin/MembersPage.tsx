@@ -60,12 +60,16 @@ export default function MembersPage() {
       className={`h-9 px-2.5 rounded-lg bg-bg-primary border border-border text-[13px] text-text-primary ${cls}`}
     />
   )
-  const notifyToggle = (m: Member) => (
+  // 인입 알림톡은 대표자·관리자만. 파트너스는 본인 상담 알림을 따로 받는다.
+  const notifyToggle = (m: Member) =>
+    m.role === 'marketer' ? (
+      <span className="text-[12px] text-text-tertiary">본인 건만 받음</span>
+    ) : (
     <label className="inline-flex items-center gap-2 cursor-pointer whitespace-nowrap">
       <input type="checkbox" checked={m.notifyLeads} onChange={(e) => patch(m.id, { notifyLeads: e.target.checked })} className="w-4 h-4 accent-[var(--action-primary)]" />
       <span className="text-[13px] text-text-secondary">인입 알림톡</span>
     </label>
-  )
+    )
   const statusBadge = (m: Member) => <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${(STATUS_LABEL[m.status] ?? STATUS_LABEL.active).cls}`}>{(STATUS_LABEL[m.status] ?? STATUS_LABEL.active).label}</span>
   const toggleActive = (m: Member) =>
     !m.isSelf && (

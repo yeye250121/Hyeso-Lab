@@ -99,6 +99,8 @@ export async function sendAdminNewLeadAlimtalk(lead: {
     .from('admin_users')
     .select('id, phone')
     .eq('notify_leads', true)
+    .in('role', ['owner', 'admin']) // 파트너스는 본인 건만 따로 받는다(notifyPartnerForLead)
+    .eq('status', 'active')
     .not('phone', 'is', null)
   if (error) {
     console.error('[Alimtalk] 관리자 조회 실패:', error.message)
