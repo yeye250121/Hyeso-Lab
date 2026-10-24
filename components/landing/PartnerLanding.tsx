@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Check, ChevronDown, Loader2, Phone } from 'lucide-react'
+import { Check, ChevronDown, Loader2, Pause, Phone, Play } from 'lucide-react'
 import { LEAD_AGREEMENTS, formatPhone, isValidPhone } from '@/components/shared/LeadForm'
 import SuccessOverlay from '@/components/shared/SuccessOverlay'
 import Footer from '@/components/shared/Footer'
@@ -14,6 +14,8 @@ import { pushMyLead } from '@/components/shared/localActivity'
 // 토스식: 흰/연회색 섹션을 번갈아 쓰고, 큰 숫자는 120% 하나, 분홍 CTA 하나. 글자는 작고 무게는 가볍게.
 export type LandingService = 'internet' | 'electronics'
 type Carrier = { name: string; gift: number; voucher: number }
+export type GiftCase = { name: string; region: string | null; product: string; amount: number; date: string }
+type Catalog = { brands: string[]; categories: string[]; heroImages: string[]; productCount: number }
 
 const LOGO = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso.png'
 const SERVICES: { key: LandingService; label: string; desc: string }[] = [
@@ -28,11 +30,17 @@ export default function PartnerLanding({
   initialService,
   maxGift,
   carriers,
+  catalog,
+  cases,
+  sampleCases,
 }: {
   code: string
   initialService: LandingService | null
   maxGift: number
   carriers: Carrier[]
+  catalog: Catalog
+  cases: GiftCase[]
+  sampleCases: boolean
 }) {
   const [service, setService] = useState<LandingService | null>(initialService)
   const [existing, setExisting] = useState<'new' | 'existing' | null>(null)
@@ -261,6 +269,12 @@ export default function PartnerLanding({
       {/* 사은품 표 (연회색 섹션, 금액은 보일 때 뿅) */}
       {carriers.length > 0 && <GiftTable carriers={carriers} />}
 
+      {/* 렌탈 가능한 가전 */}
+      <RentalCatalog catalog={catalog} />
+
+      {/* 지원금 지급 사례 (자동 롤링) */}
+      {cases.length > 0 && <CaseTicker cases={cases} sample={sampleCases} />}
+
       {/* 절차 */}
       <section className="px-6 py-10">
         <h2 className="text-[18px] font-semibold tracking-[-0.02em]">이렇게 진행돼요</h2>
@@ -424,6 +438,93 @@ function GiftTable({ carriers }: { carriers: Carrier[] }) {
         ))}
       </ul>
       <p className="mt-3 text-[12px] text-[#b0b8c1]">가전렌탈은 제품·약정마다 달라 상담 때 금액을 먼저 확정해 알려드려요.</p>
+    </section>
+  )
+}
+
+// 어떤 가전을 렌탈할 수 있는지: 대표 사진 3장 → 브랜드 격자 → 품목 두 줄(접기/펼치기)
+function RentalCatalog({ catalog }: { catalog: Catalog }) {
+  const [open, setOpen] = useState(false)
+  const visible = open ? catalog.categories : catalog.categories.slice(0, 8)
+  return (
+    <section className="px-6 py-10" data-testid="landing-catalog">
+      <h2 className="text-[18px] font-semibold tracking-[-0.02em]">어떤 가전을 렌탈할 수 있나요?</h2>
+      <p className="mt-1 text-[13px] text-[#8b95a1]">정수기부터 생활가전까지, {catalog.productCount}종을 비교해요.</p>
+      {catalog.heroImages.length > 0 && (
+        <div className="mt-5 flex items-end justify-center gap-4">
+          {catalog.heroImages.map((src) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img key={src} src={src} alt="" loading="lazy" className="h-[112px] w-[96px] object-contain" />
+          ))}
+        </div>
+      )}
+      {catalog.brands.length > 0 && (
+        <>
+          <p className="mt-7 text-[14px] font-medium text-[#333d4b]">함께하는 브랜드</p>
+          <ul className="mt-2.5 grid grid-cols-4 gap-y-3 rounded-2xl bg-[#f9fafb] px-3 py-4 text-center" data-testid="landing-brands">
+            {catalog.brands.map((b) => (
+              <li key={b} className="text-[13px] font-medium text-[#4e5968]">{b}</li>
+            ))}
+          </ul>
+        </>
+      )}
+      {catalog.categories.length > 0 && (
+        <>
+          <p className="mt-7 text-[14px] font-medium text-[#333d4b]">이런 품목을 상담할 수 있어요</p>
+          <ul className="mt-2.5 grid grid-cols-2 gap-y-2.5 gap-x-4" data-testid="landing-categories">
+            {visible.map((c) => (
+              <li key={c} className="flex items-center gap-1.5 text-[13px] text-[#4e5968]">
+                <span className="w-1 h-1 rounded-full bg-[#b0b8c1]" /> {c}
+              </li>
+            ))}
+          </ul>
+          {catalog.categories.length > 8 && (
+            <button type="button" onClick={() => setOpen((v) => !v)} className="mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-[var(--action-primary)]" data-testid="landing-categories-toggle">
+              {open ? '접기' : '전체 품목 보기'} <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+            </button>
+          )}
+        </>
+      )}
+    </section>
+  )
+}
+
+// 지원금 지급 사례. 카드가 옆으로 계속 흐르고(모요 후기처럼), 멈춤 버튼과 손가락 터치로 멈춘다.
+function CaseTicker({ cases, sample }: { cases: GiftCase[]; sample: boolean }) {
+  const [paused, setPaused] = useState(false)
+  const [started, setStarted] = useState(false) // 화면에 들어온 뒤부터 흐른다(처음 카드가 잘려 보이지 않게)
+  const ref = useRef<HTMLElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStarted(true); io.disconnect() } }, { threshold: 0.2 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  const items = [...cases, ...cases] // 절반 이동으로 끊김 없이 이어진다
+  return (
+    <section ref={ref} className="bg-[#f9fafb] py-10 overflow-hidden" data-testid="landing-cases">
+      <div className="px-6 flex items-end justify-between gap-3">
+        <div>
+          <h2 className="text-[18px] font-semibold tracking-[-0.02em]">지원금 지급 사례</h2>
+          <p className="mt-1 text-[13px] text-[#8b95a1]">설치 확인 후 계좌로 들어간 금액이에요.{sample ? ' (예시)' : ''}</p>
+        </div>
+        <button type="button" onClick={() => setPaused((v) => !v)} className="shrink-0 inline-flex items-center gap-1 text-[12px] text-[#8b95a1]" data-testid="landing-cases-toggle">
+          {paused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />} {paused ? '자동 넘김' : '자동 넘김 멈춤'}
+        </button>
+      </div>
+      <div className="mt-5" onTouchStart={() => setPaused(true)} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+        <ul className={`flex gap-3 w-max pl-6 ${started ? 'landing-marquee' : ''} ${paused ? 'is-paused' : ''}`} style={{ ['--marquee-duration' as string]: `${cases.length * 6}s` }}>
+          {items.map((c, i) => (
+            <li key={i} className="w-[220px] shrink-0 rounded-2xl bg-white p-4 shadow-[0_2px_12px_rgba(0,0,0,0.03)]" data-testid="landing-case">
+              <p className="text-[12px] text-[#8b95a1]">{c.name}{c.region ? ` · ${c.region}` : ''}</p>
+              <p className="mt-1 text-[14px] font-medium text-[#333d4b] truncate">{c.product}</p>
+              <p className="mt-2.5 text-[18px] font-semibold tabular-nums text-[var(--action-primary)]">{c.amount.toLocaleString('ko-KR')}원</p>
+              <p className="mt-0.5 text-[11px] text-[#b0b8c1]">{c.date ? `${c.date.replace(/-/g, '.')} 지급` : '설치 후 지급'}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   )
 }
