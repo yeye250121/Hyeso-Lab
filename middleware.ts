@@ -81,8 +81,11 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const [, first, second] = pathname.split('/')
 
-  // 로그인·초대 가입은 누구나
-  if (pathname.startsWith('/admin/login') || pathname.startsWith('/admin/register') || pathname.startsWith('/partners/register')) {
+  // 로그인·가입 신청은 누구나. 예전 초대키 가입 주소는 가입 신청으로 보낸다
+  if (pathname.startsWith('/admin/register')) {
+    return NextResponse.redirect(new URL('/partners/register', request.url))
+  }
+  if (pathname.startsWith('/admin/login') || pathname.startsWith('/partners/register')) {
     return NextResponse.next()
   }
 

@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import api from '@/lib/admin/api'
 import Avatar from '@/components/admin/Avatar'
-import InviteKeyGenerator from '@/components/admin/InviteKeyGenerator'
 import { formatDateTime } from '@/components/admin/labels'
 
 // 구성원 관리(오너 전용). 역할·전화번호·인입 알림, 초대키 발급.
@@ -131,11 +130,8 @@ export default function MembersPage() {
         </section>
 
         <aside className="rounded-2xl bg-bg-card p-5">
-          <p className="text-[15px] font-semibold text-text-primary">관리자 초대</p>
-          <p className="mt-1 text-[12px] text-text-secondary">관리자는 초대키로 가입합니다(/admin/register, 1시간 유효). 파트너스는 초대키 없이 <code>/partners/register</code>에서 신청하고 위에서 승인하면 됩니다.</p>
-          <div className="mt-3">
-            <InviteKeyGenerator />
-          </div>
+          <p className="text-[15px] font-semibold text-text-primary">구성원 추가 방법</p>
+          <p className="mt-1 text-[12px] text-text-secondary leading-relaxed">모든 구성원은 <code>/partners/register</code>에서 파트너스로 가입 신청합니다. 위 목록에서 승인한 뒤, 역할을 관리자나 대표자로 바꾸면 해당 콘솔을 쓸 수 있어요.</p>
         </aside>
       </div>
     </div>
