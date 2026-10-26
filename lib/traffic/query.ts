@@ -17,8 +17,25 @@ export function rangeDays(days: number) {
   return { from, to, todayStart }
 }
 
-export async function trafficDaily(days: number, code: string | null = null): Promise<TrafficPoint[]> {
-  const { from, to } = rangeDays(days)
+export type Range = { from: Date; to: Date }
+
+/** YYYY-MM-DD(한국 날짜) 두 개 → 시작일 0시 ~ 종료일 다음날 0시(UTC 기준 Date). 잘못된 값이면 null */
+export function rangeFromDates(fromStr: string, toStr: string): Range | null {
+  const re = /^\d{4}-\d{2}-\d{2}$/
+  if (!re.test(fromStr) || !re.test(toStr)) return null
+  const from = new Date(`${fromStr}T00:00:00+09:00`)
+  const to = new Date(`${toStr}T00:00:00+09:00`)
+  if (isNaN(from.getTime()) || isNaN(to.getTime()) || to < from) return null
+  return { from, to: new Date(to.getTime() + 24 * 3600 * 1000) }
+}
+
+function resolveRange(r: number | Range): Range {
+  return typeof r === 'number' ? rangeDays(r) : r
+}
+
+export async function trafficDaily(range: number | Range, code: string | null = null): Promise<TrafficPoint[]> {
+  const { from, to } = resolveRange(range)
+  const days = Math.round((to.getTime() - from.getTime()) / (24 * 3600 * 1000))
   const { data, error } = await getSupabaseAdmin().rpc('traffic_daily', { p_from: from.toISOString(), p_to: to.toISOString(), p_code: code })
   if (error) throw error
   const byDay = new Map<string, { pageviews: number; visitors: number }>()
@@ -33,8 +50,8 @@ export async function trafficDaily(days: number, code: string | null = null): Pr
   return out
 }
 
-export async function trafficTop(days: number, dim: 'path' | 'referrer' | 'partner' | 'utm_source' | 'device', limit = 10, code: string | null = null): Promise<TrafficTop[]> {
-  const { from, to } = rangeDays(days)
+export async function trafficTop(range: number | Range, dim: 'path' | 'referrer' | 'partner' | 'utm_source' | 'device', limit = 10, code: string | null = null): Promise<TrafficTop[]> {
+  const { from, to } = resolveRange(range)
   const { data, error } = await getSupabaseAdmin().rpc('traffic_top', { p_from: from.toISOString(), p_to: to.toISOString(), p_dim: dim, p_limit: limit, p_code: code })
   if (error) throw error
   return ((data ?? []) as { key: string; pageviews: number; visitors: number }[]).map((r) => ({ key: r.key, pageviews: Number(r.pageviews), visitors: Number(r.visitors) }))

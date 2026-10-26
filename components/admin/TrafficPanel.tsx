@@ -11,15 +11,17 @@ type Data = { days: number; daily: ChartPoint[]; today: ChartPoint; totals: { pa
 
 export default function TrafficPanel() {
   const [open, setOpen] = useState(false) // 접힌 채로 시작. 펼칠 때 데이터를 받는다
-  const [days, setDays] = useState(30)
+  const [range, setRange] = useState(() => preset(30))
   const [data, setData] = useState<Data | null>(null)
   const [error, setError] = useState(false)
 
   useEffect(() => {
     if (!open) return
     setData(null)
-    api.get(`/admin/traffic?days=${days}`).then((r) => setData(r.data)).catch(() => setError(true))
-  }, [days, open])
+    setError(false)
+    api.get(`/admin/traffic?from=${range.from}&to=${range.to}`).then((r) => setData(r.data)).catch(() => setError(true))
+  }, [range, open])
+  const activePreset = PRESETS.find((p) => { const r = p.range(); return r.from === range.from && r.to === range.to })?.label ?? null
 
   const mobile = data?.devices.find((d) => d.key === 'mobile')?.pageviews ?? 0
   const mobileShare = data && data.totals.pageviews ? Math.round((mobile / data.totals.pageviews) * 100) : null
@@ -35,11 +37,17 @@ export default function TrafficPanel() {
       </button>
       {open && (
       <div className="px-5 md:px-6 pb-5 md:pb-6">
-      <div className="flex items-center justify-end gap-3">
-        <div className="flex gap-1 rounded-button bg-bg-primary p-0.5">
-          {[30, 90].map((d) => (
-            <button key={d} onClick={() => setDays(d)} className={`px-2.5 h-7 rounded-md text-[12px] font-medium ${days === d ? 'bg-bg-card text-text-primary shadow-sm' : 'text-text-secondary'}`} data-testid={`traffic-days-${d}`}>
-              {d}일
+      {/* 조회 기간: 달력 두 개 + 빠른 선택 */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-1.5 rounded-button bg-bg-primary px-2 h-9">
+          <input type="date" value={range.from} max={range.to} onChange={(e) => e.target.value && setRange((r) => ({ ...r, from: e.target.value }))} className="bg-transparent text-[13px] text-text-primary outline-none w-[118px]" data-testid="traffic-from" aria-label="시작일" />
+          <span className="text-text-tertiary text-[12px]">~</span>
+          <input type="date" value={range.to} min={range.from} max={kstToday()} onChange={(e) => e.target.value && setRange((r) => ({ ...r, to: e.target.value }))} className="bg-transparent text-[13px] text-text-primary outline-none w-[118px]" data-testid="traffic-to" aria-label="종료일" />
+        </div>
+        <div className="flex gap-1">
+          {PRESETS.map((p) => (
+            <button key={p.label} type="button" onClick={() => setRange(p.range())} className={`px-2.5 h-7 rounded-full text-[12px] font-medium ${activePreset === p.label ? 'bg-text-primary text-bg-card' : 'bg-bg-primary text-text-secondary hover:text-text-primary'}`} data-testid={`traffic-preset-${p.label}`}>
+              {p.label}
             </button>
           ))}
         </div>
@@ -69,6 +77,20 @@ export default function TrafficPanel() {
     </section>
   )
 }
+
+// 한국 날짜 문자열(YYYY-MM-DD)
+function kstToday(offsetDays = 0): string {
+  return new Date(Date.now() + 9 * 3600 * 1000 + offsetDays * 24 * 3600 * 1000).toISOString().slice(0, 10)
+}
+function preset(days: number) {
+  return { from: kstToday(-(days - 1)), to: kstToday() }
+}
+const PRESETS: { label: string; range: () => { from: string; to: string } }[] = [
+  { label: '7일', range: () => preset(7) },
+  { label: '30일', range: () => preset(30) },
+  { label: '90일', range: () => preset(90) },
+  { label: '이번 달', range: () => ({ from: `${kstToday().slice(0, 7)}-01`, to: kstToday() }) },
+]
 
 function Stat({ label, value, sub }: { label: string; value: number | string; sub: string }) {
   return (

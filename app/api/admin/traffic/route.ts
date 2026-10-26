@@ -1,19 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin, routeError, unauthorizedResponse } from '@/lib/admin/route'
 import { getSupabaseAdmin } from '@/lib/supabase-admin'
-import { trafficDaily, trafficTop } from '@/lib/traffic/query'
+import { rangeDays, rangeFromDates, trafficDaily, trafficTop } from '@/lib/traffic/query'
 
-// 대시보드 방문 추이(대표자·관리자). ?days=30|90
+// 대시보드 방문 추이(대표자·관리자). ?from=YYYY-MM-DD&to=YYYY-MM-DD (한국 날짜, 없으면 최근 30일, 최대 1년)
 export async function GET(request: NextRequest) {
   if (!requireAdmin(request)) return unauthorizedResponse()
-  const days = Math.min(365, Math.max(7, Number(request.nextUrl.searchParams.get('days')) || 30))
+  const sp = request.nextUrl.searchParams
+  let range = rangeFromDates(sp.get('from') ?? '', sp.get('to') ?? '') ?? rangeDays(30)
+  const span = (range.to.getTime() - range.from.getTime()) / (24 * 3600 * 1000)
+  if (span > 366) range = { from: new Date(range.to.getTime() - 366 * 24 * 3600 * 1000), to: range.to }
+  const days = Math.round((range.to.getTime() - range.from.getTime()) / (24 * 3600 * 1000))
   try {
     const [daily, paths, referrers, partners, devices, members] = await Promise.all([
-      trafficDaily(days),
-      trafficTop(days, 'path', 8),
-      trafficTop(days, 'referrer', 8),
-      trafficTop(days, 'partner', 20),
-      trafficTop(days, 'device', 2),
+      trafficDaily(range),
+      trafficTop(range, 'path', 8),
+      trafficTop(range, 'referrer', 8),
+      trafficTop(range, 'partner', 20),
+      trafficTop(range, 'device', 2),
       getSupabaseAdmin().from('admin_users').select('unique_code, nickname'),
     ])
     const nameOf = new Map((members.data ?? []).map((m) => [m.unique_code as string, m.nickname as string]))
