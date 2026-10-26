@@ -15,7 +15,7 @@ import { pushMyLead } from '@/components/shared/localActivity'
 export type LandingService = 'internet' | 'electronics'
 type Carrier = { name: string; gift: number; voucher: number }
 export type GiftCase = { name: string; region: string | null; product: string; amount: number; date: string }
-type Catalog = { brands: string[]; categories: string[]; heroImages: string[]; productCount: number }
+type Catalog = { brands: string[]; categories: { slug: string; name: string }[]; heroImages: string[]; productCount: number }
 
 const LOGO = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso.png'
 const SERVICES: { key: LandingService; label: string }[] = [
@@ -492,8 +492,10 @@ function RentalCatalog({ catalog }: { catalog: Catalog }) {
           <p className="mt-7 text-[14px] font-medium text-[#333d4b]">이런 품목을 상담할 수 있어요</p>
           <ul className="mt-2.5 grid grid-cols-2 gap-y-2.5 gap-x-4" data-testid="landing-categories">
             {visible.map((c) => (
-              <li key={c} className="flex items-center gap-1.5 text-[13px] text-[#4e5968]">
-                <span className="w-1 h-1 rounded-full bg-[#b0b8c1]" /> {c}
+              <li key={c.slug}>
+                <Link href={`/electronics/${c.slug}`} className="inline-flex items-center gap-1.5 py-0.5 text-[13px] text-[#4e5968] hover:text-[var(--action-primary)]" data-testid="landing-category-link">
+                  <span className="w-1 h-1 rounded-full bg-[#b0b8c1]" /> {c.name}
+                </Link>
               </li>
             ))}
           </ul>

@@ -85,7 +85,7 @@ export default async function PartnerLandingPage({ params, searchParams }: { par
     }
   }
   const brands = [...brandCount.entries()].sort((a, b) => b[1] - a[1]).map(([b]) => b)
-  const categories = [...catCount.values()].sort((a, b) => b.count - a.count).map((c) => c.name)
+  const categories = [...catCount.values()].sort((a, b) => b.count - a.count).map((c) => ({ slug: c.slug, name: c.name }))
   const productCount = (prodRows ?? []).length
 
   // 지원금 지급 사례: 계약 완료 + 사은품 금액이 있는 건(이름 마스킹). 아직 없으면 예시로 채운다
