@@ -8,6 +8,7 @@ import { LEAD_AGREEMENTS, formatPhone, isValidPhone } from '@/components/shared/
 import SuccessOverlay from '@/components/shared/SuccessOverlay'
 import Footer from '@/components/shared/Footer'
 import { pushMyLead } from '@/components/shared/localActivity'
+import { trackEvent } from '@/lib/analytics'
 
 // 파트너 랜딩. 약속 한 줄(차액 120% 보상) → 번호 폼 → 왜 가능한가(광고비 0) → 사은품 표 → 절차 → 조건 → 공통 푸터.
 // 데스크톱에서도 모바일 폭(480px) 한 컬럼으로 보여준다. 추천인은 코드로만 잡고 화면엔 안 보인다.
@@ -93,6 +94,7 @@ export default function PartnerLanding({
       const json = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(json?.error ?? '신청 처리 중 문제가 생겼어요.')
       if (json.id && service) pushMyLead({ id: json.id, service, productName: null })
+      trackEvent('lead_submit', { service: service ?? '', source: 'landing', partner: code, existing: existing ?? undefined })
       setDoneId(json.id ?? '')
     } catch (e) {
       setError(e instanceof Error ? e.message : '신청 처리 중 문제가 생겼어요.')
@@ -393,6 +395,7 @@ function GiftTable({ carriers }: { carriers: Carrier[] }) {
   const allRevealed = carriers.every((_, i) => revealed[i])
   const reveal = (i: number) => {
     if (revealed[i] || leaving[i]) return
+    trackEvent('landing_gift_reveal', { carrier: carriers[i]?.name })
     setLeaving((l) => ({ ...l, [i]: true }))
     setTimeout(() => setRevealed((r) => ({ ...r, [i]: true })), 160)
   }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
 import SiteFrame from '@/components/shared/SiteFrame';
+import SiteAnalytics from '@/components/shared/SiteAnalytics';
 
 const notoSansKR = Noto_Sans_KR({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
     <html lang="ko" className="overflow-x-clip">
       <body className={`${notoSansKR.variable} font-sans antialiased bg-gray-50 overflow-x-clip w-full`}>
         <SiteFrame>{children}</SiteFrame>
+        <SiteAnalytics />
       </body>
     </html>
   );

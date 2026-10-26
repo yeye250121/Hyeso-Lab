@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Check, ChevronDown, Loader2, X } from 'lucide-react';
 import SuccessOverlay from '@/components/shared/SuccessOverlay';
 import { pushMyLead } from '@/components/shared/localActivity';
+import { trackEvent } from '@/lib/analytics';
 
 // 명세서(리드) 폼. 카드·인터넷·가전렌탈 공통 입구(/apply).
 // 협력업체가 전화하는 데 꼭 필요한 건 전화번호 하나라 필수는 전화번호와 동의뿐이다.
@@ -136,6 +137,7 @@ export default function LeadForm({
           productName: withProduct ? `${product.brand} ${product.display_name}` : null,
         });
       }
+      trackEvent('lead_submit', { service: service ?? '', source: 'apply', partner: readMarketerCode() || undefined });
       setDoneId(json.id ?? '');
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : '신청 처리 중 문제가 발생했습니다.');

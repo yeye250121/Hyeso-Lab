@@ -1,5 +1,6 @@
 'use client';
 
+import { trackEvent } from '@/lib/analytics';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import Link from 'next/link';
@@ -212,6 +213,7 @@ export default function InternetApplyForm({
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json?.error ?? '신청 처리 중 문제가 발생했습니다.');
+      trackEvent('application_submit', { service: 'internet' });
       setDone(true);
       scrollTop();
     } catch (e) {

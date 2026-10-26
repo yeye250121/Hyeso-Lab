@@ -1,5 +1,6 @@
 'use client';
 
+import { trackEvent } from '@/lib/analytics';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import Image from 'next/image';
@@ -309,6 +310,7 @@ export default function ApplyForm({
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json?.error ?? '신청 처리 중 문제가 발생했습니다.');
+      trackEvent('application_submit', { service: 'electronics' });
       setDone(true);
       topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
