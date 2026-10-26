@@ -82,6 +82,9 @@ export default function Footer({
               <p>사업자등록번호 : {companyInfo.businessNumber}</p>
               {companyInfo.mailOrderNumber && <p>통신판매업 신고번호 : {companyInfo.mailOrderNumber}</p>}
               <p>주소 : {companyInfo.address}</p>
+              <p className="pt-1 text-xs text-gray-400">
+                <Link href="/privacy" className="hover:text-gray-600">개인정보처리방침</Link>
+              </p>
             </div>
           </div>
 
