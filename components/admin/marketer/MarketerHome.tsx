@@ -7,6 +7,7 @@ import api from '@/lib/admin/api'
 import { LEAD_STATUS, SERVICE_LABEL, formatDateTime } from '@/components/admin/labels'
 import { useConsole } from '@/lib/admin/useConsole'
 import { useAuthStore } from '@/lib/admin/store'
+import TrafficChart, { type ChartPoint } from '@/components/admin/TrafficChart'
 
 // 마케터 홈 = 내 성과판. 토스플레이스 파트너 홈(프로모션·설치 현황)을 우리 식으로 옮긴 것.
 type Summary = {
@@ -21,12 +22,13 @@ export default function MarketerHome() {
   const { path: cp } = useConsole()
   const admin = useAuthStore((s) => s.admin)
   const [data, setData] = useState<Summary | null>(null)
+  const [traffic, setTraffic] = useState<{ series: ChartPoint[]; totals: { pageviews: number; visitors: number; leads: number }; referrers: { key: string; visitors: number }[] } | null>(null)
 
   useEffect(() => {
     api.get('/admin/marketer/summary').then((res) => setData(res.data)).catch(() => {})
+    api.get('/admin/marketer/traffic?days=30').then((res) => setTraffic(res.data)).catch(() => {})
   }, [])
-
-  const max = Math.max(1, ...(data?.weekly.map((w) => w.count) ?? [1]))
+  const rate = traffic && traffic.totals.visitors ? Math.round((traffic.totals.leads / traffic.totals.visitors) * 1000) / 10 : null
 
   return (
     <div className="space-y-6">
@@ -44,20 +46,25 @@ export default function MarketerHome() {
       </div>
 
       <div className="grid lg:grid-cols-[1fr_360px] gap-4">
-        {/* 주간 추이 */}
-        <section className="rounded-2xl bg-bg-card p-5">
-          <p className="text-[15px] font-semibold text-text-primary">최근 8주 인입</p>
-          <div className="mt-5 flex items-end gap-2 h-32">
-            {(data?.weekly ?? Array.from({ length: 8 }, () => ({ label: '', count: 0 }))).map((w, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
-                <span className="text-[11px] text-text-secondary tabular-nums">{w.count || ''}</span>
-                <div className="w-full rounded-md bg-action-primary/15 relative" style={{ height: `${Math.max(6, (w.count / max) * 96)}px` }}>
-                  <div className="absolute inset-x-0 bottom-0 rounded-md bg-action-primary" style={{ height: w.count ? '100%' : 0 }} />
-                </div>
-                <span className="text-[10px] text-text-tertiary">{w.label}</span>
-              </div>
-            ))}
+        {/* 내 링크 유입 추이(30일): 방문자 막대 + 접수 점 */}
+        <section className="rounded-2xl bg-bg-card p-5" data-testid="marketer-traffic">
+          <div className="flex items-end justify-between gap-3">
+            <p className="text-[15px] font-semibold text-text-primary">내 링크 유입 · 최근 30일</p>
+            {traffic && (
+              <p className="text-[12px] text-text-secondary tabular-nums">
+                방문 <span className="font-semibold text-text-primary">{traffic.totals.visitors}</span> · 접수 <span className="font-semibold text-text-primary">{traffic.totals.leads}</span>
+                {rate !== null && <> · 전환 <span className="font-semibold text-action-primary">{rate}%</span></>}
+              </p>
+            )}
           </div>
+          <div className="mt-4">
+            {traffic ? <TrafficChart data={traffic.series} showLeads /> : <div className="h-[140px] rounded-xl bg-bg-primary animate-pulse" />}
+          </div>
+          {traffic && traffic.referrers.length > 0 && (
+            <p className="mt-3 text-[12px] text-text-secondary truncate">
+              유입처: {traffic.referrers.map((r) => `${r.key === '(없음)' ? '직접' : r.key} ${r.visitors}`).join(' · ')}
+            </p>
+          )}
         </section>
 
         {/* 내 링크 안내 */}
@@ -65,9 +72,9 @@ export default function MarketerHome() {
           <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-action-primary"><Sparkles className="w-3.5 h-3.5" /> 내 상담 링크</span>
           <p className="mt-2 text-[17px] font-bold text-text-primary leading-snug">링크로 들어온 상담은<br />자동으로 내 실적이 돼요</p>
           <p className="mt-1.5 text-[13px] text-text-secondary">블로그·SNS 글에 이 링크만 넣으면 돼요.</p>
-          {data?.month.views !== undefined && (
+          {traffic && (
             <p className="mt-2 text-[13px] text-text-primary" data-testid="marketer-views">
-              이번 달 링크 방문 <span className="font-bold tabular-nums">{data.month.views}</span>회 → 접수 <span className="font-bold tabular-nums">{data.month.total}</span>건
+              최근 30일 링크 방문 <span className="font-bold tabular-nums">{traffic.totals.visitors}</span>명 → 접수 <span className="font-bold tabular-nums">{traffic.totals.leads}</span>건
             </p>
           )}
           <Link href={cp('/link')} className="mt-auto inline-flex items-center justify-center gap-1.5 h-11 rounded-xl bg-action-primary text-white text-[14px] font-semibold hover:bg-action-primary-hover">

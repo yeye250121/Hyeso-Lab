@@ -7,6 +7,7 @@ import AdminLayout from '@/components/admin/AdminLayout'
 import api from '@/lib/admin/api'
 import { LEAD_STATUS, SERVICE_LABEL, formatDateTime } from '@/components/admin/labels'
 import { useConsole } from '@/lib/admin/useConsole'
+import TrafficPanel from '@/components/admin/TrafficPanel'
 
 interface Stats {
   leads: { total: number; today: number; week: number; unprocessed: number; byService: Record<string, number>; daily: { date: string; count: number }[] }
@@ -52,6 +53,8 @@ export default function DashboardPage() {
           <Card href={cp('/leads')} icon={ClipboardList} tone="yellow" label="누적 상담 신청" value={stats.leads.total} sub={Object.entries(stats.leads.byService).map(([k, v]) => `${SERVICE_LABEL[k] ?? k} ${v}`).join(' · ')} />
           <Card href={cp('/rental-products')} icon={stats.products.withoutImage ? ImageOff : Package} tone="purple" label="판매 중 렌탈 상품" value={stats.products.active} sub={`사진 없음 ${stats.products.withoutImage}개 · 판매 중지 ${stats.products.inactive}개`} />
         </div>
+
+        <TrafficPanel />
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 [&>*]:min-w-0">
           {/* 최근 7일 유입 */}
