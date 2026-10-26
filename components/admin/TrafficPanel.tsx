@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 import api from '@/lib/admin/api'
 import TrafficChart, { type ChartPoint } from '@/components/admin/TrafficChart'
 
@@ -9,22 +10,32 @@ type Top = { key: string; pageviews: number; visitors: number; name?: string }
 type Data = { days: number; daily: ChartPoint[]; today: ChartPoint; totals: { pageviews: number; visitors: number }; paths: Top[]; referrers: Top[]; devices: Top[]; partners: Top[] }
 
 export default function TrafficPanel() {
+  const [open, setOpen] = useState(false) // 접힌 채로 시작. 펼칠 때 데이터를 받는다
   const [days, setDays] = useState(30)
   const [data, setData] = useState<Data | null>(null)
   const [error, setError] = useState(false)
 
   useEffect(() => {
+    if (!open) return
     setData(null)
     api.get(`/admin/traffic?days=${days}`).then((r) => setData(r.data)).catch(() => setError(true))
-  }, [days])
+  }, [days, open])
 
   const mobile = data?.devices.find((d) => d.key === 'mobile')?.pageviews ?? 0
   const mobileShare = data && data.totals.pageviews ? Math.round((mobile / data.totals.pageviews) * 100) : null
 
   return (
-    <section className="bg-bg-card rounded-card p-5 md:p-6" data-testid="traffic-panel">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-title text-text-primary">방문 추이</h2>
+    <section className="bg-bg-card rounded-card" data-testid="traffic-panel" data-open={open ? '1' : '0'}>
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} data-testid="traffic-toggle" className="w-full flex items-center justify-between gap-3 px-5 md:px-6 py-4 md:py-5 text-left">
+        <span>
+          <span className="text-title text-text-primary">방문 추이</span>
+          <span className="ml-2 text-small text-text-tertiary">{open ? '' : '눌러서 펼치기'}</span>
+        </span>
+        <ChevronDown className={`w-5 h-5 text-text-tertiary transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+      <div className="px-5 md:px-6 pb-5 md:pb-6">
+      <div className="flex items-center justify-end gap-3">
         <div className="flex gap-1 rounded-button bg-bg-primary p-0.5">
           {[30, 90].map((d) => (
             <button key={d} onClick={() => setDays(d)} className={`px-2.5 h-7 rounded-md text-[12px] font-medium ${days === d ? 'bg-bg-card text-text-primary shadow-sm' : 'text-text-secondary'}`} data-testid={`traffic-days-${d}`}>
@@ -35,7 +46,7 @@ export default function TrafficPanel() {
       </div>
 
       {error && <p className="mt-4 text-small text-text-secondary">방문 추이를 불러오지 못했어요.</p>}
-      {!data && !error && <div className="mt-4 h-[180px] rounded-xl bg-bg-primary animate-pulse" />}
+      {!data && !error && <div className="mt-3 h-[180px] rounded-xl bg-bg-primary animate-pulse" />}
       {data && (
         <>
           <div className="mt-4 grid grid-cols-3 gap-2">
@@ -52,6 +63,8 @@ export default function TrafficPanel() {
             <TopList title="파트너 링크 유입" rows={data.partners.map((p) => ({ ...p, key: p.name ?? p.key }))} empty="파트너 링크로 들어온 방문이 아직 없어요" />
           </div>
         </>
+      )}
+      </div>
       )}
     </section>
   )
