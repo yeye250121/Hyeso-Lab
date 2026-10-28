@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import SiteHeader from '@/components/home/SiteHeader'
 import Hero from '@/components/home/Hero'
-import { HowPossibleLazy, CaseMarqueeLazy } from '@/components/home/LazySections'
+import { PromisesLazy, HowPossibleLazy, CaseMarqueeLazy } from '@/components/home/LazySections'
 import TwoThings from '@/components/home/TwoThings'
 import ProcessAndTerms from '@/components/home/ProcessAndTerms'
 import Faq from '@/components/home/Faq'
@@ -42,6 +42,7 @@ export default async function DemoPage() {
       <SiteHeader />
       <main>
         <Hero maxGift={d.maxGift} />
+        <PromisesLazy />
         <HowPossibleLazy />
         <TwoThings maxGift={d.maxGift} carriers={d.carriers} productCount={d.productCount} brands={d.brands} />
         <ProcessAndTerms />
