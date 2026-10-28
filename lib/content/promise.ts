@@ -17,7 +17,7 @@ export const PROMISES = [
   {
     key: 'nopush',
     chip: '권유 없음',
-    title: '고른 것만\n진행해요',
+    title: '불쾌한 영업은\n하지 않아요',
     desc: '전화로 다른 상품을 권하지 않아요. 이름도 묻지 않아요. 번호 하나로 시작해요.',
   },
 ] as const
