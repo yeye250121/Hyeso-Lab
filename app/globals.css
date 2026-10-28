@@ -571,6 +571,6 @@ body {
 @media (prefers-reduced-motion: reduce) { .mf .mf-ad, .mf .mf-margin { animation: none; transform: scaleY(0); opacity: 0; } .mf .mf-ours { animation: none; } .mf .mf-coin { animation: none; opacity: 0; } }
 
 /* 히어로 스크롤 힌트 */
-@keyframes heroHint { 0%, 100% { transform: translateY(0); opacity: 0.9; } 50% { transform: translateY(6px); opacity: 0.5; } }
-.hero-scroll-hint { animation: heroHint 2s ease-in-out infinite; }
+@keyframes heroHint { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+.hero-scroll-hint { animation: heroHint 2.6s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .hero-scroll-hint { animation: none; } }
