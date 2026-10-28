@@ -41,7 +41,7 @@ export default async function DemoPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
       <SiteHeader />
       <main>
-        <Hero maxGift={d.maxGift} />
+        <Hero />
         <PromisesLazy />
         <HowPossibleLazy />
         <TwoThings maxGift={d.maxGift} carriers={d.carriers} productCount={d.productCount} brands={d.brands} />

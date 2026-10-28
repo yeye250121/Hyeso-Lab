@@ -1,12 +1,11 @@
 'use client'
 
-import CountUp from './CountUp'
 
 // 히어로 시그니처: '광고비' 블록이 줄어들고 그 돈이 '내 사은품'으로 흘러 들어간다. 3초 안에 끝난다.
 // 히어로는 첫 화면이라 framer-motion 없이 SVG + CSS 키프레임으로 그린다(초기 JS 를 줄여 LCP·TBT 를 지킨다).
 // reduced-motion 이면 CSS 에서 최종 상태로 고정된다(globals.css .mf-*).
-export default function MoneyFlow({ maxGift }: { maxGift: number }) {
-  const W = 520, H = 330, base = 292
+export default function MoneyFlow() {
+  const W = 520, H = 300, base = 262
   return (
     <div className="relative w-full max-w-[520px] mx-auto mf" aria-label="광고비를 쓰지 않고 그 돈을 사은품으로 드리는 구조">
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="img">
@@ -26,10 +25,6 @@ export default function MoneyFlow({ maxGift }: { maxGift: number }) {
         <text x={380} y={base - 34} textAnchor="middle" fontSize={13} fill="#191f28" fontWeight={600}>사은품</text>
         <text x={380} y={base + 22} textAnchor="middle" fontSize={12} fill="#191f28" fontWeight={600}>혜택연구소</text>
       </svg>
-      <div className="absolute right-[7%] top-0 text-right">
-        <p className="text-[11px] text-[#6b7684]">인터넷 최대</p>
-        <p className="text-[18px] lg:text-[20px] font-semibold tracking-[-0.01em] text-[#191f28] tabular-nums"><CountUp to={maxGift} start delay={900} duration={1400} /><span className="text-[14px] font-medium ml-0.5">원</span></p>
-      </div>
     </div>
   )
 }
