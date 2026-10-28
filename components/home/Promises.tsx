@@ -5,7 +5,6 @@ import { AnimatePresence, motion, useMotionValueEvent, useScroll, useReducedMoti
 import { Check } from 'lucide-react'
 import { PROMISES } from '@/lib/content/promise'
 import CountUp from './CountUp'
-import Reveal from './Reveal'
 import { EASE } from './motion'
 
 // 4.2 세 가지 약속 — 데스크톱은 왼쪽 sticky 제목, 오른쪽 패널이 스크롤에 따라 교체. 모바일은 세로 나열.
@@ -77,6 +76,10 @@ export default function Promises() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
   const [active, setActive] = useState(0)
   useMotionValueEvent(scrollYProgress, 'change', (v) => setActive(Math.min(2, Math.floor(v * 3))))
+  const mRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress: mProgress } = useScroll({ target: mRef, offset: ['start start', 'end end'] })
+  const [mActive, setMActive] = useState(0)
+  useMotionValueEvent(mProgress, 'change', (v) => setMActive(Math.min(2, Math.floor(v * 3))))
 
   return (
     <section id="promises" className="scroll-mt-16">
@@ -107,18 +110,27 @@ export default function Promises() {
         </div>
       </div>
 
-      {/* 모바일: 세로 나열 */}
-      <ol className="lg:hidden max-w-[1200px] mx-auto px-5 pt-24 space-y-14">
-        {PROMISES.map((p, i) => { const V = VISUALS[i]; return (
-          <Reveal key={p.key} as="li">
-            <p className="text-[12px] font-semibold text-[#ff5c8a]">0{i + 1}</p>
-            <h3 className="mt-2 text-[22px] font-semibold tracking-[-0.02em] leading-[1.3] text-[#191f28] whitespace-pre-line">{p.title}</h3>
-            <p className="mt-3 text-[15px] leading-relaxed text-[#6b7684]">{p.desc}</p>
-            <div className="mt-5"><V active /></div>
-          </Reveal>
-        ) })}
-        <li><a href="#terms" className="text-[14px] font-medium text-[#4e5968] underline underline-offset-4">자세한 기준 보기</a></li>
-      </ol>
+      {/* 모바일: 스크롤 진행에 따라 한 화면에서 01→02→03 교체 */}
+      <div ref={mRef} className="lg:hidden h-[260vh]">
+        <div className="sticky top-[60px] h-[calc(100vh-60px)] px-5 flex flex-col justify-center">
+          <div className="flex items-center gap-2 mb-5" aria-hidden>
+            {PROMISES.map((p, i) => (
+              <span key={p.key} className={`h-1.5 rounded-full transition-all duration-300 ${mActive === i ? 'w-7 bg-[#ff8fab]' : 'w-1.5 bg-[#e5e8eb]'}`} />
+            ))}
+          </div>
+          <AnimatePresence mode="wait">
+            {(() => { const p = PROMISES[mActive]; const V = VISUALS[mActive]; return (
+              <motion.div key={mActive} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} transition={{ duration: 0.35, ease: EASE }}>
+                <p className="text-[12px] font-semibold text-[#ff5c8a] tabular-nums">0{mActive + 1}</p>
+                <h3 className="mt-2 text-[22px] font-semibold tracking-[-0.02em] leading-[1.3] text-[#191f28] whitespace-pre-line">{p.title}</h3>
+                <p className="mt-3 text-[14px] leading-relaxed text-[#6b7684]">{p.desc}</p>
+                <div className="mt-5"><V active /></div>
+              </motion.div>
+            ) })()}
+          </AnimatePresence>
+          <a href="#terms" className="mt-5 text-[13px] font-medium text-[#4e5968] underline underline-offset-4">자세한 기준 보기</a>
+        </div>
+      </div>
     </section>
   )
 }
