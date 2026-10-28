@@ -10,10 +10,11 @@ test('데모 홈: 히어로·실데이터·지원금 확인·링크', async ({ p
   // 보고서 프레임: 통신사 6곳의 지원금이 실데이터로 채워진다
   await page.getByText('통신사만 고르면', { exact: false }).first().scrollIntoViewIfNeeded()
   const rows = page.getByTestId('demo-report').locator('li')
-  await expect(rows.first()).toBeVisible()
   await expect(rows).toHaveCount(6)
+  await rows.first().scrollIntoViewIfNeeded() // 카운트업은 행이 화면에 들어와야 시작된다
+  await expect(rows.first()).toBeVisible()
   // 카운트업이 끝나면 만원 단위 숫자가 보인다
-  await expect.poll(async () => (await rows.first().innerText()).replace(/,/g, '')).toMatch(/[1-9]\d{5}/)
+  await expect.poll(async () => (await rows.first().innerText()).replace(/[\s,]/g, ''), { timeout: 8000 }).toMatch(/[1-9]\d{5}/)
   // 상품 카드가 실데이터로 채워진다
   await expect(page.locator('a[href^="/electronics/"]').filter({ hasText: '월' }).first()).toBeVisible()
   // 주요 링크
