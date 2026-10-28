@@ -25,15 +25,15 @@ export default function HowPossible() {
         <div ref={ref} className="rounded-[24px] bg-white/[0.06] ring-1 ring-white/10 p-6 lg:p-8">
           <div className="grid grid-cols-2 gap-8 items-end h-[280px]">
             <div className="flex flex-col justify-end gap-1.5 h-full">
-              <motion.div style={{ height: ad }} className="rounded-xl bg-white/10 overflow-hidden flex items-center justify-center text-[12px] text-white/50">광고비</motion.div>
-              <motion.div style={{ height: margin }} className="rounded-xl bg-white/10 overflow-hidden flex items-center justify-center text-[12px] text-white/50">중간 마진</motion.div>
+              <motion.div style={{ height: ad }} className="rounded-xl bg-white/10 overflow-hidden flex items-center justify-center text-[12px] text-white/90">광고비</motion.div>
+              <motion.div style={{ height: margin }} className="rounded-xl bg-white/10 overflow-hidden flex items-center justify-center text-[12px] text-white/90">중간 마진</motion.div>
               <div className="h-[80px] rounded-xl bg-white/25 flex items-center justify-center text-[13px] font-medium">사은품</div>
             </div>
             <div className="flex flex-col justify-end h-full">
-              <motion.div style={{ height: ours }} className="rounded-xl bg-[#ff8fab] flex items-center justify-center text-[14px] font-semibold shadow-[0_12px_30px_rgba(255,143,171,0.35)]">사은품</motion.div>
+              <motion.div style={{ height: ours }} className="rounded-xl bg-[#ff8fab] text-[#191f28] flex items-center justify-center text-[14px] font-semibold shadow-[0_12px_30px_rgba(255,143,171,0.35)]">사은품</motion.div>
             </div>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-8 text-center text-[13px]"><span className="text-white/50">다른 곳</span><span className="font-semibold">혜택연구소</span></div>
+          <div className="mt-4 grid grid-cols-2 gap-8 text-center text-[13px]"><span className="text-white/75">다른 곳</span><span className="font-semibold">혜택연구소</span></div>
         </div>
       </div>
     </section>

@@ -20,7 +20,7 @@ export default function Hero({ maxGift }: { maxGift: number }) {
             광고 모델 대신, <span className="text-[#191f28] font-semibold">그 돈을 사은품으로</span> 드려요.
           </p>
           <div className="mt-8 lg:mt-10">
-            <Link href="/apply" data-testid="hero-cta" className="inline-flex items-center justify-center gap-2 w-full sm:w-auto h-14 px-7 rounded-2xl bg-[#ff8fab] hover:bg-[#ff7096] text-white text-[16px] font-semibold transition-colors">
+            <Link href="/apply" data-testid="hero-cta" className="inline-flex items-center justify-center gap-2 w-full sm:w-auto h-14 px-7 rounded-2xl bg-[#ff8fab] hover:bg-[#ff7096] text-[#191f28] text-[16px] font-semibold transition-colors">
               내 사은품 확인하기 <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -34,7 +34,7 @@ export default function Hero({ maxGift }: { maxGift: number }) {
         </div>
         <div className="lg:pl-6">
           <MoneyFlow maxGift={maxGift} />
-          <p className="mt-3 text-center text-[12px] text-[#8b95a1]">동일 상품 · 약정 · 관리 조건 기준</p>
+          <p className="mt-3 text-center text-[12px] text-[#6b7684]">동일 상품 · 약정 · 관리 조건 기준</p>
         </div>
       </div>
     </section>

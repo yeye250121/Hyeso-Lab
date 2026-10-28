@@ -560,3 +560,12 @@ body {
 /* ===== /demo 홈 ===== */
 .demo-root { font-family: 'Pretendard Variable', Pretendard, var(--font-noto-sans-kr), sans-serif; }
 .demo-root :focus-visible { outline: 2px solid #ff8fab; outline-offset: 3px; }
+/* 히어로 돈 흐름(MoneyFlow): CSS 키프레임. 3초 안에 끝남 */
+@keyframes mfShrink { to { transform: scaleY(0); opacity: 0; } }
+@keyframes mfGrow { from { transform: scaleY(0.36); } to { transform: scaleY(1); } }
+@keyframes mfCoin { 0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: 1; } 55% { transform: translate(120px, -40px); } 100% { opacity: 0; transform: translate(240px, 70px); } }
+.mf .mf-ad { animation: mfShrink 0.8s cubic-bezier(0.22,1,0.36,1) 0.3s both; }
+.mf .mf-margin { animation: mfShrink 0.6s cubic-bezier(0.22,1,0.36,1) 0.7s both; }
+.mf .mf-ours { animation: mfGrow 1s cubic-bezier(0.22,1,0.36,1) 0.9s both; }
+.mf .mf-coin { opacity: 0; animation: mfCoin 1.1s ease-in-out both; }
+@media (prefers-reduced-motion: reduce) { .mf .mf-ad, .mf .mf-margin { animation: none; transform: scaleY(0); opacity: 0; } .mf .mf-ours { animation: none; } .mf .mf-coin { animation: none; opacity: 0; } }

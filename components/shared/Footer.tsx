@@ -82,8 +82,8 @@ export default function Footer({
               <p>사업자등록번호 : {companyInfo.businessNumber}</p>
               {companyInfo.mailOrderNumber && <p>통신판매업 신고번호 : {companyInfo.mailOrderNumber}</p>}
               <p>주소 : {companyInfo.address}</p>
-              <p className="pt-1 text-xs text-gray-400">
-                <Link href="/privacy" className="hover:text-gray-600">개인정보처리방침</Link>
+              <p className="pt-1 text-xs text-gray-500">
+                <Link href="/privacy" className="hover:text-gray-700">개인정보처리방침</Link>
               </p>
             </div>
           </div>
@@ -92,7 +92,7 @@ export default function Footer({
           <div className={`flex ${compact ? 'gap-10' : 'gap-16'}`}>
             {linkSections.map((section, index) => (
               <div key={index}>
-                <h4 className="text-gray-800 font-semibold mb-4">{section.title}</h4>
+                <h3 className="text-gray-800 font-semibold mb-4">{section.title}</h3>
                 <ul className="space-y-2 text-gray-500 text-sm">
                   {section.links.map((link, linkIndex) => (
                     <li key={linkIndex}>
@@ -109,7 +109,7 @@ export default function Footer({
 
         {showCopyright && (
           <div className="mt-12 pt-8 border-t border-gray-200">
-            <p className="text-gray-400 text-sm text-center">
+            <p className="text-gray-500 text-sm text-center">
               © {new Date().getFullYear()} 혜택 연구소. All rights reserved.
             </p>
           </div>

@@ -1,11 +1,9 @@
 import type { Metadata } from 'next'
 import SiteHeader from '@/components/home/SiteHeader'
 import Hero from '@/components/home/Hero'
-import Promises from '@/components/home/Promises'
-import HowPossible from '@/components/home/HowPossible'
+import { PromisesLazy, HowPossibleLazy, CaseMarqueeLazy } from '@/components/home/LazySections'
 import TwoThings from '@/components/home/TwoThings'
 import ProcessAndTerms from '@/components/home/ProcessAndTerms'
-import CaseMarquee from '@/components/home/CaseMarquee'
 import Faq from '@/components/home/Faq'
 import FinalCta, { MobileCtaBar } from '@/components/home/FinalCta'
 import Footer from '@/components/shared/Footer'
@@ -44,11 +42,11 @@ export default async function DemoPage() {
       <SiteHeader />
       <main>
         <Hero maxGift={d.maxGift} />
-        <Promises />
-        <HowPossible />
+        <PromisesLazy />
+        <HowPossibleLazy />
         <TwoThings maxGift={d.maxGift} carriers={d.carriers} productCount={d.productCount} brands={d.brands} />
         <ProcessAndTerms />
-        {d.cases.length > 0 && <CaseMarquee cases={d.cases} className="mt-24 lg:mt-40" />}
+        {d.cases.length > 0 && <CaseMarqueeLazy cases={d.cases} className="mt-24 lg:mt-40" />}
         <Faq />
         <FinalCta />
       </main>
