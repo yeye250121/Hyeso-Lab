@@ -7,12 +7,10 @@ test('데모 홈: 히어로·실데이터·지원금 확인·링크', async ({ p
   await expect(page.getByRole('heading', { level: 1 })).toContainText('놓치고 있던')
   const { sw, vw } = await page.evaluate(() => ({ sw: document.scrollingElement!.scrollWidth, vw: innerWidth }))
   expect(sw).toBeLessThanOrEqual(vw)
-  // 통신사 지원금 확인 → 금액 배지
-  await page.getByText('어떤 혜택을 연구해 볼까요?').scrollIntoViewIfNeeded()
-  const kt = page.getByRole('button', { name: /^KT 확인$/ })
-  await kt.click()
-  await expect(page.getByRole('button', { name: /^KT \d+만원$/ })).toBeVisible()
-  await expect(page).toHaveURL(/\/demo$/) // 버튼이 링크 이동을 막는다
+  // 보고서 프레임: 통신사 6곳의 지원금이 실데이터로 채워진다
+  await page.getByText('통신사만 고르면', { exact: false }).first().scrollIntoViewIfNeeded()
+  await expect(page.locator('ol li').filter({ hasText: 'KT' }).first()).toBeVisible()
+  await expect.poll(async () => (await page.locator('ol li').filter({ hasText: '000' }).count())).toBeGreaterThanOrEqual(4)
   // 상품 카드가 실데이터로 채워진다
   await expect(page.locator('a[href^="/electronics/"]').filter({ hasText: '월' }).first()).toBeVisible()
   // 주요 링크
