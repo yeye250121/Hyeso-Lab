@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
 import MoneyFlow from './MoneyFlow'
 import { PROMISES } from '@/lib/content/promise'
 
@@ -20,8 +19,8 @@ export default function Hero({ maxGift }: { maxGift: number }) {
             혜택연구소에서 똑똑하게 알아봐요
           </p>
           <div className="mt-8 lg:mt-10">
-            <Link href="/apply" data-testid="hero-cta" className="inline-flex items-center justify-center gap-2 w-full sm:w-auto h-14 px-7 rounded-2xl bg-[#ff8fab] hover:bg-[#ff7096] text-[#191f28] text-[15px] font-semibold transition-colors">
-              연구 시작하기 <ArrowRight className="w-4 h-4" />
+            <Link href="/apply" data-testid="hero-cta" className="inline-flex items-center justify-center gap-2 w-full sm:w-auto h-14 px-7 rounded-2xl bg-[#ff8fab] hover:bg-[#ff7096] text-white text-[15px] font-semibold transition-colors">
+              연구 시작하기
             </Link>
           </div>
           <ul className="mt-8 flex flex-wrap gap-2" aria-label="세 가지 약속">
