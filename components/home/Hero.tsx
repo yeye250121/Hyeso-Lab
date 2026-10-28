@@ -11,16 +11,16 @@ export default function Hero({ maxGift }: { maxGift: number }) {
     <section className="pt-[60px]" id="top">
       <div className="max-w-[1200px] mx-auto px-5 lg:px-8 pt-14 pb-16 lg:pt-28 lg:pb-32 grid lg:grid-cols-[1.05fr_1fr] gap-12 lg:gap-16 items-center">
         <div>
-          <h1 className="text-[32px] leading-[1.2] sm:text-[44px] lg:text-[60px] lg:leading-[1.12] font-bold tracking-[-0.03em] text-[#191f28] break-keep">
+          <h1 className="text-[26px] leading-[1.3] sm:text-[34px] lg:text-[42px] lg:leading-[1.25] font-semibold tracking-[-0.02em] text-[#191f28] break-keep">
             놓치고 있던 혜택,
             <br />
             대신 알아볼게요
           </h1>
-          <p className="mt-5 lg:mt-6 text-[17px] lg:text-[21px] leading-relaxed text-[#4e5968] break-keep">
+          <p className="mt-4 lg:mt-5 text-[15px] lg:text-[16px] leading-relaxed text-[#6b7684] break-keep">
             광고 모델 대신, <span className="text-[#191f28] font-semibold">그 돈을 사은품으로</span> 드려요.
           </p>
           <div className="mt-8 lg:mt-10">
-            <Link href="/apply" data-testid="hero-cta" className="inline-flex items-center justify-center gap-2 w-full sm:w-auto h-14 px-7 rounded-2xl bg-[#ff8fab] hover:bg-[#ff7096] text-[#191f28] text-[16px] font-semibold transition-colors">
+            <Link href="/apply" data-testid="hero-cta" className="inline-flex items-center justify-center gap-2 w-full sm:w-auto h-14 px-7 rounded-2xl bg-[#ff8fab] hover:bg-[#ff7096] text-[#191f28] text-[15px] font-semibold transition-colors">
               내 사은품 확인하기 <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

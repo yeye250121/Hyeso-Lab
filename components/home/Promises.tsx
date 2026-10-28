@@ -23,7 +23,7 @@ function MatchVisual({ active }: { active: boolean }) {
         <div className="flex justify-between border-t border-[#e5e8eb] pt-3"><dt className="text-[#6b7684]">차액 × 120%</dt><dd className="font-semibold text-[#ff5c8a] tabular-nums">+ <CountUp to={bonus} start={active} duration={900} />원</dd></div>
       </dl>
       <p className="mt-5 text-[12px] text-[#8b95a1]">결과: 혜택연구소에서 받는 사은품</p>
-      <p className="mt-1 text-[32px] lg:text-[40px] font-bold tracking-[-0.03em] text-[#191f28] tabular-nums"><CountUp to={ours + bonus} start={active} duration={1100} />원</p>
+      <p className="mt-1 text-[26px] lg:text-[30px] font-semibold tracking-[-0.02em] text-[#191f28] tabular-nums"><CountUp to={ours + bonus} start={active} duration={1100} />원</p>
     </div>
   )
 }
@@ -46,7 +46,7 @@ function CashVisual({ active }: { active: boolean }) {
           ))}
         </ol>
       </div>
-      <p className="mt-8 text-[32px] lg:text-[40px] font-bold tracking-[-0.03em] text-[#191f28]">현금 <span className="text-[#ff5c8a]">당일</span> 입금</p>
+      <p className="mt-8 text-[26px] lg:text-[30px] font-semibold tracking-[-0.02em] text-[#191f28]">현금 <span className="text-[#ff5c8a]">당일</span> 입금</p>
       <p className="mt-1 text-[13px] text-[#6b7684]">상품권·포인트가 아니라 계좌로 들어가요.</p>
     </div>
   )
@@ -82,8 +82,8 @@ export default function Promises() {
     <section id="promises" className="scroll-mt-16">
       <div className="max-w-[1200px] mx-auto px-5 lg:px-8 pt-24 lg:pt-40">
         <Reveal>
-          <p className="text-[13px] font-semibold text-[#ff5c8a]">세 가지 약속</p>
-          <h2 className="mt-3 text-[28px] lg:text-[48px] font-bold tracking-[-0.03em] leading-[1.2] text-[#191f28] break-keep">그래서 나한테<br className="lg:hidden" /> 뭘 보장하나요?</h2>
+          <p className="text-[12px] font-medium text-[#ff5c8a]">세 가지 약속</p>
+          <h2 className="mt-3 text-[22px] lg:text-[32px] font-semibold tracking-[-0.02em] leading-[1.3] text-[#191f28] break-keep">그래서 나한테<br className="lg:hidden" /> 뭘 보장하나요?</h2>
         </Reveal>
       </div>
 
@@ -95,8 +95,8 @@ export default function Promises() {
               {PROMISES.map((p, i) => (
                 <li key={p.key} className={`transition-opacity duration-500 ${active === i ? 'opacity-100' : 'opacity-25'}`}>
                   <p className="text-[12px] font-semibold text-[#ff5c8a] tabular-nums">0{i + 1}</p>
-                  <h3 className="mt-2 text-[40px] font-bold tracking-[-0.03em] leading-[1.15] text-[#191f28] whitespace-pre-line">{p.title}</h3>
-                  {active === i && <p className="mt-4 text-[17px] leading-relaxed text-[#6b7684] max-w-[36ch]">{p.desc}</p>}
+                  <h3 className="mt-2 text-[28px] font-semibold tracking-[-0.02em] leading-[1.25] text-[#191f28] whitespace-pre-line">{p.title}</h3>
+                  {active === i && <p className="mt-3 text-[15px] leading-relaxed text-[#6b7684] max-w-[36ch]">{p.desc}</p>}
                 </li>
               ))}
             </ol>
@@ -119,7 +119,7 @@ export default function Promises() {
         {PROMISES.map((p, i) => { const V = VISUALS[i]; return (
           <Reveal key={p.key} as="li">
             <p className="text-[12px] font-semibold text-[#ff5c8a]">0{i + 1}</p>
-            <h3 className="mt-2 text-[26px] font-bold tracking-[-0.03em] leading-[1.2] text-[#191f28] whitespace-pre-line">{p.title}</h3>
+            <h3 className="mt-2 text-[22px] font-semibold tracking-[-0.02em] leading-[1.3] text-[#191f28] whitespace-pre-line">{p.title}</h3>
             <p className="mt-3 text-[15px] leading-relaxed text-[#6b7684]">{p.desc}</p>
             <div className="mt-5"><V active /></div>
           </Reveal>

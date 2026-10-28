@@ -28,7 +28,7 @@ export default function MoneyFlow({ maxGift }: { maxGift: number }) {
       </svg>
       <div className="absolute right-[7%] top-0 text-right">
         <p className="text-[11px] text-[#6b7684]">인터넷 최대</p>
-        <p className="text-[22px] lg:text-[26px] font-bold tracking-[-0.02em] text-[#191f28] tabular-nums"><CountUp to={maxGift} start delay={900} duration={1400} /><span className="text-[14px] font-medium ml-0.5">원</span></p>
+        <p className="text-[18px] lg:text-[20px] font-semibold tracking-[-0.01em] text-[#191f28] tabular-nums"><CountUp to={maxGift} start delay={900} duration={1400} /><span className="text-[14px] font-medium ml-0.5">원</span></p>
       </div>
     </div>
   )
