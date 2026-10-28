@@ -59,36 +59,17 @@ export default function WishButton({
   );
 }
 
-// 유리 질감 하트: 반투명 흰 그라데이션 채움 + 연한 회색 테두리 + 윗부분 광택. 찜하면 분홍 유리.
+// 하트: 속은 밋밋한 반투명 흰색, 연한 회색 테두리만 살짝. 찜하면 분홍으로 채움.
 function GlassHeart({ active }: { active: boolean }) {
-  const id = active ? 'wh-on' : 'wh-off';
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
-      <defs>
-        <linearGradient id={`${id}-fill`} x1="0" y1="0" x2="0" y2="1">
-          {active ? (
-            <>
-              <stop offset="0" stopColor="#ffb3c6" />
-              <stop offset="1" stopColor="#ff7096" />
-            </>
-          ) : (
-            <>
-              <stop offset="0" stopColor="#ffffff" stopOpacity="0.85" />
-              <stop offset="1" stopColor="#e5e8eb" stopOpacity="0.6" />
-            </>
-          )}
-        </linearGradient>
-        <linearGradient id={`${id}-gloss`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#ffffff" stopOpacity="0.95" />
-          <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
-        </linearGradient>
-        <clipPath id={`${id}-clip`}>
-          <path d={HEART} />
-        </clipPath>
-      </defs>
-      <path d={HEART} fill={`url(#${id}-fill)`} stroke={active ? '#ff8fab' : '#d1d6db'} strokeWidth="1.2" strokeLinejoin="round" />
-      {/* 광택: 하트 윗부분에 걸친 타원 */}
-      <ellipse cx="9" cy="6.5" rx="6.5" ry="3.2" fill={`url(#${id}-gloss)`} clipPath={`url(#${id}-clip)`} />
+    <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden className="transition-colors">
+      <path
+        d={HEART}
+        fill={active ? '#ff8fab' : 'rgba(255,255,255,0.55)'}
+        stroke={active ? '#ff8fab' : '#d1d6db'}
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
