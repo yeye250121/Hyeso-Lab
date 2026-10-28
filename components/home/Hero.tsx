@@ -24,7 +24,7 @@ export default function Hero() {
   )
   return (
     <section className="pt-[60px]" id="top">
-      <div className="max-w-[960px] mx-auto px-6 lg:px-8 pt-16 pb-20 lg:pt-28 lg:pb-32 grid lg:grid-cols-[1fr_420px] gap-10 lg:gap-12 items-center">
+      <div className="max-w-[960px] mx-auto px-6 lg:px-8 pt-24 pb-10 lg:pt-44 lg:pb-14 grid lg:grid-cols-[1fr_420px] gap-10 lg:gap-12 items-center">
         <div className="text-center lg:text-left">
           <h1 className="text-[26px] leading-[1.3] sm:text-[34px] lg:text-[42px] lg:leading-[1.25] font-semibold tracking-[-0.02em] text-[#191f28] break-keep">
             놓치고 있던 혜택,
@@ -47,7 +47,7 @@ export default function Hero() {
         </div>
       </div>
       {/* 스크롤 안내 화살표: 넓고 얇은 셰브론, 연한 회색, 천천히 위아래 */}
-      <a href="#promises" aria-label="아래로 스크롤" className="hero-scroll-hint block w-fit mx-auto -mt-6 mb-6 lg:-mt-14 lg:mb-10 p-3 text-[#d1d6db] hover:text-[#b0b8c1] transition-colors">
+      <a href="#promises" aria-label="아래로 스크롤" className="hero-scroll-hint block w-fit mx-auto mb-4 lg:mb-6 p-3 text-[#d1d6db] hover:text-[#b0b8c1] transition-colors">
         <svg width="48" height="16" viewBox="0 0 48 16" fill="none" aria-hidden>
           <path d="M3 3L24 13L45 3" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
