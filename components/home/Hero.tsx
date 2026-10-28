@@ -17,11 +17,11 @@ export default function Hero({ maxGift }: { maxGift: number }) {
             대신 알아볼게요
           </h1>
           <p className="mt-4 lg:mt-5 text-[15px] lg:text-[16px] leading-relaxed text-[#6b7684] break-keep">
-            광고 모델 대신, <span className="text-[#191f28] font-semibold">그 돈을 사은품으로</span> 드려요.
+            혜택연구소에서 똑똑하게 알아봐요
           </p>
           <div className="mt-8 lg:mt-10">
             <Link href="/apply" data-testid="hero-cta" className="inline-flex items-center justify-center gap-2 w-full sm:w-auto h-14 px-7 rounded-2xl bg-[#ff8fab] hover:bg-[#ff7096] text-[#191f28] text-[15px] font-semibold transition-colors">
-              내 사은품 확인하기 <ArrowRight className="w-4 h-4" />
+              연구 시작하기 <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
           <ul className="mt-8 flex flex-wrap gap-2" aria-label="세 가지 약속">
