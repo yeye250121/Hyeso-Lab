@@ -46,6 +46,12 @@ export default function Hero({ maxGift }: { maxGift: number }) {
           <div className="mt-6">{chips}</div>
         </div>
       </div>
+      {/* 스크롤 안내 화살표: 넓고 얇은 셰브론, 연한 회색, 천천히 위아래 */}
+      <a href="#promises" aria-label="아래로 스크롤" className="hero-scroll-hint block w-fit mx-auto -mt-6 mb-6 lg:-mt-14 lg:mb-10 p-3 text-[#d1d6db] hover:text-[#b0b8c1] transition-colors">
+        <svg width="40" height="18" viewBox="0 0 40 18" fill="none" aria-hidden>
+          <path d="M2 2L20 16L38 2" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </a>
     </section>
   )
 }
