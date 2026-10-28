@@ -14,11 +14,7 @@ export default function TwoThings({ maxGift, carriers, productCount, brands }: {
   ]
   return (
     <section className="max-w-[1200px] mx-auto px-5 lg:px-8 pt-24 lg:pt-40">
-      <Reveal>
-        <p className="text-[12px] font-medium text-[#ff5c8a]">딱 두 가지</p>
-        <h2 className="mt-3 text-[22px] lg:text-[32px] font-semibold tracking-[-0.02em] leading-[1.3] text-[#191f28] break-keep">많이 하지 않아요.<br />두 가지만 깊게 해요.</h2>
-      </Reveal>
-      <div className="mt-10 lg:mt-14 grid md:grid-cols-2 gap-4 lg:gap-6">
+      <div className="grid md:grid-cols-2 gap-4 lg:gap-6">
         {cards.map((c, i) => (
           <Reveal key={c.href} delay={i * 0.08}>
             <Link href={c.href} className="group block h-full rounded-[24px] bg-[#f9fafb] hover:bg-[#f2f4f6] transition-colors p-6 lg:p-9">
