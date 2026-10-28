@@ -37,7 +37,7 @@ export default async function HomePage() {
     address: { '@type': 'PostalAddress', addressLocality: '창원시 진해구', addressRegion: '경상남도', streetAddress: '충장로 68-1, 2층 1호', addressCountry: 'KR' },
   }
   return (
-    <div className="home-root min-h-screen bg-white text-[#191f28]" data-testid="home">
+    <div className="home-root relative min-h-screen bg-white text-[#191f28]" data-testid="home">
       <PretendardLink />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
       <Navbar />
@@ -50,7 +50,7 @@ export default async function HomePage() {
         <Faq />
         <FinalCta />
       </main>
-      <div className="pb-20 lg:pb-0"><Footer linkSections={FOOTER_LINKS} /></div>
+      <Footer linkSections={FOOTER_LINKS} />
       <MobileCtaBar />
     </div>
   )

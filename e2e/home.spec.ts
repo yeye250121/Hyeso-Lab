@@ -25,6 +25,14 @@ test('메인: 구성 요건', async ({ page }) => {
   await page.waitForTimeout(1200)
   const ghosts = await page.evaluate(() => Array.from(document.querySelectorAll('main *')).filter((el) => { const r = el.getBoundingClientRect(); return r.height > 20 && r.top < innerHeight && r.bottom > 0 && parseFloat(getComputedStyle(el).opacity) < 0.95 }).length)
   expect(ghosts).toBe(0)
-  // 모바일 하단 CTA 바가 보인다(히어로를 지난 뒤)
+  // 모바일 하단 CTA 바가 보이고, 맨 아래에서는 마지막 CTA 슬롯에 도킹해 버튼 하나로 합쳐진다
   await expect(page.getByTestId('mobile-cta')).toBeVisible()
+  await expect(page.getByTestId('mobile-cta')).toHaveAttribute('data-docked', 'true')
+  const slotBox = (await page.getByTestId('final-cta-slot').boundingBox())!
+  const barBtnBox = (await page.locator('[data-testid="mobile-cta"] a').boundingBox())!
+  expect(Math.abs(slotBox.y - barBtnBox.y)).toBeLessThanOrEqual(1)
+  expect(Math.abs(slotBox.x - barBtnBox.x)).toBeLessThanOrEqual(1)
+  // 다시 올라가면 고정 바로 돌아온다
+  await page.evaluate(() => window.scrollTo(0, 1200))
+  await expect(page.getByTestId('mobile-cta')).toHaveAttribute('data-docked', 'false')
 })
