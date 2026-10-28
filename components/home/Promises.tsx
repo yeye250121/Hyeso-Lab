@@ -96,7 +96,6 @@ export default function Promises() {
                 </li>
               ))}
             </ol>
-            <a href="#terms" className="mt-10 inline-block text-[14px] font-medium text-[#4e5968] underline underline-offset-4 hover:text-[#191f28]">자세한 기준 보기</a>
           </div>
           <div className="relative min-h-[420px]">
             <AnimatePresence mode="wait">
@@ -128,7 +127,6 @@ export default function Promises() {
               </motion.div>
             ) })()}
           </AnimatePresence>
-          <a href="#terms" className="mt-5 text-[13px] font-medium text-[#4e5968] underline underline-offset-4">자세한 기준 보기</a>
         </div>
       </div>
     </section>

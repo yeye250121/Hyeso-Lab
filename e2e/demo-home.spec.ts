@@ -15,8 +15,7 @@ test('데모 홈: 구성 요건', async ({ page }) => {
   // 실데이터: 최대 지원금·상품 수
   await expect(page.getByText(/최대 \d+만원/).first()).toBeVisible()
   await expect(page.getByText(/\d{3}종 비교/).first()).toBeVisible()
-  // 규정 아코디언·FAQ JSON-LD
-  await expect(page.getByTestId('terms-accordion')).toBeVisible()
+  // FAQ JSON-LD
   expect(await page.locator('script[type="application/ld+json"]').count()).toBeGreaterThanOrEqual(2)
   // 가로 넘침 없음
   const { sw, vw } = await page.evaluate(() => ({ sw: document.scrollingElement!.scrollWidth, vw: innerWidth }))

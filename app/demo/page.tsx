@@ -3,7 +3,6 @@ import SiteHeader from '@/components/home/SiteHeader'
 import Hero from '@/components/home/Hero'
 import { PromisesLazy, HowPossibleLazy, CaseMarqueeLazy } from '@/components/home/LazySections'
 import TwoThings from '@/components/home/TwoThings'
-import ProcessAndTerms from '@/components/home/ProcessAndTerms'
 import Faq from '@/components/home/Faq'
 import FinalCta, { MobileCtaBar } from '@/components/home/FinalCta'
 import Footer from '@/components/shared/Footer'
@@ -45,7 +44,6 @@ export default async function DemoPage() {
         <PromisesLazy />
         <HowPossibleLazy />
         <TwoThings maxGift={d.maxGift} carriers={d.carriers} productCount={d.productCount} brands={d.brands} />
-        <ProcessAndTerms />
         {d.cases.length > 0 && <CaseMarqueeLazy cases={d.cases} className="mt-24 lg:mt-40" />}
         <Faq />
         <FinalCta />
