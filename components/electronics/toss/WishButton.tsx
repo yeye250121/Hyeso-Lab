@@ -56,7 +56,7 @@ export default function WishButton({
     >
       <Heart
         className={`w-6 h-6 drop-shadow-sm transition-colors ${
-          active ? 'fill-[var(--action-primary)] text-[var(--action-primary)]' : 'fill-white/60 text-white'
+          active ? 'fill-[var(--action-primary)] text-[var(--action-primary)]' : 'fill-white/70 text-[#8b95a1]'
         }`}
       />
     </button>
