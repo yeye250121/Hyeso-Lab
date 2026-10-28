@@ -562,6 +562,16 @@ body {
 .home-root :focus-visible { outline: 2px solid #ff8fab; outline-offset: 3px; }
 /* 모바일 하단 고정 CTA 바가 마지막 CTA 슬롯에 도킹하므로, JS 가 붙은 뒤에는 슬롯 안 링크를 숨긴다 */
 @media (max-width: 1023px) { .home-root [data-testid="final-cta-slot"][data-js] a { visibility: hidden; } }
+/* 보장 섹션(모바일) 단계 스냅: 스와이프 한 번에 한 단계.
+   Chromium 은 scroll-snap-stop: always 를 mandatory 에서만 지키므로 mandatory 를 쓰되,
+   페이지 전체를 덮는 스냅 영역(.snap-free, 뷰포트보다 크면 그 안 어디서나 멈출 수 있음)으로
+   섹션 밖은 자유 스크롤로 둔다. end 정렬이라 위쪽(0)에 스냅 지점이 생기지 않는다.
+   부작용: 히어로(한 화면)에서 아래로 끌면 01 단계로 넘어간다(히어로 ↔ 01 페이지 전환 느낌). */
+@media (max-width: 1023px) {
+  html.snap-steps { scroll-snap-type: y mandatory; }
+  html.snap-steps .snap-step { scroll-snap-align: start; scroll-snap-stop: always; scroll-margin-top: 58px; }
+  html.snap-steps .snap-free { position: absolute; inset: 0; pointer-events: none; scroll-snap-align: end; }
+}
 /* 히어로 돈 흐름(MoneyFlow): CSS 키프레임. 3초 안에 끝남 */
 @keyframes mfShrink { to { transform: scaleY(0); opacity: 0; } }
 @keyframes mfGrow { from { transform: scaleY(0.36); } to { transform: scaleY(1); } }
