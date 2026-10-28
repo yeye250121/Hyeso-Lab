@@ -9,9 +9,10 @@ import Reveal from './Reveal'
 export function MobileCtaBar() {
   const [show, setShow] = useState(false)
   useEffect(() => {
+    // 모바일 히어로 CTA(그래프 아래)가 화면 위로 지나간 뒤에만 바를 띄운다
     const hero = document.querySelector('[data-testid="hero-cta"]')
     if (!hero) return
-    const io = new IntersectionObserver(([e]) => setShow(!e.isIntersecting && e.boundingClientRect.top < 0))
+    const io = new IntersectionObserver(([e]) => setShow(!e.isIntersecting && e.boundingClientRect.bottom < 0))
     io.observe(hero)
     return () => io.disconnect()
   }, [])
