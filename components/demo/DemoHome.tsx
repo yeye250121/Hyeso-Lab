@@ -176,7 +176,7 @@ function Report({ carriers, maxGift }: { carriers: DemoData['carriers']; maxGift
                 <span className="mono text-[12px] text-[#8b95a1]">최대 지원금</span>
                 <span className="mono text-[12px] text-[#8b95a1]">단위 원</span>
               </div>
-              <ol className="divide-y divide-[#f2f4f6]">
+              <ol className="divide-y divide-[#f2f4f6]" data-testid="demo-report">
                 {rows.map((c, i) => (
                   <li key={c.name} className="grid grid-cols-[96px_1fr_auto] sm:grid-cols-[150px_1fr_auto] items-center gap-4 px-5 lg:px-8 h-[60px] lg:h-[66px]">
                     <div className="flex items-center gap-3 min-w-0">
