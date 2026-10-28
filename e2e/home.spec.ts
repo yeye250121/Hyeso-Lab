@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test'
 
-// 메인 리뉴얼 데모(/demo) 스모크: 실데이터·섹션·CTA 목적지·카드 링크 없음·팝업 없음·빠른 스크롤 후 투명 요소 없음.
-test('데모 홈: 구성 요건', async ({ page }) => {
-  await page.goto('/demo')
-  await expect(page.getByTestId('demo-home')).toBeVisible()
+// 메인(/) 스모크: 실데이터·섹션·CTA 목적지·카드 링크 없음·팝업 없음·빠른 스크롤 후 투명 요소 없음.
+test('메인: 구성 요건', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByTestId('home')).toBeVisible()
   await expect(page.getByRole('heading', { level: 1 })).toContainText('놓치고 있던 혜택')
   expect(await page.getByRole('heading', { level: 1 }).count()).toBe(1)
   // CTA 목적지와 문구

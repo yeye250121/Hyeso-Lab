@@ -558,8 +558,8 @@ body {
 .landing-button-out { animation: landingButtonOut 0.18s ease-in both; }
 
 /* ===== /demo 홈 ===== */
-.demo-root { font-family: 'Pretendard Variable', Pretendard, var(--font-noto-sans-kr), sans-serif; }
-.demo-root :focus-visible { outline: 2px solid #ff8fab; outline-offset: 3px; }
+.home-root { font-family: 'Pretendard Variable', Pretendard, var(--font-noto-sans-kr), sans-serif; }
+.home-root :focus-visible { outline: 2px solid #ff8fab; outline-offset: 3px; }
 /* 히어로 돈 흐름(MoneyFlow): CSS 키프레임. 3초 안에 끝남 */
 @keyframes mfShrink { to { transform: scaleY(0); opacity: 0; } }
 @keyframes mfGrow { from { transform: scaleY(0.36); } to { transform: scaleY(1); } }

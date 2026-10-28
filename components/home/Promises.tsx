@@ -111,7 +111,7 @@ export default function Promises() {
 
       {/* 모바일: 스크롤 진행에 따라 한 화면에서 01→02→03 교체 */}
       <div ref={mRef} className="lg:hidden h-[260vh]">
-        <div className="sticky top-[60px] h-[calc(100vh-60px)] px-5 flex flex-col justify-center">
+        <div className="sticky top-[58px] h-[calc(100vh-58px)] px-5 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-5" aria-hidden>
             {PROMISES.map((p, i) => (
               <span key={p.key} className={`h-1.5 rounded-full transition-all duration-300 ${mActive === i ? 'w-7 bg-[#ff8fab]' : 'w-1.5 bg-[#e5e8eb]'}`} />
