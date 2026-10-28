@@ -1,23 +1,31 @@
 import { test, expect } from '@playwright/test'
 
-// 메인 홈 데모(/demo) 스모크. 실데이터가 채워지고, 가로로 넘치지 않고, 상호작용이 동작하는지만 본다.
-test('데모 홈: 히어로·실데이터·지원금 확인·링크', async ({ page }) => {
+// 메인 리뉴얼 데모(/demo) 스모크: 실데이터·섹션·CTA 목적지·카드 링크 없음·팝업 없음·빠른 스크롤 후 투명 요소 없음.
+test('데모 홈: 구성 요건', async ({ page }) => {
   await page.goto('/demo')
   await expect(page.getByTestId('demo-home')).toBeVisible()
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('놓치고 있던')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('놓치고 있던 혜택')
+  expect(await page.getByRole('heading', { level: 1 }).count()).toBe(1)
+  // CTA 목적지와 문구
+  await expect(page.getByTestId('hero-cta')).toHaveAttribute('href', '/apply')
+  // 카드 링크·경쟁사 이름 없음
+  expect(await page.locator('main a[href^="/card"]').count()).toBe(0)
+  expect(await page.locator('footer a[href^="/card"]').count()).toBe(0)
+  expect(await page.locator('body').innerText()).not.toMatch(/아정당/)
+  // 실데이터: 최대 지원금·상품 수
+  await expect(page.getByText(/최대 \d+만원/).first()).toBeVisible()
+  await expect(page.getByText(/\d{3}종 비교/).first()).toBeVisible()
+  // 규정 아코디언·FAQ JSON-LD
+  await expect(page.getByTestId('terms-accordion')).toBeVisible()
+  expect(await page.locator('script[type="application/ld+json"]').count()).toBeGreaterThanOrEqual(2)
+  // 가로 넘침 없음
   const { sw, vw } = await page.evaluate(() => ({ sw: document.scrollingElement!.scrollWidth, vw: innerWidth }))
   expect(sw).toBeLessThanOrEqual(vw)
-  // 보고서 프레임: 통신사 6곳의 지원금이 실데이터로 채워진다
-  await page.getByText('통신사만 고르면', { exact: false }).first().scrollIntoViewIfNeeded()
-  const rows = page.getByTestId('demo-report').locator('li')
-  await expect(rows).toHaveCount(6)
-  await rows.first().scrollIntoViewIfNeeded() // 카운트업은 행이 화면에 들어와야 시작된다
-  await expect(rows.first()).toBeVisible()
-  // 카운트업이 끝나면 만원 단위 숫자가 보인다
-  await expect.poll(async () => (await rows.first().innerText()).replace(/[\s,]/g, ''), { timeout: 8000 }).toMatch(/[1-9]\d{5}/)
-  // 상품 카드가 실데이터로 채워진다
-  await expect(page.locator('a[href^="/electronics/"]').filter({ hasText: '월' }).first()).toBeVisible()
-  // 주요 링크
-  await expect(page.getByRole('link', { name: /연구 시작하기/ }).first()).toHaveAttribute('href', '/apply')
-  await expect(page.getByRole('link', { name: /파트너 신청하기/ })).toHaveAttribute('href', '/partners/register')
+  // 빠른 스크롤 뒤 투명한 채 남는 요소 없음
+  await page.evaluate(() => window.scrollTo(0, document.scrollingElement!.scrollHeight))
+  await page.waitForTimeout(1200)
+  const ghosts = await page.evaluate(() => Array.from(document.querySelectorAll('main *')).filter((el) => { const r = el.getBoundingClientRect(); return r.height > 20 && r.top < innerHeight && r.bottom > 0 && parseFloat(getComputedStyle(el).opacity) < 0.95 }).length)
+  expect(ghosts).toBe(0)
+  // 모바일 하단 CTA 바가 보인다(히어로를 지난 뒤)
+  await expect(page.getByTestId('mobile-cta')).toBeVisible()
 })

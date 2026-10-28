@@ -558,14 +558,5 @@ body {
 .landing-button-out { animation: landingButtonOut 0.18s ease-in both; }
 
 /* ===== /demo 홈 ===== */
-.demo-root { font-family: 'Pretendard Variable', Pretendard, var(--font-noto-sans-kr), sans-serif; font-feature-settings: 'ss01', 'cv11'; }
-.demo-root .mono { font-family: var(--font-mono), 'Pretendard Variable', Pretendard, ui-monospace, monospace; letter-spacing: 0.02em; }
-.demo-root nav.sticky { background: #fff !important; }
-@keyframes demoIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@keyframes demoBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-.demo-in { opacity: 0; transform: translateY(14px); transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1); }
-.demo-in.is-in { opacity: 1; transform: none; }
-.demo-bar { transform-origin: left; transform: scaleX(0); transition: transform 1.1s cubic-bezier(0.22,1,0.36,1); }
-.is-in .demo-bar { transform: scaleX(1); }
-.demo-rule { background-image: linear-gradient(to right, #e5e8eb 1px, transparent 1px), linear-gradient(to bottom, #e5e8eb 1px, transparent 1px); }
-@media (prefers-reduced-motion: reduce) { .demo-in, .demo-bar { opacity: 1; transform: none; transition: none; } }
+.demo-root { font-family: 'Pretendard Variable', Pretendard, var(--font-noto-sans-kr), sans-serif; }
+.demo-root :focus-visible { outline: 2px solid #ff8fab; outline-offset: 3px; }
