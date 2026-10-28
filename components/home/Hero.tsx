@@ -24,7 +24,7 @@ export default function Hero() {
   )
   return (
     <section className="pt-[60px]" id="top">
-      <div className="max-w-[1040px] mx-auto px-6 lg:px-8 pt-16 pb-20 lg:pt-28 lg:pb-32 grid lg:grid-cols-[1fr_440px] gap-10 lg:gap-14 items-center">
+      <div className="max-w-[960px] mx-auto px-6 lg:px-8 pt-16 pb-20 lg:pt-28 lg:pb-32 grid lg:grid-cols-[1fr_420px] gap-10 lg:gap-12 items-center">
         <div className="text-center lg:text-left">
           <h1 className="text-[26px] leading-[1.3] sm:text-[34px] lg:text-[42px] lg:leading-[1.25] font-semibold tracking-[-0.02em] text-[#191f28] break-keep">
             놓치고 있던 혜택,

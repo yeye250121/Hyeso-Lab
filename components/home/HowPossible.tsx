@@ -16,7 +16,7 @@ export default function HowPossible() {
   void p
   return (
     <section className="bg-[#191f28] text-white mt-24 lg:mt-40">
-      <div className="max-w-[1200px] mx-auto px-5 lg:px-8 py-24 lg:py-40 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <div className="max-w-[960px] mx-auto px-5 lg:px-8 py-24 lg:py-40 grid lg:grid-cols-[1fr_440px] gap-12 lg:gap-12 items-center">
         <Reveal>
           <p className="text-[12px] font-medium text-[#ff9fb8]">어떻게 가능할까요?</p>
           <h2 className="mt-3 text-[22px] lg:text-[32px] font-semibold tracking-[-0.02em] leading-[1.3] break-keep">광고 모델을 쓰지 않아요</h2>
