@@ -52,15 +52,46 @@ export default function WishButton({
       data-testid="wish-toggle"
       aria-label={active ? '찜 해제' : '찜하기'}
       aria-pressed={active}
-      // 유리알 느낌: 반투명 흰 배경 + 블러 + 얇은 흰 테두리 + 안쪽 하이라이트. 하트 선은 아주 연한 회색.
-      className="absolute bottom-2 right-2 w-9 h-9 rounded-full flex items-center justify-center bg-white/45 backdrop-blur-md backdrop-saturate-150 border border-white/80 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] transition-colors hover:bg-white/60"
+      className="absolute bottom-2 right-2 p-1.5"
     >
-      <Heart
-        className={`w-[18px] h-[18px] transition-colors ${
-          active ? 'fill-[var(--action-primary)] text-[var(--action-primary)]' : 'fill-transparent text-[#c5ccd3]'
-        }`}
-        strokeWidth={1.8}
-      />
+      <GlassHeart active={active} />
     </button>
   );
 }
+
+// 유리 질감 하트: 반투명 흰 그라데이션 채움 + 연한 회색 테두리 + 윗부분 광택. 찜하면 분홍 유리.
+function GlassHeart({ active }: { active: boolean }) {
+  const id = active ? 'wh-on' : 'wh-off';
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
+      <defs>
+        <linearGradient id={`${id}-fill`} x1="0" y1="0" x2="0" y2="1">
+          {active ? (
+            <>
+              <stop offset="0" stopColor="#ffb3c6" />
+              <stop offset="1" stopColor="#ff7096" />
+            </>
+          ) : (
+            <>
+              <stop offset="0" stopColor="#ffffff" stopOpacity="0.85" />
+              <stop offset="1" stopColor="#e5e8eb" stopOpacity="0.6" />
+            </>
+          )}
+        </linearGradient>
+        <linearGradient id={`${id}-gloss`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" stopOpacity="0.95" />
+          <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
+        </linearGradient>
+        <clipPath id={`${id}-clip`}>
+          <path d={HEART} />
+        </clipPath>
+      </defs>
+      <path d={HEART} fill={`url(#${id}-fill)`} stroke={active ? '#ff8fab' : '#d1d6db'} strokeWidth="1.2" strokeLinejoin="round" />
+      {/* 광택: 하트 윗부분에 걸친 타원 */}
+      <ellipse cx="9" cy="6.5" rx="6.5" ry="3.2" fill={`url(#${id}-gloss)`} clipPath={`url(#${id}-clip)`} />
+    </svg>
+  );
+}
+
+const HEART =
+  'M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z';
