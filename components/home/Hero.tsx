@@ -27,7 +27,7 @@ export default function Hero({ maxGift }: { maxGift: number }) {
           <ul className="mt-8 flex flex-wrap gap-2" aria-label="세 가지 약속">
             {PROMISES.map((p) => (
               <li key={p.key}>
-                <a href="#promises" className="inline-flex items-center h-8 px-3 rounded-full bg-[#f2f4f6] text-[13px] font-medium text-[#4e5968] hover:bg-[#e5e8eb]">{p.chip}</a>
+                <a href="#terms" className="inline-flex items-center h-8 px-3 rounded-full bg-[#f2f4f6] text-[13px] font-medium text-[#4e5968] hover:bg-[#e5e8eb]">{p.chip}</a>
               </li>
             ))}
           </ul>
