@@ -41,8 +41,6 @@ export default async function HomePage() {
       <PretendardLink />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
       <Navbar />
-      {/* 모바일 보장 섹션 단계 스냅용: 페이지 전체를 덮는 자유 스크롤 영역(globals.css .snap-free) */}
-      <div aria-hidden className="snap-free" />
       <main>
         <Hero />
         <PromisesLazy />

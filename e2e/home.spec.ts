@@ -17,6 +17,13 @@ test('메인: 구성 요건', async ({ page }) => {
   await expect(page.getByText(/\d{3}종 비교/).first()).toBeVisible()
   // FAQ JSON-LD
   expect(await page.locator('script[type="application/ld+json"]').count()).toBeGreaterThanOrEqual(2)
+  // 보장 섹션(모바일): 내부 스크롤러가 한 칸(=한 화면) 내려가면 02 단계로 바뀐다
+  await page.evaluate(() => window.scrollTo(0, 400))
+  const steps = page.getByTestId('promises-steps')
+  await expect(steps).toBeVisible()
+  await steps.evaluate((el) => { el.scrollTop = el.clientHeight })
+  await expect(steps.getByText('02', { exact: true })).toBeVisible()
+  await page.evaluate(() => window.scrollTo(0, 0))
   // 가로 넘침 없음
   const { sw, vw } = await page.evaluate(() => ({ sw: document.scrollingElement!.scrollWidth, vw: innerWidth }))
   expect(sw).toBeLessThanOrEqual(vw)
