@@ -9,7 +9,7 @@ import { PROMISES } from '@/lib/content/promise'
 export default function Hero({ maxGift }: { maxGift: number }) {
   return (
     <section className="pt-[60px]" id="top">
-      <div className="max-w-[1200px] mx-auto px-5 lg:px-8 pt-14 pb-16 lg:pt-28 lg:pb-32 grid lg:grid-cols-[1.05fr_1fr] gap-12 lg:gap-16 items-center">
+      <div className="max-w-[1040px] mx-auto px-5 lg:px-8 pt-14 pb-16 lg:pt-28 lg:pb-32 grid lg:grid-cols-[1fr_440px] gap-12 lg:gap-14 items-center">
         <div>
           <h1 className="text-[26px] leading-[1.3] sm:text-[34px] lg:text-[42px] lg:leading-[1.25] font-semibold tracking-[-0.02em] text-[#191f28] break-keep">
             놓치고 있던 혜택,
@@ -32,7 +32,7 @@ export default function Hero({ maxGift }: { maxGift: number }) {
             ))}
           </ul>
         </div>
-        <div className="lg:pl-6">
+        <div>
           <MoneyFlow maxGift={maxGift} />
           <p className="mt-3 text-center text-[12px] text-[#6b7684]">동일 상품 · 약정 · 관리 조건 기준</p>
         </div>
