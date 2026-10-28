@@ -12,7 +12,7 @@ export default function Reveal({ children, delay = 0, className = '', as = 'div'
     if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     if (el.getBoundingClientRect().top < window.innerHeight * 0.92) return
     setState('hidden')
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setState('show'); io.disconnect() } }, { threshold: 0.2 })
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setState('show'); io.disconnect() } }, { threshold: 0, rootMargin: '0px 0px -12% 0px' })
     io.observe(el)
     return () => io.disconnect()
   }, [])

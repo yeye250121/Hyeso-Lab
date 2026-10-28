@@ -23,8 +23,8 @@ test('메인: 구성 요건', async ({ page }) => {
   // 빠른 스크롤 뒤 투명한 채 남는 요소 없음
   await page.evaluate(() => window.scrollTo(0, document.scrollingElement!.scrollHeight))
   await page.waitForTimeout(1200)
-  const ghosts = await page.evaluate(() => Array.from(document.querySelectorAll('main *')).filter((el) => { const r = el.getBoundingClientRect(); return r.height > 20 && r.top < innerHeight && r.bottom > 0 && parseFloat(getComputedStyle(el).opacity) < 0.95 }).length)
-  expect(ghosts).toBe(0)
+  const ghosts = await page.evaluate(() => Array.from(document.querySelectorAll('main *')).filter((el) => { const r = el.getBoundingClientRect(); return r.height > 20 && r.top < innerHeight && r.bottom > 0 && parseFloat(getComputedStyle(el).opacity) < 0.95 }).map((el) => `${el.tagName}.${el.className.toString().slice(0, 80)} opacity=${getComputedStyle(el).opacity}`))
+  expect(ghosts, ghosts.join('\n')).toEqual([])
   // 모바일 하단 CTA 바가 보이고, 맨 아래에서는 마지막 CTA 슬롯에 도킹해 버튼 하나로 합쳐진다
   await expect(page.getByTestId('mobile-cta')).toBeVisible()
   await expect(page.getByTestId('mobile-cta')).toHaveAttribute('data-docked', 'true')

@@ -44,7 +44,9 @@ export function MobileCtaBar() {
     update()
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll)
-    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); if (raf) cancelAnimationFrame(raf) }
+    // 섹션 등장 애니메이션(Reveal 의 translateY)이 끝나면 슬롯 위치가 바뀌므로 다시 잰다
+    document.addEventListener('transitionend', onScroll, true)
+    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); document.removeEventListener('transitionend', onScroll, true); if (raf) cancelAnimationFrame(raf) }
   }, [])
 
   const docked = dockTop !== null
