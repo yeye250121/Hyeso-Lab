@@ -85,7 +85,7 @@ export default function Promises() {
     <section id="promises" className="scroll-mt-16">
       {/* 데스크톱: sticky 스토리텔링 */}
       <div ref={ref} className="hidden lg:block h-[300vh] max-w-[960px] mx-auto px-8">
-        <div className="sticky top-0 h-screen grid grid-cols-[1fr_440px] gap-12 items-start pt-40">
+        <div className="sticky top-0 h-screen grid grid-cols-[1fr_440px] gap-12 items-center">
           <div>
             <ol className="space-y-8">
               {PROMISES.map((p, i) => (
