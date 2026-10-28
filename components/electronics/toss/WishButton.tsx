@@ -52,12 +52,14 @@ export default function WishButton({
       data-testid="wish-toggle"
       aria-label={active ? '찜 해제' : '찜하기'}
       aria-pressed={active}
-      className="absolute bottom-2 right-2 p-1.5"
+      // 유리알 느낌: 반투명 흰 배경 + 블러 + 얇은 흰 테두리 + 안쪽 하이라이트. 하트 선은 아주 연한 회색.
+      className="absolute bottom-2 right-2 w-9 h-9 rounded-full flex items-center justify-center bg-white/45 backdrop-blur-md backdrop-saturate-150 border border-white/80 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] transition-colors hover:bg-white/60"
     >
       <Heart
-        className={`w-6 h-6 drop-shadow-sm transition-colors ${
-          active ? 'fill-[var(--action-primary)] text-[var(--action-primary)]' : 'fill-white/70 text-[#b0b8c1]'
+        className={`w-[18px] h-[18px] transition-colors ${
+          active ? 'fill-[var(--action-primary)] text-[var(--action-primary)]' : 'fill-transparent text-[#c5ccd3]'
         }`}
+        strokeWidth={1.8}
       />
     </button>
   );
