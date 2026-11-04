@@ -6,7 +6,7 @@ test.describe('1. GNB 탭 · 카테고리 레일', () => {
   test('탭 클릭 이동이 되고, 목록의 카테고리 레일은 가로 스크롤된다', async ({ page }) => {
     await page.goto('/electronics');
 
-    // 탭은 셋만 둔다(렌탈 홈·카테고리·정수기). 카테고리 나열은 목록의 레일이 담당한다
+    // 탭은 셋만 둔다(홈·카테고리·정수기). 카테고리 나열은 목록의 레일이 담당한다
     const tabs = page.getByTestId('gnb-tabs');
     await expect(tabs).toBeVisible();
 
