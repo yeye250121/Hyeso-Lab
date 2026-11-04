@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { Headset, Heart, LayoutGrid, Sparkles } from 'lucide-react';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
+import FaqSection from '@/components/shared/FaqSection';
+import { RENTAL_FAQ } from '@/lib/content/rentalFaq';
 import { getAllProducts, getCategoryTree } from '@/lib/electronicsApi';
 import ShopGnb from '@/components/electronics/toss/ShopGnb';
 import { buildGnbTabs } from '@/components/electronics/toss/gnbTabs';
@@ -140,6 +142,8 @@ export default async function ElectronicsHubPage() {
             ))}
           </div>
         </section>
+
+        <FaqSection items={RENTAL_FAQ} className="pt-16" />
       </main>
 
       <Footer />
