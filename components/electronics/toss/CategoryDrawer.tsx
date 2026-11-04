@@ -18,12 +18,26 @@ export default function CategoryDrawer({ groups }: { groups: CategoryNode[] }) {
   useEffect(() => {
     const onScroll = () => {
       if (Date.now() < lockUntil.current) return;
-      let current = groups[0]?.slug;
-      for (const g of groups) {
+      const y = window.scrollY;
+      // 각 섹션이 활성화되는 스크롤 위치(섹션 상단이 GNB 바로 아래에 닿는 지점)
+      const tops = groups.map((g) => {
         const el = document.getElementById(`cat-group-${g.slug}`);
-        if (el && el.getBoundingClientRect().top <= NAV_OFFSET + 12) current = g.slug;
+        return el ? el.getBoundingClientRect().top + y - NAV_OFFSET - 12 : Infinity;
+      });
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      // 페이지 끝에 가까운 섹션들은 상단까지 올라올 수 없다. 마지막 도달 가능 섹션부터는 남은 스크롤 거리를
+      // 섹션 시작 위치 비율대로 압축해 읽어서, 맨 아래까지 내리면 마지막 섹션이 활성화되게 한다.
+      const firstUnreachable = tops.findIndex((t) => t > maxScroll);
+      let yv = y;
+      if (firstUnreachable > 0 && y >= tops[firstUnreachable - 1]) {
+        const start = tops[firstUnreachable - 1];
+        const last = tops[tops.length - 1];
+        yv = start + ((y - start) / Math.max(1, maxScroll - start)) * (last - start);
+        if (y >= maxScroll - 1) yv = last;
       }
-      setActive(current);
+      let idx = 0;
+      for (let i = 0; i < tops.length; i++) if (tops[i] <= yv) idx = i;
+      setActive(groups[idx]?.slug);
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });

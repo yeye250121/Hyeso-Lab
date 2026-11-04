@@ -1,9 +1,6 @@
 // 가전렌탈 허브 하단 FAQ. 메인 FAQ(lib/content/promise.ts)와 톤을 맞춘다. "본사" = 제품을 만드는 렌탈 회사.
 export type FaqItem = { q: string; a: string; links?: { label: string; href: string }[] }
 
-export const KAKAO_CHAT_URL = 'http://pf.kakao.com/_ElyaX/chat'
-export const PHONE = '010-7469-4385'
-
 export const RENTAL_FAQ: FaqItem[] = [
   { q: '본사 제품과 품질이 같나요?', a: '네. 제품·설치·A/S 모두 본사가 그대로 담당해요. 다른 건 혜택뿐이에요. 본사는 상품권, 혜택연구소는 설치 당일 현금으로 드려요.' },
   { q: '월 요금은 다른 곳과 같나요?', a: '네. 월 요금은 본사가 정한 금액이라 어디서 신청해도 같아요. 다른 건 사은품뿐이에요.' },
@@ -13,11 +10,7 @@ export const RENTAL_FAQ: FaqItem[] = [
   { q: '약정이 끝난 뒤 소유권 이전 전에 해지하면요?', a: '위약금은 없어요. 다만 제품이 아직 본사 소유라 철거 비용이 생길 수 있어요.' },
   {
     q: '신청 절차는 어떻게 되나요?',
-    a: '상담 → 제품·약정 선택 → 신청서 작성 → 설치 순이에요. 상담은 편한 방법으로 하세요.',
-    links: [
-      { label: '상담 신청', href: '/apply' },
-      { label: '카카오톡 채널', href: KAKAO_CHAT_URL },
-      { label: `전화 ${PHONE}`, href: `tel:${PHONE}` },
-    ],
+    a: '상담 → 제품·약정 선택 → 신청서 작성 → 설치 순이에요.',
+    links: [{ label: '상담 신청', href: '/apply' }],
   },
 ]
