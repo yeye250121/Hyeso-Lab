@@ -10,7 +10,7 @@ export default function PromoBanner() {
     <Link
       href="/apply"
       data-testid="promo-banner"
-      className="flex items-center justify-between gap-4 rounded-2xl lg:rounded-3xl bg-gradient-to-r from-[#fff3f6] to-[#ffe4ec] hover:to-[#ffdce7] transition-colors px-6 py-9 lg:h-[320px] lg:py-0 lg:pl-[120px] lg:pr-[96px]"
+      className="flex items-center justify-between gap-4 rounded-2xl lg:rounded-3xl bg-gradient-to-r from-[#fff3f6] to-[#ffe4ec] hover:to-[#ffdce7] transition-colors px-6 py-9 lg:h-[320px] lg:py-0 lg:pl-[120px] lg:pr-[150px]"
     >
       <div className="min-w-0">
         <p className="text-[24px] lg:text-[30px] font-bold text-[#333d4b] leading-[1.3] tracking-[-0.01em] break-keep">
@@ -25,9 +25,9 @@ export default function PromoBanner() {
         alt=""
         width={720}
         height={468}
-        sizes="(min-width: 1024px) 440px, 150px"
+        sizes="(min-width: 1024px) 264px, 150px"
         priority
-        className="w-[150px] lg:w-[440px] h-auto shrink-0"
+        className="w-[150px] lg:w-[264px] h-auto shrink-0"
       />
     </Link>
   );
