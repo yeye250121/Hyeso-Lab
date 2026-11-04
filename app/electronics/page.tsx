@@ -6,7 +6,7 @@ import { RENTAL_FAQ } from '@/lib/content/rentalFaq';
 import { getAllProducts, getCategoryTree } from '@/lib/electronicsApi';
 import ShopGnb from '@/components/electronics/toss/ShopGnb';
 import { buildGnbTabs } from '@/components/electronics/toss/gnbTabs';
-import BannerCarousel, { type BannerSlide } from '@/components/electronics/toss/BannerCarousel';
+import PromoBanner from '@/components/electronics/toss/PromoBanner';
 import CircleShortcuts from '@/components/electronics/toss/CircleShortcuts';
 import Best4, { type Best4Tab } from '@/components/electronics/toss/Best4';
 import { POPULAR_CATEGORY_SLUGS } from '@/components/electronics/popularCategories';
@@ -35,36 +35,6 @@ export default async function ElectronicsHubPage() {
   ]);
 
   const categories = tree.flatMap((g) => g.children).filter((c) => c.productCount > 0);
-
-  // 배너는 실데이터 기반 문구만 쓴다(광고 소재 없음)
-  const cheapest = products[0];
-  const slides: BannerSlide[] = [
-    {
-      eyebrow: `렌탈 상품 ${products.length}개 비교 중`,
-      title: '월 렌탈료만 보지 말고\n총 납부액까지 확인하세요',
-      caption: '약정·관리방법 조건별 실제 가격을 보여드려요',
-      href: '/electronics/category',
-      bg: 'bg-[#fff1f5]',
-    },
-    ...(cheapest
-      ? [
-          {
-            eyebrow: '오늘 기준 최저가',
-            title: `${cheapest.category_name} 월 ${cheapest.minFee.toLocaleString()}원부터`,
-            caption: `${cheapest.brand} ${cheapest.display_name}`,
-            href: `/electronics/${cheapest.category_slug}/${cheapest.slug}`,
-            bg: 'bg-[#f4f5f7]',
-          },
-        ]
-      : []),
-    {
-      eyebrow: '찜 기능',
-      title: '고민되는 상품은\n하트를 눌러 담아두세요',
-      caption: '찜 목록에서 한 번에 다시 비교할 수 있어요',
-      href: '/electronics/wishlist',
-      bg: 'bg-[#f0f7ff]',
-    },
-  ];
 
   // BEST4 탭: 인기 카테고리 중 상품이 있는 것만. 칩은 스펙·상품명으로 판별한다.
   const CHIPS: Record<string, { key: string; label: string; test: (p: (typeof products)[number]) => boolean }[]> = {
@@ -115,7 +85,7 @@ export default async function ElectronicsHubPage() {
 
       <main className="flex-1 w-full max-w-[1100px] mx-auto px-6 pb-24">
         <section className="pt-4">
-          <BannerCarousel slides={slides} />
+          <PromoBanner />
         </section>
 
         <section className="pt-8">
