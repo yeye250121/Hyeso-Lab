@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { Headset, Heart, LayoutGrid, Sparkles } from 'lucide-react';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
@@ -11,6 +10,7 @@ import BannerCarousel, { type BannerSlide } from '@/components/electronics/toss/
 import CircleShortcuts from '@/components/electronics/toss/CircleShortcuts';
 import Best4, { type Best4Tab } from '@/components/electronics/toss/Best4';
 import { POPULAR_CATEGORY_SLUGS } from '@/components/electronics/popularCategories';
+import CategoryTiles from '@/components/electronics/toss/CategoryTiles';
 
 // 카탈로그는 실시간성이 필요 없다. 관리자 수정 시 revalidateTag 로 즉시 갱신한다.
 export const revalidate = 3600;
@@ -130,17 +130,7 @@ export default async function ElectronicsHubPage() {
 
         <section className="pt-14">
           <h2 className="text-xl font-bold text-[#333d4b] mb-5">카테고리</h2>
-          <div className="flex flex-wrap gap-2">
-            {categories.map((c) => (
-              <Link
-                key={c.slug}
-                href={`/electronics/${c.slug}`}
-                className="px-4 py-2 rounded-full border border-gray-200 text-sm font-medium text-gray-600 hover:border-gray-300 hover:text-[#333d4b] transition-colors"
-              >
-                {c.name} <span className="text-gray-400">{c.productCount}</span>
-              </Link>
-            ))}
-          </div>
+          <CategoryTiles categories={categories} />
         </section>
 
         <FaqSection items={RENTAL_FAQ} className="pt-16" />
