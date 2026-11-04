@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight, Package } from 'lucide-react';
 
-// 렌탈 홈 "추천 제품 BEST4". 인기 카테고리 탭 → (있으면) 특징 칩 → 4개 카드 → 더보기.
+// 가전렌탈 홈 "추천 제품 BEST4". 인기 카테고리 탭 → (있으면) 특징 칩 → 4개 카드 → 더보기.
 // 추천 기준은 숨기지 않는다: 사진이 있는 상품 중 월 렌탈료가 낮은 순으로,
 // 한 브랜드가 독점하지 않게 브랜드별 1개씩 먼저 뽑고 모자라면 나머지로 채운다.
 
@@ -161,7 +161,7 @@ export default function Best4({ tabs }: { tabs: Best4Tab[] }) {
       <Link
         href={`/electronics/${tab.slug}`}
         data-testid="best4-more"
-        className="mt-6 flex items-center justify-center gap-1 h-12 rounded-xl bg-[#f2f4f6] hover:bg-[#eceef1] text-[15px] font-medium text-[#333d4b] transition-colors"
+        className="mt-6 flex items-center justify-center gap-1 h-12 w-full lg:w-1/2 lg:mx-auto rounded-xl bg-[#f2f4f6] hover:bg-[#eceef1] text-[15px] font-medium text-[#333d4b] transition-colors"
       >
         {tab.name} 제품 더보기
         <ChevronRight className="w-4 h-4" />
