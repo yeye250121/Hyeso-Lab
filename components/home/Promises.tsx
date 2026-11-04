@@ -76,19 +76,13 @@ export default function Promises() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
   const [active, setActive] = useState(0)
   useMotionValueEvent(scrollYProgress, 'change', (v) => setActive(Math.min(2, Math.floor(v * 3))))
-  // 모바일: 섹션 자체가 한 화면 높이의 내부 스크롤 영역(스냅 mandatory + snap-stop always).
-  // 스와이프 한 번 = 한 단계. 마지막 단계에서 더 내리면(첫 단계에서 더 올리면) 평소처럼 페이지가 스크롤된다.
-  // 페이지 스크롤에는 손대지 않으니 히어로나 다음 섹션이 끌려오는 일이 없다.
   const mRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress: mProgress } = useScroll({ target: mRef, offset: ['start start', 'end end'] })
   const [mActive, setMActive] = useState(0)
-  const onInnerScroll = () => {
-    const el = mRef.current
-    if (!el) return
-    setMActive(Math.max(0, Math.min(2, Math.round(el.scrollTop / el.clientHeight))))
-  }
+  useMotionValueEvent(mProgress, 'change', (v) => setMActive(Math.min(2, Math.floor(v * 3))))
 
   return (
-    <section id="promises" className="scroll-mt-[58px]">
+    <section id="promises" className="scroll-mt-16">
       {/* 데스크톱: sticky 스토리텔링 */}
       <div ref={ref} className="hidden lg:block h-[300vh] max-w-[960px] mx-auto px-8">
         <div className="sticky top-0 h-screen grid grid-cols-[1fr_440px] gap-12 items-center">
@@ -115,13 +109,9 @@ export default function Promises() {
         </div>
       </div>
 
-      {/* 모바일: 한 화면 높이 내부 스크롤러. 스냅 지점 3개(절대 위치 스페이서) 위를 sticky 콘텐츠가 덮고 단계만 교체된다 */}
-      <div ref={mRef} onScroll={onInnerScroll} className="lg:hidden relative h-[calc(100vh-58px)] overflow-y-auto snap-y snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-testid="promises-steps">
-        {PROMISES.map((p, i) => (
-          <div key={p.key} aria-hidden className="absolute inset-x-0 h-full pointer-events-none snap-start snap-always" style={{ top: `${i * 100}%` }} />
-        ))}
-        <div className="h-[200%] absolute inset-x-0 top-full" aria-hidden />
-        <div className="sticky top-0 h-full px-5 flex flex-col justify-center">
+      {/* 모바일: 스크롤 진행에 따라 한 화면에서 01→02→03 교체 */}
+      <div ref={mRef} className="lg:hidden h-[260vh]">
+        <div className="sticky top-[58px] h-[calc(100vh-58px)] px-5 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-5" aria-hidden>
             {PROMISES.map((p, i) => (
               <span key={p.key} className={`h-1.5 rounded-full transition-all duration-300 ${mActive === i ? 'w-7 bg-[#ff8fab]' : 'w-1.5 bg-[#e5e8eb]'}`} />
