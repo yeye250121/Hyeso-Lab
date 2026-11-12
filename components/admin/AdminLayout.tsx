@@ -15,9 +15,11 @@ const LOGO_URL = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/pub
 
 interface AdminLayoutProps {
   children: React.ReactNode
+  /** 라이브러리처럼 본문이 넓어야 하는 화면: 컨테이너 폭을 1240 → 1610px(130%) 로 */
+  wide?: boolean
 }
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
+export default function AdminLayout({ children, wide = false }: AdminLayoutProps) {
   const router = useRouter()
   const { setAdmin } = useAuthStore()
   const { path: cp } = useConsole()
@@ -101,7 +103,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* 메인 콘텐츠 */}
       <main className={`${collapsed ? 'lg:ml-0' : 'lg:ml-[224px]'} pt-16 lg:pt-0 min-h-screen`}>
-        <div className={`max-w-[1240px] mx-auto p-5 lg:px-10 lg:py-8 ${collapsed ? 'lg:pt-[72px]' : ''}`}>{children}</div>
+        <div className={`${wide ? 'max-w-[1610px]' : 'max-w-[1240px]'} mx-auto p-5 lg:px-10 lg:py-8 ${collapsed ? 'lg:pt-[72px]' : ''}`}>{children}</div>
       </main>
     </div>
   )

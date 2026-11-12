@@ -3,7 +3,7 @@ import LibraryShell from '@/components/admin/library/LibraryShell'
 
 export default function LibraryPage() {
   return (
-    <AdminLayout>
+    <AdminLayout wide>
       <LibraryShell activeId={null} />
     </AdminLayout>
   )

@@ -180,7 +180,7 @@ export default function LibraryShell({ activeId }: { activeId: string | null }) 
         <Link href={cp('/library')} className="inline-flex items-center gap-1 text-[13px] text-text-secondary hover:text-text-primary">
           <ChevronLeft className="w-4 h-4" /> 이전으로
         </Link>
-        <div className="max-w-[860px]">
+        <div className="max-w-[1120px]">
           <DocView id={activeId} onChanged={loadTree} />
         </div>
       </div>

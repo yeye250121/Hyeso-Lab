@@ -4,7 +4,7 @@ import LibraryShell from '@/components/admin/library/LibraryShell'
 
 export default function LibraryDocPage({ params }: { params: { id: string } }) {
   return (
-    <AdminLayout>
+    <AdminLayout wide>
       <Suspense fallback={null}>
         <LibraryShell activeId={params.id} />
       </Suspense>
