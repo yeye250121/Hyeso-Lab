@@ -68,6 +68,33 @@ export default function DocView({ id, onChanged }: { id: string; onChanged: () =
     )
   }, [doc, editing])
 
+  // 읽기 모드 이미지 다운로드. 본문 HTML 의 <img> 를 래퍼+버튼으로 감싼 문자열을 그리고(렌더 뒤 DOM 을 손대면
+  // React 가 innerHTML 을 다시 써서 날아간다), 클릭은 article 에서 위임받아 처리한다.
+  // 스토리지가 다른 도메인이라 <a download> 는 안 먹어서 fetch → blob 으로 저장한다.
+  const html = useMemo(() => (doc ? withImageDownloadButtons(doc.content) : ''), [doc])
+  const onArticleClick = async (e: React.MouseEvent<HTMLElement>) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-img-dl]')
+    if (!btn) return
+    e.preventDefault()
+    const img = btn.parentElement?.querySelector('img')
+    if (!img) return
+    const index = Array.from(articleRef.current?.querySelectorAll('img') ?? []).indexOf(img) + 1
+    btn.disabled = true
+    try {
+      const blob = await (await fetch(img.src)).blob()
+      const ext = (blob.type.split('/')[1] || 'png').replace('jpeg', 'jpg')
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = `${(doc?.title || '이미지').replace(/[\\/:*?"<>|]/g, '_')}_${index}.${ext}`
+      a.click()
+      URL.revokeObjectURL(a.href)
+    } catch {
+      window.open(img.src, '_blank', 'noopener')
+    } finally {
+      btn.disabled = false
+    }
+  }
+
   const save = useCallback(
     async (extra: Record<string, unknown> = {}) => {
       if (!doc) return
@@ -171,7 +198,7 @@ export default function DocView({ id, onChanged }: { id: string; onChanged: () =
               <TipTapEditor content={content} onChange={setContent} />
             </div>
           ) : doc.content.trim() ? (
-            <article ref={articleRef} className="library-doc" data-testid="library-doc" dangerouslySetInnerHTML={{ __html: doc.content }} />
+            <article ref={articleRef} className="library-doc" data-testid="library-doc" onClick={onArticleClick} dangerouslySetInnerHTML={{ __html: html }} />
           ) : (
             <p className="py-10 text-center text-small text-text-tertiary">아직 내용이 없어요.{canEdit ? ' 편집을 눌러 작성하세요.' : ''}</p>
           )}
@@ -192,4 +219,11 @@ export default function DocView({ id, onChanged }: { id: string; onChanged: () =
       )}
     </div>
   )
+}
+
+const DL_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
+
+/** 편집기 HTML 의 <img> 를 저장 버튼이 붙은 래퍼로 감싼다 */
+function withImageDownloadButtons(content: string): string {
+  return content.replace(/<img\b[^>]*>/gi, (img) => `<span class="img-dl">${img}<button type="button" class="img-dl-btn" data-img-dl title="이미지 저장" aria-label="이미지 저장" data-testid="image-download">${DL_ICON}</button></span>`)
 }
