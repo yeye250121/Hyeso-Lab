@@ -78,7 +78,7 @@ export default function PostcodeModal({
   return (
     <>
       <Script
-        src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+        src="//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
         strategy="afterInteractive"
         // onLoad 는 스크립트를 처음 받을 때만 불린다. 신청서를 다시 열면(이미 받은 상태) 불리지 않아
         // 주소 찾기 버튼이 계속 잠겨 있었다. onReady 는 화면에 붙을 때마다 불린다.
