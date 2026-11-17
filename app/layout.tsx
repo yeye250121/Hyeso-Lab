@@ -19,6 +19,10 @@ export const metadata: Metadata = {
     icon: "https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-mark.png",
     apple: "https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso-mark-apple.png",
   },
+  // 네이버 서치어드바이저 소유확인 태그. 지우면 소유확인이 풀린다.
+  verification: {
+    other: { "naver-site-verification": "f12c1339bd239045c8dc6aec567b9b32fa8a3f57" },
+  },
 };
 
 export default function RootLayout({
