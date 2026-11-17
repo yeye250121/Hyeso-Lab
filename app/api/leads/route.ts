@@ -4,11 +4,13 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { routeError } from '@/lib/admin/route'
 import { notifyPartnerForLead, sendAdminNewLeadAlimtalk, sendApplicationLinkAlimtalk } from '@/lib/alimtalk-service'
 import { generateShortToken } from '@/lib/shortToken'
+import { deliverStatement } from '@/lib/admin/statementLinks'
 
 // 상담 신청(명세서) 접수. 카드·인터넷·가전렌탈 공통.
 // 필수는 서비스·전화번호·동의뿐이다 — 협력업체가 전화하는 데 그 이상은 필요 없고,
 // 받아두면 관리 책임만 생긴다. leads 테이블은 anon 키로 접근할 수 없다.
 // 가전렌탈·인터넷이면 접수 직후 셀프 신청서 링크(/c/<토큰>)를 알림톡으로 보낸다.
+// 파트너 랜딩(/m/<코드>)에서 들어온 건은 신청서를 기다리지 않고 바로 담당자에게 명세서 알림톡을 보낸다(통화로 접수).
 
 const phone = z.string().regex(/^01[016789]-\d{3,4}-\d{4}$/, '휴대폰 번호 형식이 올바르지 않습니다.')
 
@@ -151,6 +153,15 @@ export async function POST(request: NextRequest) {
     }
     // 파트너 링크로 들어온 건이면 그 파트너에게도 알린다
     if (marketerCode) await notifyPartnerForLead(data.id, 'new_lead')
+    // 파트너 랜딩 접수(가전렌탈·인터넷)는 담당자가 바로 전화하므로 명세서를 즉시 전달한다. 카드는 담당자 범위 밖.
+    // 실패해도 접수는 유효하고, 관리자 화면의 "담당자에게 보내기"로 다시 보낼 수 있다.
+    if (marketerCode && parsed.existingService && parsed.service !== 'card') {
+      try {
+        await deliverStatement({ kind: 'lead', refId: data.id, adminId: null, giftAmount: undefined })
+      } catch (e) {
+        console.error('[Statement] 랜딩 접수 자동 전달 실패:', e instanceof Error ? e.message : e)
+      }
+    }
     // 관리자에게 인입 알림(알림을 켠 계정 전원). 실패해도 접수는 유효하다.
     await sendAdminNewLeadAlimtalk({
       id: data.id,
