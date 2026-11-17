@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import api from '@/lib/admin/api'
+import { unregisterPushToken } from '@/lib/admin/push-client'
 
 interface Admin {
   id: string
@@ -24,6 +25,7 @@ export const useAuthStore = create<AuthState>()(
       setAdmin: (admin) => set({ admin }),
       logout: async () => {
         try {
+          await unregisterPushToken()
           await api.post('/admin/auth/logout')
         } catch (error) {
           console.error('Logout error:', error)

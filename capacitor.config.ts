@@ -30,6 +30,9 @@ const config: CapacitorConfig = {
       androidScaleType: 'CENTER_CROP',
       showSpinner: false,
     },
+    PushNotifications: {
+      presentationOptions: ['badge', 'sound', 'alert'], // 앱을 보고 있을 때도 배너로 보여준다
+    },
     StatusBar: {
       style: 'LIGHT', // 밝은 배경 + 어두운 글자
       backgroundColor: '#ffffff',

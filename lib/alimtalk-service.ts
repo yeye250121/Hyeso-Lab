@@ -5,6 +5,7 @@
 import { getSupabaseAdmin } from './supabase-admin'
 import { isSolapiConfigured, sendAlimtalk, type AlimtalkVariables } from './solapi'
 import { ALIMTALK_TEMPLATES, VENDOR_ALIMTALK_PHONE } from './alimtalk-templates'
+import { pushToUsers } from './push/send'
 import { maskName } from './admin/mask'
 
 export type SendResult = { success: boolean; skipped?: boolean; groupId?: string | null; error?: string }
@@ -97,7 +98,7 @@ export async function sendAdminNewLeadAlimtalk(lead: {
 }): Promise<SendResult[]> {
   const { data: admins, error } = await getSupabaseAdmin()
     .from('admin_users')
-    .select('id, phone')
+    .select('id, phone, role')
     .eq('notify_leads', true)
     .in('role', ['owner', 'admin']) // 파트너스는 본인 건만 따로 받는다(notifyPartnerForLead)
     .eq('status', 'active')
@@ -114,6 +115,14 @@ export async function sendAdminNewLeadAlimtalk(lead: {
     '#{접수시각}': kstTime(lead.submitted_at),
   }
   const sms = `[혜택연구소] 새 상담 신청\n${service} · ${vars['#{고객명}']} · ${vars['#{상품}']} · ${vars['#{접수시각}']}\n관리자 페이지에서 확인해 주세요.`
+  // 앱 푸시(알림톡과 별개). 오너는 /owner, 관리자는 /admin 콘솔로 연다.
+  const body = `${service} · ${vars['#{고객명}']} · ${vars['#{상품}']}`
+  await Promise.all(
+    (['owner', 'admin'] as const).map((role) => {
+      const ids = (admins ?? []).filter((a) => a.role === role).map((a) => a.id as string)
+      return ids.length ? pushToUsers(ids, { title: '새 상담 신청', body, url: `/${role}/leads` }).catch(() => undefined) : undefined
+    })
+  )
   return Promise.all(
     (admins ?? []).map((a) =>
       sendAndLog({ purpose: 'admin_new_lead', to: a.phone as string, templateId: ALIMTALK_TEMPLATES.ADMIN_NEW_LEAD, variables: vars, leadId: lead.id, smsFallbackText: sms })
@@ -177,9 +186,9 @@ export async function sendPartnerApprovedAlimtalk(phone: string, name: string, l
 export type PartnerEvent = 'new_lead' | 'contract' | 'cancelled'
 
 const PARTNER_EVENT = {
-  new_lead: { template: () => ALIMTALK_TEMPLATES.PARTNER_NEW_LEAD, sms: '[혜택연구소 파트너스] 새로운 상담 문의가 들어왔어요. 내 상담에서 확인해 보세요. https://www.hyeso.kr/partners/leads' },
-  contract: { template: () => ALIMTALK_TEMPLATES.PARTNER_CONTRACT, sms: '[혜택연구소 파트너스] 축하드려요! 연결한 상담이 계약으로 확정됐어요. https://www.hyeso.kr/partners/home' },
-  cancelled: { template: () => ALIMTALK_TEMPLATES.PARTNER_CANCELLED, sms: '[혜택연구소 파트너스] 아쉽게도 연결한 상담이 취소됐어요. 내 상담에서 확인해 보세요. https://www.hyeso.kr/partners/leads' },
+  new_lead: { template: () => ALIMTALK_TEMPLATES.PARTNER_NEW_LEAD, sms: '[혜택연구소 파트너스] 새로운 상담 문의가 들어왔어요. 내 상담에서 확인해 보세요. https://www.hyeso.kr/partners/leads', push: { title: '새 상담 문의', body: '새로운 상담 문의가 들어왔어요. 내 상담에서 확인해 보세요.', url: '/partners/leads' } },
+  contract: { template: () => ALIMTALK_TEMPLATES.PARTNER_CONTRACT, sms: '[혜택연구소 파트너스] 축하드려요! 연결한 상담이 계약으로 확정됐어요. https://www.hyeso.kr/partners/home', push: { title: '계약 확정', body: '축하드려요! 연결한 상담이 계약으로 확정됐어요.', url: '/partners/home' } },
+  cancelled: { template: () => ALIMTALK_TEMPLATES.PARTNER_CANCELLED, sms: '[혜택연구소 파트너스] 아쉽게도 연결한 상담이 취소됐어요. 내 상담에서 확인해 보세요. https://www.hyeso.kr/partners/leads', push: { title: '상담 취소', body: '아쉽게도 연결한 상담이 취소됐어요. 내 상담에서 확인해 보세요.', url: '/partners/leads' } },
 } as const
 
 /**
@@ -192,11 +201,14 @@ export async function notifyPartnerForLead(leadId: string, event: PartnerEvent):
   if (!lead?.marketer_code) return { success: false, skipped: true, error: 'no partner' }
   const { data: partner } = await db
     .from('admin_users')
-    .select('phone, status, role')
+    .select('id, phone, status, role')
     .eq('unique_code', lead.marketer_code)
     .maybeSingle()
-  if (!partner?.phone || partner.status !== 'active') return { success: false, skipped: true, error: 'partner inactive or no phone' }
+  if (!partner || partner.status !== 'active') return { success: false, skipped: true, error: 'partner inactive' }
   const cfg = PARTNER_EVENT[event]
+  // 앱 푸시는 전화번호와 무관하게 등록된 기기로. 알림톡 실패와 독립.
+  await pushToUsers([partner.id as string], cfg.push).catch(() => undefined)
+  if (!partner.phone) return { success: false, skipped: true, error: 'partner has no phone' }
   return sendAndLog({
     purpose: `partner_${event}`,
     to: partner.phone as string,

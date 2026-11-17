@@ -8,6 +8,7 @@ import { useAuthStore } from '@/lib/admin/store'
 import api from '@/lib/admin/api'
 import Sidebar from './Sidebar'
 import { useConsole } from '@/lib/admin/useConsole'
+import PushRegistrar from '@/components/admin/PushRegistrar'
 import { useSidebarStore } from '@/lib/admin/sidebarStore'
 import { Menu, X } from 'lucide-react'
 
@@ -104,6 +105,7 @@ export default function AdminLayout({ children, wide = false }: AdminLayoutProps
       {/* 메인 콘텐츠 */}
       <main className={`${collapsed ? 'lg:ml-0' : 'lg:ml-[224px]'} pt-16 lg:pt-0 min-h-screen`}>
         <div className={`${wide ? 'max-w-[1610px]' : 'max-w-[1240px]'} mx-auto p-5 lg:px-10 lg:py-8 ${collapsed ? 'lg:pt-[72px]' : ''}`}>{children}</div>
+        <PushRegistrar />
       </main>
     </div>
   )
