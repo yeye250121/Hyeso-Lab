@@ -4,6 +4,7 @@ import "./globals.css";
 import SiteFrame from '@/components/shared/SiteFrame';
 import SiteAnalytics from '@/components/shared/SiteAnalytics';
 import PageViewTracker from '@/components/shared/PageViewTracker';
+import NativeShell from '@/components/shared/NativeShell';
 import { Suspense } from 'react';
 
 const notoSansKR = Noto_Sans_KR({
@@ -40,6 +41,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <PageViewTracker />
         </Suspense>
+        <NativeShell />
       </body>
     </html>
   );

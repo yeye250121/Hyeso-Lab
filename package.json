@@ -10,9 +10,17 @@
     "typecheck": "tsc --noEmit",
     "cards:ajd:build": "node scripts/import_ajd_card_benefits.js build",
     "cards:urls:build": "node scripts/build_card_product_urls.js",
-    "cards:urls:validate": "node scripts/validate_card_product_urls.js report"
+    "cards:urls:validate": "node scripts/validate_card_product_urls.js report",
+    "cap:sync": "cap sync",
+    "cap:assets": "capacitor-assets generate --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#ffffff' --splashBackgroundColor '#ffffff' --splashBackgroundColorDark '#ffffff' --android --ios",
+    "cap:android": "cap open android",
+    "cap:ios": "cap open ios"
   },
   "dependencies": {
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.6.2",
+    "@capacitor/splash-screen": "8.0.2",
+    "@capacitor/status-bar": "8.0.4",
     "@hookform/resolvers": "^3.10.0",
     "@next/third-parties": "^14.2.33",
     "@supabase/supabase-js": "^2.80.0",
@@ -58,6 +66,10 @@
     "zustand": "^4.5.0"
   },
   "devDependencies": {
+    "@capacitor/android": "8.6.2",
+    "@capacitor/assets": "4.0.0",
+    "@capacitor/cli": "8.6.2",
+    "@capacitor/ios": "8.6.2",
     "@playwright/test": "^1.61.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
