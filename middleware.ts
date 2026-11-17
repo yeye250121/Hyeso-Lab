@@ -92,7 +92,8 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/admin/register')) {
     return NextResponse.redirect(new URL('/partners/register', request.url))
   }
-  if (pathname.startsWith('/admin/login') || pathname.startsWith('/partners/register')) {
+  // 비밀번호 찾기(/admin/forgot)도 로그인 전 화면이다
+  if (pathname.startsWith('/admin/login') || pathname.startsWith('/admin/forgot') || pathname.startsWith('/partners/register')) {
     return NextResponse.next()
   }
 
