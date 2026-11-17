@@ -69,6 +69,19 @@ export async function sendAlimtalk(opts: {
     ],
   }
 
+  return postMessages(apiKey, apiSecret, body)
+}
+
+/**
+ * 문자(SMS/LMS) 1건 발송. 알림톡 템플릿이 아직 검수 중이거나 쓸 수 없을 때의 대체 수단.
+ * 90바이트를 넘으면 솔라피가 LMS 로 바꿔 보낸다.
+ */
+export async function sendSms(opts: { to: string; text: string }): Promise<SolapiSendResult> {
+  const { apiKey, apiSecret, from } = config()
+  return postMessages(apiKey, apiSecret, { messages: [{ to: opts.to.replace(/\D/g, ''), from, text: opts.text }] })
+}
+
+async function postMessages(apiKey: string, apiSecret: string, body: unknown): Promise<SolapiSendResult> {
   const res = await fetch(`${API_BASE}/messages/v4/send-many/detail`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: authHeader(apiKey, apiSecret) },

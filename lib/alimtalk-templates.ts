@@ -25,6 +25,8 @@ export const ALIMTALK_TEMPLATES = {
   PARTNER_CONTRACT: process.env.SOLAPI_TEMPLATE_PARTNER_CONTRACT || 'KA01TP261020173843918J7xqg1Cko2o',
   /** 파트너스 상담 취소(강조형) — 버튼 → /partners/leads */
   PARTNER_CANCELLED: process.env.SOLAPI_TEMPLATE_PARTNER_CANCELLED || 'KA01TP2610201738440150jzyrAoKuPR',
+  /** 비밀번호 재설정 링크(강조형) — 변수 이름/token, 버튼 → /reset/#{token}. 검수 통과 전엔 문자로 대체 발송된다 */
+  PASSWORD_RESET: process.env.SOLAPI_TEMPLATE_PASSWORD_RESET || 'KA01TP261117141216096dEMs4LjmpUB',
 } as const
 
 /** 협력업체 담당자(접수 대행) 알림톡 수신 번호. 서비스 공통 1명 */

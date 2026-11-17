@@ -116,6 +116,9 @@ export default function AdminLoginPage() {
             <span>계정이 없으세요?</span>
             <Link href="/partners/register" className="text-action-primary font-medium">가입 신청</Link>
           </div>
+          <div className="mt-2 text-center text-small">
+            <Link href="/admin/forgot" className="text-text-secondary hover:text-text-primary" data-testid="forgot-link">비밀번호를 잊으셨나요?</Link>
+          </div>
 
         </div>
       </div>

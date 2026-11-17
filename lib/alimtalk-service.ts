@@ -3,8 +3,8 @@
  * 발송 실패는 접수 실패가 아니다 — 호출하는 쪽은 결과만 기록하고 흐름을 계속한다.
  */
 import { getSupabaseAdmin } from './supabase-admin'
-import { isSolapiConfigured, sendAlimtalk, type AlimtalkVariables } from './solapi'
-import { ALIMTALK_TEMPLATES, VENDOR_ALIMTALK_PHONE } from './alimtalk-templates'
+import { isSolapiConfigured, sendAlimtalk, sendSms, type AlimtalkVariables } from './solapi'
+import { ALIMTALK_TEMPLATES, SITE_BASE_URL, VENDOR_ALIMTALK_PHONE } from './alimtalk-templates'
 import { pushToUsers } from './push/send'
 import { maskName } from './admin/mask'
 
@@ -217,4 +217,40 @@ export async function notifyPartnerForLead(leadId: string, event: PartnerEvent):
     leadId,
     smsFallbackText: cfg.sms,
   })
+}
+
+/**
+ * 비밀번호 재설정 링크(구성원 본인 휴대폰). 카톡 미수신이면 문자로 대체.
+ * 템플릿이 아직 검수 중이면 솔라피가 접수 자체를 거절(1042)하므로, 그때는 문자로 직접 보낸다 — 잊은 사람은 지금 당장 필요하다.
+ */
+export async function sendPasswordResetAlimtalk(phone: string, name: string, token: string): Promise<SendResult> {
+  const text = `[혜택연구소] ${name}님, 비밀번호 재설정 링크예요(30분 유효, 1회용). 본인이 요청하지 않았다면 무시하세요.\n${SITE_BASE_URL}/reset/${token}`
+  const result = await sendAndLog({
+    purpose: 'password_reset',
+    to: phone,
+    templateId: ALIMTALK_TEMPLATES.PASSWORD_RESET,
+    variables: { '#{이름}': name, '#{token}': token },
+    smsFallbackText: text,
+  })
+  if (result.success || result.skipped || !result.error?.startsWith('1042')) return result
+
+  let sms: SendResult
+  try {
+    const r = await sendSms({ to: phone, text })
+    sms = r.failed.length ? { success: false, groupId: r.groupId, error: `${r.failed[0].statusCode} ${r.failed[0].statusMessage}` } : { success: true, groupId: r.groupId }
+  } catch (e) {
+    sms = { success: false, error: e instanceof Error ? e.message : String(e) }
+  }
+  const { error } = await getSupabaseAdmin().from('alimtalk_logs').insert({
+    purpose: 'password_reset_sms',
+    to_phone: phone.replace(/\D/g, ''),
+    template_id: 'SMS',
+    variables: { '#{이름}': name },
+    success: sms.success,
+    provider_group_id: sms.groupId ?? null,
+    error: sms.error ?? null,
+  })
+  if (error) console.error('[Alimtalk] 로그 기록 실패:', error.message)
+  if (!sms.success) console.error('[Alimtalk] password_reset_sms 발송 실패:', sms.error)
+  return sms
 }
