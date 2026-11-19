@@ -501,7 +501,7 @@ function RentalCatalog({ catalog }: { catalog: Catalog }) {
       <p className="mt-1 text-[13px] text-[var(--l-muted-2,#8b95a1)]">{catalog.productCount}종을 비교해요.</p>
       {/* 대표 이미지 한 장(배경 투명 webp, 1200px). 라이트·다크 모두 그대로 쓴다 */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={LINEUP_IMAGE} alt="정수기, 공기청정기, 안마의자, 비데 등 렌탈 가전" width={1200} height={839} loading="lazy" className="mt-6 w-full h-auto" data-testid="landing-lineup" />
+      <img src={LINEUP_IMAGE} alt="정수기, 공기청정기, 안마의자, 비데 등 렌탈 가전" width={1200} height={839} loading="lazy" className="mt-6 w-1/2 h-auto mx-auto" data-testid="landing-lineup" />
       {catalog.brands.length > 0 && (
         <>
           <p className="mt-7 text-[14px] font-medium text-[var(--l-text-2,#333d4b)]">함께하는 브랜드</p>
