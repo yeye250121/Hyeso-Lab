@@ -5,6 +5,10 @@ const nextConfig = {
     return [{ source: '/electronics/apply', destination: '/apply', permanent: false }];
   },
   images: {
+    // 2026-11-19: Vercel 이미지 최적화 한도 초과(402)로 새 원본이 깨져서 최적화를 끈다. 원본을 그대로 서빙하므로
+    // 상품 사진은 업로드 때 900px webp 로 줄이고(이미 그렇게 함), public 에 넣는 이미지도 표시 크기의 webp 로 넣는다.
+    // 트래픽이 커져 Pro 로 올리면 이 줄만 지우면 된다(아래 remotePatterns·TTL 설정은 그대로 둔다).
+    unoptimized: true,
     // 최적화 이미지의 캐시 수명. Next 기본값은 60초이고, 실제 TTL은
     // minimumCacheTTL 과 원본 응답의 Cache-Control 중 "더 큰 값"이 쓰인다.
     // Supabase Storage 가 no-cache 를 내려주므로 이 값을 올리지 않으면

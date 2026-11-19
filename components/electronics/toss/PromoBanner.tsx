@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 // 가전렌탈 홈 상단 배너 한 장: 옅은 분홍 배경, 왼쪽 문구, 오른쪽 머니건 이미지. 누르면 상담 신청.
 // 원본(스토리지 icons/moneygun_icon.png)은 체크무늬가 그려진 불투명 PNG 라, 배경을 걷어낸 사본을 public 에 둔다.
-const MONEYGUN_URL = '/electronics/moneygun.png';
+const MONEYGUN_URL = '/electronics/moneygun.webp'; // 560px webp(표시 최대 264px 의 2배), 이미지 최적화 없이 그대로 서빙
 
 export default function PromoBanner() {
   return (
@@ -24,8 +24,8 @@ export default function PromoBanner() {
       <Image
         src={MONEYGUN_URL}
         alt=""
-        width={720}
-        height={468}
+        width={560}
+        height={386}
         sizes="(min-width: 1024px) 264px, 136px"
         priority
         className="w-[136px] max-w-[40%] lg:w-[264px] lg:max-w-none h-auto min-w-0"
