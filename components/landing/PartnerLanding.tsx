@@ -25,7 +25,8 @@ const SERVICES: { key: LandingService; label: string }[] = [
   { key: 'electronics', label: '가전렌탈' },
 ]
 export const THEME_KEY = 'landing-theme'
-// 다크용 워드마크: 분홍 마크는 그대로, 검은 글자만 밝게 바꾼 사본(public/brand)
+// 다크용 워드마크: 분홍 마크는 그대로, 검은 글자만 밝게 바꾼 사본(public/brand). 360×132, 변환 없이 그대로 서빙(unoptimized) —
+// Vercel 이미지 최적화 한도에 걸리면(402) 새 원본 이미지는 깨지기 때문
 const LOGO_DARK = '/brand/hyeso-dark.png'
 
 const won = (n: number) => `${n.toLocaleString('ko-KR')}원`
@@ -168,7 +169,7 @@ export default function PartnerLanding({
       {/* 히어로 */}
       <section className="px-6 pt-14 pb-16 text-center">
         <Image src={LOGO} alt="혜택연구소" width={720} height={264} priority className="l-light h-6 w-auto mx-auto" />
-        <Image src={LOGO_DARK} alt="" aria-hidden width={720} height={264} className="l-dark h-6 w-auto mx-auto" />
+        <Image src={LOGO_DARK} alt="" aria-hidden width={360} height={132} unoptimized className="l-dark h-6 w-auto mx-auto" />
         <p className="mt-6 text-[16px] font-medium text-[var(--l-muted-2,#8b95a1)]">혜소보다 더 주면</p>
         <p className="mt-1 leading-none">
           <span className="text-[18px] font-semibold text-[var(--l-text-2,#333d4b)] align-middle">차액의</span>{' '}

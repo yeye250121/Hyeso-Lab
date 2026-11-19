@@ -68,6 +68,8 @@ export default function Footer({
           {/* Company Info */}
           <div className="space-y-4">
             <Image
+              // 로컬(public) 로고는 변환 없이 그대로. 최적화 한도(402)에 걸려도 보이게
+              unoptimized={logoSrc.startsWith('/')}
               src={logoSrc}
               alt="혜택 연구소"
               width={720}
