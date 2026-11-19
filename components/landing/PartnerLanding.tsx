@@ -152,8 +152,8 @@ export default function PartnerLanding({
         </p>
         <p className="mt-1 text-[20px] font-semibold text-[#333d4b] tracking-[-0.01em]">보상해드려요.</p>
         {maxGift > 0 && (
-          <p className="mt-4 text-[14px] text-[#6b7684]">
-            인터넷 최대 지원금 <span className="font-semibold text-[#333d4b]">{won(maxGift)}</span>
+          <p className="mt-4 text-[15px] text-[#6b7684]">
+            인터넷 최대 지원금 <span className="text-[18px] font-bold text-[#333d4b] tabular-nums">{won(maxGift)}</span>
           </p>
         )}
         <button type="button" onClick={scrollToForm} className="mt-6 w-full h-[52px] rounded-2xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white text-[16px] font-semibold transition-colors" data-testid="landing-cta-top">
