@@ -14,7 +14,6 @@ export const metadata = {
 }
 
 const SERVICES: LandingService[] = ['internet', 'electronics']
-const HERO_SLUGS = ['kyowon-wells-ws674', 'coway-chp-5730r', 'lg-wd723r-k-e']
 
 // 실제 지급 사례가 4건 넘게 쌓이기 전까지 보여주는 사례
 const SAMPLE_CASES: GiftCase[] = [
@@ -63,7 +62,6 @@ export default async function PartnerLandingPage({ params, searchParams }: { par
   type ProdRow = { slug: string; brand: string; image_urls: string[] | null; display_order: number | null; electronics_categories: { slug: string; name: string } }
   const brandCount = new Map<string, number>()
   const catCount = new Map<string, { slug: string; name: string; count: number }>()
-  const heroImages: string[] = []
   for (const r of ((prodRows ?? []) as unknown as ProdRow[]).sort((a, b) => (a.display_order ?? 999) - (b.display_order ?? 999))) {
     brandCount.set(r.brand, (brandCount.get(r.brand) ?? 0) + 1)
     const c = r.electronics_categories
@@ -71,17 +69,6 @@ export default async function PartnerLandingPage({ params, searchParams }: { par
       const cur = catCount.get(c.slug) ?? { slug: c.slug, name: c.name, count: 0 }
       cur.count += 1
       catCount.set(c.slug, cur)
-    }
-  }
-  // 대표 사진은 배지(얼음·끓인물)가 안 박힌 정수기 3종으로 고정. 없으면 정수기 중 앞에서부터
-  const rows = (prodRows ?? []) as unknown as ProdRow[]
-  for (const slug of HERO_SLUGS) {
-    const img = rows.find((r) => r.slug === slug)?.image_urls?.[0]
-    if (img) heroImages.push(img)
-  }
-  if (heroImages.length < 3) {
-    for (const r of rows) {
-      if (r.electronics_categories?.slug === 'water-purifier' && r.image_urls?.[0] && !heroImages.includes(r.image_urls[0]) && heroImages.length < 3) heroImages.push(r.image_urls[0])
     }
   }
   const brands = [...brandCount.entries()].sort((a, b) => b[1] - a[1]).map(([b]) => b)
@@ -115,7 +102,7 @@ export default async function PartnerLandingPage({ params, searchParams }: { par
       initialService={service}
       maxGift={maxGift}
       carriers={carriers}
-      catalog={{ brands, categories, heroImages, productCount }}
+      catalog={{ brands, categories, productCount }}
       cases={sampleCases ? SAMPLE_CASES : cases.slice(0, 10)}
       />
     </>

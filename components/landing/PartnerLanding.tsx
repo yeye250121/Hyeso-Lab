@@ -17,7 +17,7 @@ import CaseMarquee from '@/components/home/CaseMarquee'
 export type LandingService = 'internet' | 'electronics'
 type Carrier = { name: string; gift: number; voucher: number }
 export type GiftCase = { name: string; region: string | null; product: string; amount: number; date: string }
-type Catalog = { brands: string[]; categories: { slug: string; name: string }[]; heroImages: string[]; productCount: number }
+type Catalog = { brands: string[]; categories: { slug: string; name: string }[]; productCount: number }
 
 const LOGO = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso.png'
 const SERVICES: { key: LandingService; label: string }[] = [
@@ -28,6 +28,7 @@ export const THEME_KEY = 'landing-theme'
 // 다크용 워드마크: 분홍 마크는 그대로, 검은 글자만 밝게 바꾼 사본(public/brand). 360×132, 변환 없이 그대로 서빙(unoptimized) —
 // Vercel 이미지 최적화 한도에 걸리면(402) 새 원본 이미지는 깨지기 때문
 const LOGO_DARK = '/brand/hyeso-dark.png'
+const LINEUP_IMAGE = '/landing/rental-lineup.webp'
 
 const won = (n: number) => `${n.toLocaleString('ko-KR')}원`
 const man = (n: number) => (n % 10000 === 0 ? `${n / 10000}만원` : won(n))
@@ -490,7 +491,7 @@ function GiftTable({ carriers }: { carriers: Carrier[] }) {
   )
 }
 
-// 어떤 가전을 렌탈할 수 있는지: 대표 사진 3장 → 브랜드 격자 → 품목 두 줄(접기/펼치기)
+// 어떤 가전을 렌탈할 수 있는지: 대표 이미지 한 장 → 브랜드 격자 → 품목 두 줄(접기/펼치기)
 function RentalCatalog({ catalog }: { catalog: Catalog }) {
   const [open, setOpen] = useState(false)
   const visible = open ? catalog.categories : catalog.categories.slice(0, 8)
@@ -498,14 +499,9 @@ function RentalCatalog({ catalog }: { catalog: Catalog }) {
     <section className="px-6 py-16" data-testid="landing-catalog">
       <h2 className="text-[18px] font-semibold tracking-[-0.02em]">어떤 가전을 렌탈할 수 있나요?</h2>
       <p className="mt-1 text-[13px] text-[var(--l-muted-2,#8b95a1)]">{catalog.productCount}종을 비교해요.</p>
-      {catalog.heroImages.length > 0 && (
-        <div className="mt-5 flex items-end justify-center gap-4">
-          {catalog.heroImages.map((src) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={src} src={src} alt="" loading="lazy" className="h-[112px] w-[96px] object-contain" />
-          ))}
-        </div>
-      )}
+      {/* 대표 이미지 한 장(배경 투명 webp, 1200px). 라이트·다크 모두 그대로 쓴다 */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={LINEUP_IMAGE} alt="정수기, 공기청정기, 안마의자, 비데 등 렌탈 가전" width={1200} height={839} loading="lazy" className="mt-6 w-full h-auto" data-testid="landing-lineup" />
       {catalog.brands.length > 0 && (
         <>
           <p className="mt-7 text-[14px] font-medium text-[var(--l-text-2,#333d4b)]">함께하는 브랜드</p>
