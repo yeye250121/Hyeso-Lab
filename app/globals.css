@@ -587,3 +587,38 @@ body {
 /* Capacitor 앱(웹뷰) 안: 텍스트 선택·길게 누르기 미리보기 등 브라우저 티를 줄인다 */
 html[data-native] { -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
 html[data-native] body { overscroll-behavior-y: none; }
+
+/* ===== 파트너 랜딩 다크 모드 =====
+   랜딩의 색은 전부 --l-* 변수(폴백 = 라이트 값)로 쓴다. 토글은 루트의 data-theme, 첫 페인트는 html[data-landing-theme]. */
+.landing-root[data-theme='dark'],
+html[data-landing-theme='dark'] .landing-root {
+  color-scheme: dark;
+  --l-outer: #0b0b0e;
+  --l-card: #17171b;
+  --l-soft: #1f1f24;
+  --l-sub: #26262c;
+  --l-sub-hover: #30303a;
+  --l-pink-soft: #3a1f2a;
+  --l-pink-mid: #6b3246;
+  --l-line: #2e2e36;
+  --l-line-strong: #3d3d47;
+  --l-faint: #5c5c68;
+  --l-text: #f2f2f4;
+  --l-text-2: #e6e6ea;
+  --l-text-3: #c9c9d1;
+  --l-muted: #a3a3ad;
+  --l-muted-2: #8d8d98;
+}
+/* 라이트로 명시하면(시스템은 다크여도) 변수를 비워 폴백(라이트)으로 */
+.landing-root[data-theme='light'] {
+  color-scheme: light;
+  --l-outer: initial; --l-card: initial; --l-soft: initial; --l-sub: initial; --l-sub-hover: initial;
+  --l-pink-soft: initial; --l-pink-mid: initial; --l-line: initial; --l-line-strong: initial; --l-faint: initial;
+  --l-text: initial; --l-text-2: initial; --l-text-3: initial; --l-muted: initial; --l-muted-2: initial;
+}
+/* 워드마크 로고: 라이트/다크용 이미지를 둘 다 두고 테마에 따라 하나만 보인다(첫 페인트부터 맞음) */
+.landing-root .l-dark { display: none; }
+.landing-root[data-theme='dark'] .l-light, html[data-landing-theme='dark'] .landing-root .l-light { display: none; }
+.landing-root[data-theme='dark'] .l-dark, html[data-landing-theme='dark'] .landing-root .l-dark { display: block; }
+/* 흰 배경 제품 사진은 다크에서 흰 네모로 뜨지 않게 살짝 눌러준다 */
+.landing-root[data-theme='dark'] img[data-product], html[data-landing-theme='dark'] .landing-root img[data-product] { filter: brightness(0.92); }

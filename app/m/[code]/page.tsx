@@ -107,13 +107,17 @@ export default async function PartnerLandingPage({ params, searchParams }: { par
   if (!preview) await db.from('landing_views').insert({ marketer_code: partner.unique_code, service })
 
   return (
-    <PartnerLanding
+    <>
+      {/* 다크 모드 첫 페인트 깜빡임 방지: 저장값(없으면 시스템 설정)을 html 속성으로 먼저 건다 */}
+      <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('landing-theme');if(!t&&matchMedia('(prefers-color-scheme: dark)').matches)t='dark';if(t==='dark')document.documentElement.dataset.landingTheme='dark';else delete document.documentElement.dataset.landingTheme}catch(e){}" }} />
+      <PartnerLanding
       code={partner.unique_code as string}
       initialService={service}
       maxGift={maxGift}
       carriers={carriers}
       catalog={{ brands, categories, heroImages, productCount }}
       cases={sampleCases ? SAMPLE_CASES : cases.slice(0, 10)}
-    />
+      />
+    </>
   )
 }

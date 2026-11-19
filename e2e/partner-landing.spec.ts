@@ -52,6 +52,29 @@ test.describe('파트너 랜딩 (모바일)', () => {
     expect(posted[0]).toMatchObject({ service: 'internet', phoneNumber: '010-1234-5678', marketerCode: code, existingService: 'existing' })
   })
 
+  test('다크 모드 토글이 켜지고 새로고침해도 유지된다', async ({ page, context }) => {
+    const id = process.env.E2E_OWNER_ID, pw = process.env.E2E_OWNER_PW
+    test.skip(!id || !pw, 'E2E_OWNER_ID/PW 없음')
+    const login = await context.request.post('/api/admin/auth/login', { data: { loginId: id, password: pw } })
+    expect(login.ok()).toBeTruthy()
+    const session = await (await context.request.get('/api/admin/auth/session')).json()
+    const code: string = session.admin.uniqueCode
+    await context.clearCookies()
+
+    await page.goto(`/m/${code}?preview=1`)
+    const root = page.getByTestId('partner-landing')
+    await expect(root).toHaveAttribute('data-theme', 'light')
+    await page.getByTestId('landing-theme-toggle').click()
+    await expect(root).toHaveAttribute('data-theme', 'dark')
+    await page.reload()
+    await expect(root).toHaveAttribute('data-theme', 'dark')
+    // 바깥 배경이 실제로 어두워졌는지
+    const bg = await root.evaluate((el) => getComputedStyle(el).backgroundColor)
+    expect(bg).toBe('rgb(11, 11, 14)')
+    await page.getByTestId('landing-theme-toggle').click()
+    await expect(root).toHaveAttribute('data-theme', 'light')
+  })
+
   test('없는 코드는 일반 상담 신청으로 보낸다', async ({ page }) => {
     await page.goto('/m/NOPE-0000?service=internet')
     await expect(page).toHaveURL(/\/apply\?service=internet/)

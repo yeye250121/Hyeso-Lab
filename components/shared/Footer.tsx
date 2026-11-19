@@ -62,7 +62,7 @@ export default function Footer({
   compact = false,
 }: FooterProps) {
   return (
-    <footer className={`bg-[#f8f9fa] py-12 ${compact ? '' : 'lg:py-16'}`}>
+    <footer className={`bg-[var(--l-soft,#f8f9fa)] py-12 ${compact ? '' : 'lg:py-16'}`}>
       <div className="max-w-[1100px] mx-auto px-6">
         <div className={`flex flex-col justify-between gap-10 ${compact ? '' : 'lg:flex-row'}`}>
           {/* Company Info */}
@@ -74,7 +74,7 @@ export default function Footer({
               height={264}
               className="h-5 w-auto opacity-80"
             />
-            <div className="space-y-1 text-sm text-gray-500">
+            <div className="space-y-1 text-sm text-[var(--l-muted,#6b7280)]">
               <p>
                 {companyInfo.name}
                 {companyInfo.representative && ` | 대표자 : ${companyInfo.representative}`}
@@ -82,8 +82,8 @@ export default function Footer({
               <p>사업자등록번호 : {companyInfo.businessNumber}</p>
               {companyInfo.mailOrderNumber && <p>통신판매업 신고번호 : {companyInfo.mailOrderNumber}</p>}
               <p>주소 : {companyInfo.address}</p>
-              <p className="pt-1 text-xs text-gray-500">
-                <Link href="/privacy" className="hover:text-gray-700">개인정보처리방침</Link>
+              <p className="pt-1 text-xs text-[var(--l-muted,#6b7280)]">
+                <Link href="/privacy" className="hover:text-[var(--l-text-3,#374151)]">개인정보처리방침</Link>
               </p>
             </div>
           </div>
@@ -92,11 +92,11 @@ export default function Footer({
           <div className={`flex ${compact ? 'gap-10' : 'gap-16'}`}>
             {linkSections.map((section, index) => (
               <div key={index}>
-                <h3 className="text-gray-800 font-semibold mb-4">{section.title}</h3>
-                <ul className="space-y-2 text-gray-500 text-sm">
+                <h3 className="text-[var(--l-text-2,#1f2937)] font-semibold mb-4">{section.title}</h3>
+                <ul className="space-y-2 text-[var(--l-muted,#6b7280)] text-sm">
                   {section.links.map((link, linkIndex) => (
                     <li key={linkIndex}>
-                      <Link href={link.href} className="hover:text-gray-900 transition-colors">
+                      <Link href={link.href} className="hover:text-[var(--l-text,#111827)] transition-colors">
                         {link.text}
                       </Link>
                     </li>
@@ -108,8 +108,8 @@ export default function Footer({
         </div>
 
         {showCopyright && (
-          <div className="mt-12 pt-8 border-t border-gray-200">
-            <p className="text-gray-500 text-sm text-center">
+          <div className="mt-12 pt-8 border-t border-[var(--l-line,#e5e7eb)]">
+            <p className="text-[var(--l-muted,#6b7280)] text-sm text-center">
               © {new Date().getFullYear()} 혜택 연구소. All rights reserved.
             </p>
           </div>

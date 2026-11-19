@@ -53,7 +53,7 @@ export default function SuccessOverlay({
       <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
         <div className={reveal('')}>
           {caption && <p className="text-[15px] font-medium text-[var(--action-primary)]">{caption}</p>}
-          <h2 className="mt-1 text-[24px] font-semibold text-[#333d4b] leading-snug">{title}</h2>
+          <h2 className="mt-1 text-[24px] font-semibold text-[var(--l-text-2,#333d4b)] leading-snug">{title}</h2>
         </div>
         <SuccessCheck done={done} onFinished={() => setRevealed(true)} size={260} />
         {description && (
