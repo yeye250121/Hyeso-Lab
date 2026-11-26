@@ -11,15 +11,19 @@ import { EASE } from './motion'
 
 
 const STEPS = 3
+const MOBILE_SPAN = 0.8 // 모바일: 단계는 앞 80%, 뒤 20%(약 화면 0.8장)는 마지막 단계 유지
 const HYSTERESIS = 0.1 / STEPS // 한 단계 길이의 10%. 경계에서 손가락이 떨려도 단계가 왔다 갔다 하지 않게
 
 /**
  * 스크롤 진행률 → 단계(0~2)와 방향(1 아래로, -1 위로). 경계를 HYSTERESIS 만큼 넘어야 바뀐다.
+ * span < 1 이면 마지막 단계 뒤에 (1 - span) 만큼 머무는 구간이 생긴다(관성으로 쓸어도 마지막 화면을 보고 넘어가게).
  */
-function useStep(target: RefObject<HTMLElement>) {
+function useStep(target: RefObject<HTMLElement>, span = 1) {
   const { scrollYProgress } = useScroll({ target, offset: ['start start', 'end end'] })
   const [state, setState] = useState({ index: 0, dir: 1 })
-  useMotionValueEvent(scrollYProgress, 'change', (v) => {
+  useMotionValueEvent(scrollYProgress, 'change', (raw) => {
+    // 단계는 진행률 앞쪽 span 안에서 다 끝나고, 나머지는 마지막 단계에 머무는 구간이다
+    const v = Math.min(1, raw / span)
     setState((cur) => {
       const lower = cur.index / STEPS - HYSTERESIS
       const upper = (cur.index + 1) / STEPS + HYSTERESIS
@@ -66,7 +70,7 @@ function PhoneStage({ index, dir }: { index: number; dir: number }) {
       </AnimatePresence>
       <AnimatePresence>
         {push && (
-          <motion.div key="push" className="absolute left-3 right-3 top-[24px] z-10" initial={{ y: -110, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -110, opacity: 0 }} transition={{ delay: 0.15, duration: 0.5, ease: EASE }}>
+          <motion.div key="push" className="absolute left-3 right-3 top-[24px] z-10" initial={{ y: -110, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -110, opacity: 0 }} transition={{ duration: 0.3, ease: EASE }}>
             <PushBanner />
           </motion.div>
         )}
@@ -79,7 +83,7 @@ export default function Promises() {
   const ref = useRef<HTMLDivElement>(null)
   const { index: active, dir } = useStep(ref)
   const mRef = useRef<HTMLDivElement>(null)
-  const { index: mActive, dir: mDir } = useStep(mRef)
+  const { index: mActive, dir: mDir } = useStep(mRef, MOBILE_SPAN)
 
   return (
     <section id="promises" className="scroll-mt-16">
@@ -104,8 +108,8 @@ export default function Promises() {
       </div>
 
       {/* 모바일: 스크롤 진행에 따라 한 화면에서 01→02→03 교체 */}
-      {/* 단계당 약 한 화면(100svh — 주소창이 나타나도 고정 높이) 스크롤해야 넘어가도록 넉넉히. 너무 짧으면 한 번 쓸어도 두세 단계가 지나간다 */}
-      <div ref={mRef} className="lg:hidden h-[400svh]">
+      {/* 단계당 약 한 화면 + 마지막 단계 뒤 머무는 구간(100svh — 주소창이 나타나도 고정 높이). 단계당 한 화면 스크롤해야 넘어가도록 넉넉히. 너무 짧으면 한 번 쓸어도 두세 단계가 지나간다 */}
+      <div ref={mRef} className="lg:hidden h-[480svh]">
         <div className="sticky top-[58px] h-[calc(100svh-58px)] px-5 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-5" aria-hidden>
             {PROMISES.map((p, i) => (
