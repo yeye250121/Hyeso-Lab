@@ -22,27 +22,23 @@ function AppBar({ title, back = true }: { title: string; back?: boolean }) {
   )
 }
 
-/** ① 차액 120% 보상 — 다른 곳 견적을 올린 뒤 보상이 확정된 화면 */
+/** ① 차액 120% 보상 — 제목 두 줄, 사은품 금액 박스, 견적 첨부, 버튼만 */
 export function MatchScreen({ active }: { active: boolean }) {
-  const other = 500000, ours = 450000
-  const bonus = Math.round((other - ours) * 1.2)
+  const ours = 450000, bonus = Math.round((500000 - ours) * 1.2)
   return (
     <div className="h-full flex flex-col bg-white">
-      <AppBar title="보상 확인" />
-      <div className="px-5 pt-3">
-        <p className="text-[18px] font-semibold tracking-[-0.02em] leading-[1.3] text-[#191f28]">다른 곳 견적을 확인했어요<br />차액의 120%를 더 드려요</p>
-        <dl className="mt-4 rounded-2xl bg-[#f9fafb] px-4 py-4 space-y-2.5 text-[13px]">
-          <div className="flex justify-between"><dt className="text-[#6b7684]">다른 곳 사은품</dt><dd className="font-medium text-[#191f28] tabular-nums">{won(other)}원</dd></div>
-          <div className="flex justify-between"><dt className="text-[#6b7684]">혜택연구소 사은품</dt><dd className="font-medium text-[#191f28] tabular-nums">{won(ours)}원</dd></div>
-          <div className="flex justify-between border-t border-[#e5e8eb] pt-2.5"><dt className="text-[#6b7684] whitespace-nowrap">차액 × 120%</dt><dd className="font-semibold text-[#ff5c8a] tabular-nums whitespace-nowrap">+ <CountUp to={bonus} start={active} duration={900} />원</dd></div>
-        </dl>
-        <p className="mt-5 text-[12px] text-[#8b95a1]">최종 사은품</p>
-        <p className="mt-0.5 text-[30px] font-semibold tracking-[-0.02em] text-[#191f28] tabular-nums leading-none"><CountUp to={ours + bonus} start={active} duration={1100} />원</p>
-        <p className="mt-1.5 text-[12px] text-[#6b7684]">설치 당일 현금으로 드려요</p>
-        <div className="mt-4 inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-[#f2f4f6] text-[12px] font-medium text-[#4e5968]"><Paperclip className="w-3.5 h-3.5" /> 견적 캡처 1장 첨부됨</div>
+      <div className="px-5 pt-10">
+        <p className="text-[22px] font-semibold tracking-[-0.02em] leading-[1.3] text-[#191f28]">혜소가 더 드릴게요</p>
+        <p className="mt-1.5 text-[15px] font-medium text-[#ff5c8a]">차액의 120% 더 드려요</p>
+        <div className="mt-7 rounded-2xl bg-[#f9fafb] px-5 py-5">
+          <p className="text-[12px] text-[#8b95a1]">사은품 금액</p>
+          <p className="mt-1 text-[30px] font-semibold tracking-[-0.02em] text-[#191f28] tabular-nums leading-tight"><CountUp to={ours + bonus} start={active} duration={1100} />원</p>
+          <p className="mt-1.5 text-[12px] text-[#6b7684] tabular-nums">{won(ours)}원 + 보상 <span className="font-semibold text-[#ff5c8a]">{won(bonus)}원</span></p>
+        </div>
+        <div className="mt-4 inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-[#f2f4f6] text-[12px] font-medium text-[#4e5968]"><Paperclip className="w-3.5 h-3.5" /> 다른 곳 견적 첨부됨</div>
       </div>
       <div className="mt-auto px-5 pb-7">
-        <div className="h-12 rounded-2xl bg-[#ff8fab] text-white text-[14px] font-semibold flex items-center justify-center">보상 확정하기</div>
+        <div className="h-12 rounded-2xl bg-[#ff8fab] text-white text-[14px] font-semibold flex items-center justify-center">보상 받기</div>
       </div>
     </div>
   )
