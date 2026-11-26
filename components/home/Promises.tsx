@@ -4,7 +4,7 @@ import { useRef, useState, type RefObject } from 'react'
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'framer-motion'
 import { PROMISE_STORY as PROMISES } from '@/lib/content/promise'
 import PhoneFrame, { PHONE_H } from './PhoneFrame'
-import { MatchScreen, NoPushScreen, PushBanner } from './PhoneScreens'
+import { MatchScreen, MiniNav, NoPushScreen, PushBanner } from './PhoneScreens'
 import { EASE } from './motion'
 
 // 4.2 세 가지 약속(권유 없음 → 120% → 당일 현금) — 왼쪽 제목, 오른쪽 스마트폰 목업의 화면이 스크롤에 따라 교체(땅요식).
@@ -57,17 +57,17 @@ function PhoneStage({ index, dir }: { index: number; dir: number }) {
   const push = index === 2
   return (
     <PhoneFrame>
-      <AnimatePresence initial={false} custom={dir}>
-        <motion.div key={base} custom={dir} variants={screenVariants} className="absolute inset-0 bg-white" initial="enter" animate="center" exit="exit" transition={{ duration: 0.5, ease: EASE }}>
-          {base === 'match' ? (
-            <motion.div className="h-full" animate={{ filter: push ? 'blur(7px)' : 'blur(0px)', scale: push ? 1.03 : 1, opacity: push ? 0.7 : 1 }} transition={{ duration: 0.45, ease: EASE }}>
-              <MatchScreen active />
+      {/* 내비바는 고정, 그 아래 내용만 바뀐다. 푸시 단계에선 내비바까지 함께 흐려진다 */}
+      <motion.div className="absolute inset-0 flex flex-col" animate={{ filter: push ? 'blur(7px)' : 'blur(0px)', opacity: push ? 0.7 : 1 }} transition={{ duration: 0.45, ease: EASE }}>
+        <MiniNav />
+        <div className="relative flex-1 overflow-hidden">
+          <AnimatePresence initial={false} custom={dir}>
+            <motion.div key={base} custom={dir} variants={screenVariants} className="absolute inset-0 bg-white" initial="enter" animate="center" exit="exit" transition={{ duration: 0.5, ease: EASE }}>
+              {base === 'match' ? <MatchScreen active /> : <NoPushScreen active />}
             </motion.div>
-          ) : (
-            <NoPushScreen active />
-          )}
-        </motion.div>
-      </AnimatePresence>
+          </AnimatePresence>
+        </div>
+      </motion.div>
       <AnimatePresence>
         {push && (
           <motion.div key="push" className="absolute left-3 right-3 top-[24px] z-10" initial={{ y: -110, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -110, opacity: 0 }} transition={{ duration: 0.3, ease: EASE }}>

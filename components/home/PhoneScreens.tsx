@@ -12,8 +12,8 @@ const won = (n: number) => n.toLocaleString('ko-KR')
 
 const LOGO = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso.png'
 
-/** 혜소 모바일 내비바 축소판(로고 + 햄버거). 폰 화면 맨 위에 얹는다 */
-function MiniNav() {
+/** 혜소 모바일 내비바 축소판(로고 + 햄버거). PhoneStage 가 화면 위에 고정으로 얹는다(화면 전환 때 움직이지 않음) */
+export function MiniNav() {
   return (
     <div className="h-[44px] shrink-0 flex items-center justify-between px-5">
       <Image src={LOGO} alt="" width={720} height={264} className="h-[18px] w-auto" />
@@ -27,7 +27,6 @@ export function MatchScreen({ active }: { active: boolean }) {
   const ours = 450000, bonus = Math.round((500000 - ours) * 1.2)
   return (
     <div className="h-full flex flex-col bg-white">
-      <MiniNav />
       <div className="px-5 pt-6">
         <p className="text-[22px] font-semibold tracking-[-0.02em] leading-[1.3] text-[#191f28]">혜소가 더 드릴게요</p>
         <p className="mt-1.5 text-[15px] font-medium text-[#ff5c8a]">차액의 120% 더 드려요</p>
@@ -65,14 +64,12 @@ export function NoPushScreen({ active }: { active: boolean }) {
   const reduce = useReducedMotion()
   return (
     <div className="h-full flex flex-col bg-white">
-      <MiniNav />
       <div className="px-5 pt-6">
         <p className="text-[22px] font-semibold tracking-[-0.02em] leading-[1.3] text-[#191f28]">번호만 남겨 주세요</p>
         <p className="mt-1.5 text-[15px] font-medium text-[#ff5c8a]">다른 상품은 권하지 않아요</p>
         <p className="mt-7 text-[12px] text-[#8b95a1]">휴대폰 번호</p>
         <div className="mt-2 h-14 rounded-2xl bg-[#f2f4f6] px-4 flex items-center text-[16px] tabular-nums text-[#191f28]">
-          010-1234-
-          <motion.span className="inline-block w-[2px] h-[20px] bg-[#ff8fab] ml-[1px]" animate={{ opacity: reduce ? 1 : [1, 0, 1] }} transition={{ repeat: Infinity, duration: 1 }} />
+          <motion.span className="inline-block w-[2px] h-[20px] bg-[#ff8fab]" animate={{ opacity: reduce ? 1 : [1, 0, 1] }} transition={{ repeat: Infinity, duration: 1 }} />
         </div>
       </div>
       <div className="mt-auto px-5 pb-7">
