@@ -55,7 +55,7 @@ export function CashPushScreen({ active }: { active: boolean }) {
   return (
     <div className="h-full relative bg-white overflow-hidden">
       {/* 뒤에 깔린 앱 홈(우리 메인 히어로 축소판) */}
-      <div className="absolute inset-0 pt-[44px] blur-[7px] opacity-70 scale-[1.03]" aria-hidden>
+      <div className="absolute inset-0 pt-[14px] blur-[7px] opacity-70 scale-[1.03]" aria-hidden>
         <div className="h-[44px] flex items-center justify-between px-4">
           <span className="flex items-center gap-1.5"><Image src={MARK} alt="" width={20} height={20} className="w-5 h-5" /><span className="text-[14px] font-bold text-[#191f28]">혜소</span></span>
           <Menu className="w-5 h-5 text-[#b0b8c1]" />
@@ -70,7 +70,7 @@ export function CashPushScreen({ active }: { active: boolean }) {
       <div className="absolute inset-0 bg-white/35" aria-hidden />
       {/* 푸시 배너 */}
       <motion.div
-        className="absolute left-3 right-3 top-[52px] rounded-[22px] bg-white/95 backdrop-blur-md shadow-[0_12px_32px_rgba(25,31,40,0.18)] px-3.5 py-3"
+        className="absolute left-3 right-3 top-[24px] rounded-[22px] bg-white/95 backdrop-blur-md shadow-[0_12px_32px_rgba(25,31,40,0.18)] px-3.5 py-3"
         initial={{ y: reduce ? 0 : -90, opacity: reduce ? 1 : 0 }}
         animate={{ y: show ? 0 : -90, opacity: show ? 1 : 0 }}
         transition={{ delay: 0.35, duration: 0.55, ease: EASE }}

@@ -37,7 +37,7 @@ export default function Promises() {
               ))}
             </ol>
           </div>
-          <div className="relative flex justify-center" style={{ height: PHONE_H }}>
+          <div className="relative flex justify-center [--phone-scale:1.22]" style={{ height: PHONE_H * 1.22 }}>
             <AnimatePresence mode="wait">
               {(() => { const V = VISUALS[active]; return (
                 <motion.div key={active} initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -24 }} transition={{ duration: 0.45, ease: EASE }}>
@@ -63,7 +63,7 @@ export default function Promises() {
                 <p className="text-[12px] font-semibold text-[#ff5c8a] tabular-nums">0{mActive + 1}</p>
                 <h3 className="mt-2 text-[22px] font-semibold tracking-[-0.02em] leading-[1.3] text-[#191f28] whitespace-pre-line">{p.title}</h3>
                 <p className="mt-3 text-[14px] leading-relaxed text-[#6b7684]">{p.desc}</p>
-                <div className="mt-5 flex justify-center [--phone-scale:0.6] sm:[--phone-scale:0.7]" style={{ height: PHONE_H * 0.6 }}><PhoneFrame><V active /></PhoneFrame></div>
+                <div className="mt-5 flex justify-center [--phone-scale:0.72] sm:[--phone-scale:0.8]" style={{ height: PHONE_H * 0.72 }}><PhoneFrame><V active /></PhoneFrame></div>
               </motion.div>
             ) })()}
           </AnimatePresence>
