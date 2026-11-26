@@ -1,4 +1,4 @@
-import { PROMISES } from '@/lib/content/promise'
+import { PROMISE_STORY as PROMISES } from '@/lib/content/promise'
 
 // Promises 의 정적 버전(모션 없음). LazyMount 의 fallback 으로 서버에서 그려져 SEO·no-JS 에서도 읽힌다.
 export default function PromisesStatic() {

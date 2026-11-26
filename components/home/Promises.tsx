@@ -2,14 +2,13 @@
 
 import { useRef, useState, type RefObject } from 'react'
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'framer-motion'
-import { PROMISES } from '@/lib/content/promise'
+import { PROMISE_STORY as PROMISES } from '@/lib/content/promise'
 import PhoneFrame, { PHONE_H } from './PhoneFrame'
-import { MatchScreen, CashPushScreen, NoPushScreen } from './PhoneScreens'
+import { MatchScreen, NoPushScreen, PushBanner } from './PhoneScreens'
 import { EASE } from './motion'
 
-// 4.2 세 가지 약속 — 왼쪽 제목, 오른쪽 스마트폰 목업의 화면이 스크롤에 따라 교체(땅요식). 모바일은 한 화면에서 단계 교체.
+// 4.2 세 가지 약속(권유 없음 → 120% → 당일 현금) — 왼쪽 제목, 오른쪽 스마트폰 목업의 화면이 스크롤에 따라 교체(땅요식).
 
-const VISUALS = [MatchScreen, CashPushScreen, NoPushScreen]
 
 const STEPS = 3
 const HYSTERESIS = 0.1 / STEPS // 한 단계 길이의 10%. 경계에서 손가락이 떨려도 단계가 왔다 갔다 하지 않게
@@ -44,14 +43,33 @@ const textVariants = {
   exit: (dir: number) => ({ opacity: 0, y: dir > 0 ? -10 : 10 }),
 }
 
+/**
+ * 폰 화면(순서: 권유 없음 → 120% 보상 → 당일 현금).
+ * 0→1 은 보상 화면이 밀려 들어오고(내릴 땐 아래에서, 올릴 땐 위에서),
+ * 1→2 는 화면을 바꾸지 않고 보상 화면 위에 블러를 깔고 입금 푸시만 위에서 내려온다.
+ */
 function PhoneStage({ index, dir }: { index: number; dir: number }) {
-  const V = VISUALS[index]
+  const base = index === 0 ? 'form' : 'match'
+  const push = index === 2
   return (
     <PhoneFrame>
       <AnimatePresence initial={false} custom={dir}>
-        <motion.div key={index} custom={dir} variants={screenVariants} className="absolute inset-0 bg-white" initial="enter" animate="center" exit="exit" transition={{ duration: 0.5, ease: EASE }}>
-          <V active />
+        <motion.div key={base} custom={dir} variants={screenVariants} className="absolute inset-0 bg-white" initial="enter" animate="center" exit="exit" transition={{ duration: 0.5, ease: EASE }}>
+          {base === 'match' ? (
+            <motion.div className="h-full" animate={{ filter: push ? 'blur(7px)' : 'blur(0px)', scale: push ? 1.03 : 1, opacity: push ? 0.7 : 1 }} transition={{ duration: 0.45, ease: EASE }}>
+              <MatchScreen active />
+            </motion.div>
+          ) : (
+            <NoPushScreen active />
+          )}
         </motion.div>
+      </AnimatePresence>
+      <AnimatePresence>
+        {push && (
+          <motion.div key="push" className="absolute left-3 right-3 top-[24px] z-10" initial={{ y: -110, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -110, opacity: 0 }} transition={{ delay: 0.15, duration: 0.5, ease: EASE }}>
+            <PushBanner />
+          </motion.div>
+        )}
       </AnimatePresence>
     </PhoneFrame>
   )

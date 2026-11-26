@@ -22,6 +22,9 @@ export const PROMISES = [
   },
 ] as const
 
+/** 약속 섹션(폰 목업)에서 보여주는 순서: 권유 없음 → 120% 보상 → 당일 현금. 히어로 칩은 PROMISES 원래 순서 */
+export const PROMISE_STORY = [PROMISES[2], PROMISES[0], PROMISES[1]] as const
+
 /** 120% 보상 규정 전문(아코디언). 랜딩 "꼭 알아두세요"와 동일 출처 */
 export const MATCH_TERMS = {
   apply: [
