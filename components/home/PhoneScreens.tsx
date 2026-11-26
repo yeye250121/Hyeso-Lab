@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { motion, useReducedMotion } from 'framer-motion'
-import { Check, ChevronLeft, Paperclip, Menu } from 'lucide-react'
+import { Check, Paperclip } from 'lucide-react'
 import CountUp from './CountUp'
 import { EASE } from './motion'
 
@@ -12,12 +12,14 @@ const MARK = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/
 const ICON = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/icons'
 const won = (n: number) => n.toLocaleString('ko-KR')
 
-function AppBar({ title, back = true }: { title: string; back?: boolean }) {
+const LOGO = 'https://urxbdqmrsfzmztkacfiv.supabase.co/storage/v1/object/public/HYESO-LAB/logos/hyeso.png'
+
+/** 혜소 모바일 내비바 축소판(로고 + 햄버거). 폰 화면 맨 위에 얹는다 */
+function MiniNav() {
   return (
-    <div className="h-[44px] flex items-center px-3 text-[15px] font-semibold text-[#191f28]">
-      {back ? <ChevronLeft className="w-5 h-5 text-[#333d4b]" /> : <span className="w-5" />}
-      <span className="flex-1 text-center">{title}</span>
-      <span className="w-5" />
+    <div className="h-[44px] shrink-0 flex items-center justify-between px-5">
+      <Image src={LOGO} alt="" width={720} height={264} className="h-[18px] w-auto" />
+      <svg viewBox="0 0 24 24" className="w-[22px] h-[22px]" aria-hidden><path fill="#B0B8C1" d="M4.118 6.2h16a1.2 1.2 0 100-2.4h-16a1.2 1.2 0 100 2.4m16 4.6h-16a1.2 1.2 0 100 2.4h16a1.2 1.2 0 100-2.4m0 7h-16a1.2 1.2 0 100 2.4h16a1.2 1.2 0 100-2.4" fillRule="evenodd"/></svg>
     </div>
   )
 }
@@ -27,7 +29,8 @@ export function MatchScreen({ active }: { active: boolean }) {
   const ours = 450000, bonus = Math.round((500000 - ours) * 1.2)
   return (
     <div className="h-full flex flex-col bg-white">
-      <div className="px-5 pt-10">
+      <MiniNav />
+      <div className="px-5 pt-6">
         <p className="text-[22px] font-semibold tracking-[-0.02em] leading-[1.3] text-[#191f28]">혜소가 더 드릴게요</p>
         <p className="mt-1.5 text-[15px] font-medium text-[#ff5c8a]">차액의 120% 더 드려요</p>
         <div className="mt-7 rounded-2xl bg-[#f9fafb] px-5 py-5">
@@ -52,10 +55,7 @@ export function CashPushScreen({ active }: { active: boolean }) {
     <div className="h-full relative bg-white overflow-hidden">
       {/* 뒤에 깔린 앱 홈(우리 메인 히어로 축소판) */}
       <div className="absolute inset-0 pt-[14px] blur-[7px] opacity-70 scale-[1.03]" aria-hidden>
-        <div className="h-[44px] flex items-center justify-between px-4">
-          <span className="flex items-center gap-1.5"><Image src={MARK} alt="" width={20} height={20} className="w-5 h-5" /><span className="text-[14px] font-bold text-[#191f28]">혜소</span></span>
-          <Menu className="w-5 h-5 text-[#b0b8c1]" />
-        </div>
+        <MiniNav />
         <div className="px-6 pt-10 text-center">
           <p className="text-[22px] font-semibold tracking-[-0.02em] leading-[1.3] text-[#191f28]">놓치고 있던 혜택,<br />대신 알아볼게요</p>
           <p className="mt-3 text-[12px] text-[#6b7684]">혜택연구소에서 똑똑하게 알아봐요</p>
@@ -92,7 +92,7 @@ export function NoPushScreen({ active }: { active: boolean }) {
   ]
   return (
     <div className="h-full flex flex-col bg-white">
-      <AppBar title="상담 신청" back={false} />
+      <MiniNav />
       <div className="px-5 pt-2">
         <p className="text-[18px] font-semibold tracking-[-0.02em] leading-[1.3] text-[#191f28]">번호만 남겨 주세요<br /><span className="text-[#ff5c8a]">이름은 묻지 않아요</span></p>
         <p className="mt-4 text-[12px] font-medium text-[#6b7684]">어떤 혜택을 알아볼까요?</p>
