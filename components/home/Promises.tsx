@@ -58,11 +58,11 @@ function PhoneStage({ index, dir }: { index: number; dir: number }) {
   return (
     <PhoneFrame>
       {/* 내비바는 고정, 그 아래 내용만 바뀐다. 푸시 단계에선 내비바까지 함께 흐려진다 */}
-      <motion.div className="absolute inset-0 flex flex-col" animate={{ filter: push ? 'blur(7px)' : 'blur(0px)', opacity: push ? 0.7 : 1 }} transition={{ duration: 0.45, ease: EASE }}>
+      <motion.div className="absolute inset-0 flex flex-col" animate={{ filter: push ? 'blur(7px)' : 'blur(0px)', opacity: push ? 0.7 : 1 }} transition={{ duration: 0.9, ease: EASE }}>
         <MiniNav />
         <div className="relative flex-1 overflow-hidden">
           <AnimatePresence initial={false} custom={dir}>
-            <motion.div key={base} custom={dir} variants={screenVariants} className="absolute inset-0 bg-white" initial="enter" animate="center" exit="exit" transition={{ duration: 0.5, ease: EASE }}>
+            <motion.div key={base} custom={dir} variants={screenVariants} className="absolute inset-0 bg-white" initial="enter" animate="center" exit="exit" transition={{ duration: 1, ease: EASE }}>
               {base === 'match' ? <MatchScreen active /> : <NoPushScreen active />}
             </motion.div>
           </AnimatePresence>
@@ -70,7 +70,7 @@ function PhoneStage({ index, dir }: { index: number; dir: number }) {
       </motion.div>
       <AnimatePresence>
         {push && (
-          <motion.div key="push" className="absolute left-3 right-3 top-[24px] z-10" initial={{ y: -110, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -110, opacity: 0 }} transition={{ duration: 0.3, ease: EASE }}>
+          <motion.div key="push" className="absolute left-3 right-3 top-[24px] z-10" initial={{ y: -110, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -110, opacity: 0 }} transition={{ duration: 0.6, ease: EASE }}>
             <PushBanner />
           </motion.div>
         )}
@@ -93,7 +93,7 @@ export default function Promises() {
           <div>
             <ol className="space-y-8">
               {PROMISES.map((p, i) => (
-                <li key={p.key} className={`transition-opacity duration-500 ${active === i ? 'opacity-100' : 'opacity-25'}`}>
+                <li key={p.key} className={`transition-opacity duration-1000 ${active === i ? 'opacity-100' : 'opacity-25'}`}>
                   <p className="text-[12px] font-semibold text-[#ff5c8a] tabular-nums">0{i + 1}</p>
                   <h3 className="mt-2 text-[28px] font-semibold tracking-[-0.02em] leading-[1.25] text-[#191f28] whitespace-pre-line">{p.title}</h3>
                   {active === i && <p className="mt-3 text-[15px] leading-relaxed text-[#6b7684] max-w-[36ch]">{p.desc}</p>}
@@ -119,7 +119,7 @@ export default function Promises() {
           <div className="relative min-h-[150px]">
             <AnimatePresence mode="wait" custom={mDir}>
               {(() => { const p = PROMISES[mActive]; return (
-                <motion.div key={mActive} custom={mDir} variants={textVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3, ease: EASE }}>
+                <motion.div key={mActive} custom={mDir} variants={textVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.6, ease: EASE }}>
                   <p className="text-[12px] font-semibold text-[#ff5c8a] tabular-nums">0{mActive + 1}</p>
                   <h3 className="mt-2 text-[22px] font-semibold tracking-[-0.02em] leading-[1.3] text-[#191f28] whitespace-pre-line">{p.title}</h3>
                   <p className="mt-3 text-[14px] leading-relaxed text-[#6b7684]">{p.desc}</p>
