@@ -37,7 +37,7 @@ export default function Promises() {
               ))}
             </ol>
           </div>
-          <div className="relative flex justify-center" style={{ height: PHONE_H }}>
+          <div className="relative flex justify-center mt-24" style={{ height: PHONE_H }}>
             <AnimatePresence mode="wait">
               {(() => { const V = VISUALS[active]; return (
                 <motion.div key={active} initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -24 }} transition={{ duration: 0.45, ease: EASE }}>
